@@ -16,6 +16,8 @@ import java.util.List;
 @Builder
 public class UserDto {
     @NotBlank
+    private String code;
+    @NotBlank
     private String firstName;
     @NotBlank
     private String lastName;

@@ -1,32 +1,32 @@
-package pe.sag.routing.core.model;
+package pe.sag.routing.shared.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.index.Indexed;
-import org.springframework.data.mongodb.core.mapping.Document;
-import pe.sag.routing.shared.util.enums.OrderStatus;
-
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
-@Document
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Order {
-    @Id
-    private String _id;
-    @Indexed(unique = true)
+public class OrderDto {
+    @NotBlank
     private String code;
+    @NotBlank
     private double demandGLP;
+    @NotBlank
     private int x;
+    @NotBlank
     private int y;
+    @NotBlank
     private LocalDateTime registrationDate;
+    @NotBlank
     private LocalDateTime deadlineDate;
     private LocalDateTime deliveryDate;
-    private OrderStatus status;
-    private boolean active = true;
+    @NotBlank
+    private String status;
 }

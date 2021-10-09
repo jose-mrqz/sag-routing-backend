@@ -7,9 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.TruckModel;
 import pe.sag.routing.core.service.TruckModelService;
+import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.shared.dto.TruckModelDto;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/truckModel")
@@ -30,22 +29,7 @@ public class TruckModelController {
 
     @GetMapping
     public ResponseEntity<?> list() {
-        List<TruckModel> models = truckModelService.list();
-        RestResponse response = RestResponse.builder()
-                .status(HttpStatus.OK)
-                .payload(models)
-                .build();
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
-    }
-
-    @GetMapping(path = "/dto")
-    public ResponseEntity<?> listDto() {
-        RestResponse response = RestResponse.builder()
-                .status(HttpStatus.OK)
-                .payload(truckModelService.listDto())
-                .build();
+        RestResponse response = new RestResponse(HttpStatus.OK, truckModelService.list());
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

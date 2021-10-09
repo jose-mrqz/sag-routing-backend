@@ -18,7 +18,7 @@ public class Depot {
     private String _id;
     @Indexed(unique = true)
     private String name;
-    private double capacity;
-    private double currentGlp;
+    private double capacityGLP;
+    private double currentGLP;
     private boolean active = true;
 }

@@ -20,11 +20,7 @@ public class TruckModelService {
         return truckModelRepository.save(truckModel);
     }
 
-    public List<TruckModel> list() {
-        return truckModelRepository.findAll();
-    }
-
-    public List<TruckModelDto> listDto() {
+    public List<TruckModelDto> list() {
         return truckModelRepository.findAll().stream().map(TruckModelParser::toDto).collect(Collectors.toList());
     }
 }

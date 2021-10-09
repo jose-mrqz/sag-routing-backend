@@ -47,4 +47,13 @@ public class UserController {
                 .status(response.getStatus())
                 .body(response);
     }
+
+    @GetMapping("/{code}")
+    protected ResponseEntity<?> getByCode(@PathVariable String code) throws IllegalAccessException {
+        User user = userService.findByCode(code);
+        RestResponse response = new RestResponse(HttpStatus.OK, UserParser.toDto(user));
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
 }

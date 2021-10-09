@@ -38,4 +38,8 @@ public class UserService {
     public User findByEmail(String email) throws IllegalAccessException {
         return userRepository.findByEmail(email).orElseThrow(IllegalAccessException::new);
     }
+
+    public User findByCode(String code) throws IllegalAccessException {
+        return userRepository.findByCode(code).orElseThrow(IllegalAccessException::new);
+    }
 }

@@ -20,6 +20,7 @@ public class User {
     @Id
     private String _id;
     @Indexed(unique = true)
+    private String code;
     private String firstName;
     private String lastName;
     private String email;
