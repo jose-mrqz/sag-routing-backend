@@ -20,8 +20,8 @@ public class OrderController {
     public ResponseEntity<?> register(@RequestBody OrderDto orderDto) {
         Order order = orderService.register(orderDto);
         RestResponse response;
-        if (order == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo tipo.");
-        else response = new RestResponse(HttpStatus.OK, "Nuevo tipo agregado correctamente.", order);
+        if (order == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo pedido.");
+        else response = new RestResponse(HttpStatus.OK, "Nuevo pedido agregado correctamente.", order);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

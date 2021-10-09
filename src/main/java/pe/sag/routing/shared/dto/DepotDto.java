@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import pe.sag.routing.core.model.TruckModel;
 
 import javax.validation.constraints.NotBlank;
 
@@ -11,17 +14,11 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TruckModelDto {
+public class DepotDto {
     @NotBlank
-    private String code;
+    private String name;
     @NotBlank
-    private double capacity;
+    private double capacityGLP;
     @NotBlank
-    private double tareWeight;
-    @NotBlank
-    private double loadWeight;
-    @NotBlank
-    private double grossWeight;
-    @NotBlank
-    private double fuelCapacity;
+    private double currentGLP;
 }

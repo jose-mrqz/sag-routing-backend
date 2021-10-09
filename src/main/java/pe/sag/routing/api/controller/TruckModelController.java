@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.TruckModel;
 import pe.sag.routing.core.service.TruckModelService;
-import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.shared.dto.TruckModelDto;
 
 @RestController
@@ -20,8 +19,8 @@ public class TruckModelController {
     public ResponseEntity<?> register(@RequestBody TruckModelDto truckModelDto) {
         TruckModel truckModel = truckModelService.register(truckModelDto);
         RestResponse response;
-        if (truckModel == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo tipo.");
-        else response = new RestResponse(HttpStatus.OK, "Nuevo tipo agregado correctamente.", truckModelDto);
+        if (truckModel == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo tipo de camion.");
+        else response = new RestResponse(HttpStatus.OK, "Nuevo tipo de camion agregado correctamente.", truckModelDto);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

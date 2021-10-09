@@ -20,7 +20,7 @@ public class TruckModel {
     private String _id;
     @Indexed(unique = true)
     private String code;
-    private double capacityGLP;
+    private double capacity;
     private double tareWeight;
     private double loadWeight;
     private double grossWeight;
