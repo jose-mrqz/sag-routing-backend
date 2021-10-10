@@ -10,11 +10,13 @@ import java.util.stream.Collectors;
 public class UserParser {
     public static User fromDto(UserDto userDto) {
         User user = User.builder()
+                .code(userDto.getCode())
                 .firstName(userDto.getFirstName())
                 .lastName(userDto.getLastName())
                 .email(userDto.getEmail())
                 .password(userDto.getPassword())
                 .roles(userDto.getRoles().stream().map(Role::valueOf).collect(Collectors.toList()))
+                .active(true)
                 .build();
         return user;
     }

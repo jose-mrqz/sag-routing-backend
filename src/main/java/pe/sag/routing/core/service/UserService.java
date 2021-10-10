@@ -26,11 +26,13 @@ public class UserService {
 
     public User createAdmin() {
         User admin = User.builder()
+                .code("US00")
                 .firstName("admin")
                 .lastName("test")
                 .email("test@test.com")
                 .password("test")
                 .roles(List.of(Role.ADMIN, Role.MANAGER))
+                .active(true)
                 .build();
         return userRepository.save(admin);
     }

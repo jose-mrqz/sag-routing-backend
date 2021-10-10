@@ -23,7 +23,6 @@ public class UserDto {
     private String lastName;
     @NotBlank @Email
     private String email;
-    @NotBlank
     private String password;
     private List<String> roles;
 }
