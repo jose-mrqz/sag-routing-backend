@@ -1,0 +1,241 @@
+package pe.sag.routing.algorithm;
+
+import lombok.*;
+
+import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
+public class Colony extends Graph {
+    private static final Double INIT_PHERO = 1.0;
+    private static final Double EVAP_RATE = 0.85;
+    private static final Double ALPHA = 3.0;
+    private static final Double BETA = 5.0;
+    private static final Double Q = 1.0;
+    private static final Double DECAY_RATE = 0.95;
+    private static final int INF = Integer.MAX_VALUE;
+    private static final int ITERATOR = 1500;
+    private Double threshold;
+    private Double[][] pheromoneMatrix;
+    private Double[][] ethaMatrix;
+    private Random rand;
+    private int totalOrders;
+    private Order[] allOrders;
+
+    public double bestSolutionQuality;
+
+    public Colony(Order[] orders, Truck[] trucks, Double smallestOrder,
+                  LocalDateTime startingDate, LocalDateTime lastOrder) {
+        super(trucks);
+        this.rand = new Random();
+        this.allOrders = orders;
+        this.totalOrders = orders.length;
+    }
+
+    private void resetColony() {
+        this.threshold = 0.5;
+        this.pheromoneMatrix = new Double[nNode][nNode];
+        this.ethaMatrix = new Double[nNode][nNode];
+        for (int i = 0; i < nNode; i++) {
+            for (int j = 0; j < nNode; j++) {
+                pheromoneMatrix[i][j] = 0.0;
+                ethaMatrix[i][j] = 0.0;
+            }
+        }
+        for(int i = 0; i < nNode; i++) {
+            for (int j = i+1; j < nNode; j++) {
+                pheromoneMatrix[i][j] =  INIT_PHERO;
+                pheromoneMatrix[j][i] = INIT_PHERO;
+                ethaMatrix[i][j] = Q / (distanceMatrix[i][j]+1);
+                if (nodes[j] instanceof Order)
+                    ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours();
+                ethaMatrix[j][i] = Q / (distanceMatrix[j][i]+1);
+                if (nodes[i] instanceof Order)
+                    ethaMatrix[j][i] += Q / Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours();
+            }
+        }
+
+    }
+
+    public Double calculateProbability(int nowNodeIdx, int nextNodeIdx) {
+        double ETAij = Math.pow(ethaMatrix[nowNodeIdx][nextNodeIdx], BETA);
+        double TAUij = Math.pow(pheromoneMatrix[nowNodeIdx][nextNodeIdx], ALPHA);
+        return ETAij * TAUij;
+    }
+
+    public void updateThreshold() {
+        this.threshold *= DECAY_RATE;
+    }
+
+    public int updatePheroMatrix(int totalTourDistance) {
+        for (int i = 0; i < nTruck; i++) {
+            int tourDistance = 0;
+            tourDistance = calculateTourDistance(trucks[i].tour, tourDistance);
+            totalTourDistance += tourDistance;
+            for (int j = 0; j < trucks[i].tour.size(); j++) {
+                if (j+1 != trucks[i].tour.size()) {
+                    int currIdx = trucks[i].tour.get(j).idx;
+                    int nextIdx = trucks[i].tour.get(j+1).idx;
+                    pheromoneMatrix[currIdx][nextIdx] =
+                            EVAP_RATE * pheromoneMatrix[currIdx][nextIdx] + Q / tourDistance;
+                }
+            }
+        }
+        return totalTourDistance;
+    }
+
+    public void resetStep() {
+        for (int i = 0; i < nTruck; i++)
+            trucks[i].reset();
+        for (int i = 0; i < nNode; i++)
+            nodes[i].reset();
+    }
+
+    public void run() throws IOException, InterruptedException {
+        double bestSolution = Double.MIN_VALUE;
+        for(int i = 0; i < ITERATOR; i++) {
+            solve();
+            int totalTourDistance = 0;
+            totalTourDistance = updatePheroMatrix(totalTourDistance);
+            int attendedCustomers = 0;
+            double totalGLP = 0.0;
+            double totalConsumption = 0.0;
+            for (Truck t: trucks) {
+                attendedCustomers += t.attendedCustomers;
+                totalGLP += t.totalDelivered;
+                totalConsumption += t.totalFuelConsumption;
+            }
+            double quality = (totalGLP * attendedCustomers) / totalConsumption;
+//            double quality = attendedCustomers;
+            if (quality > bestSolution) {
+                bestSolution = quality;
+                //save best solution tours
+//                showEachTour();
+            }
+            updateThreshold();
+            resetStep();
+        }
+        this.bestSolutionQuality = bestSolution;
+    }
+
+    public void runBatched() {
+        int batchSize = 100;
+        int nBatches = (totalOrders/batchSize) + (totalOrders/batchSize >= 1 ? 1 : 0);
+        int remaining = totalOrders;
+        ArrayList<ArrayList<Node>> savedTours = new ArrayList<>();
+        for (int i = 0; i < nTruck; i++)
+            savedTours.add(new ArrayList<>());
+
+        for (int i = 0; i < nBatches; i++) {
+            int kk = 0;
+            int setSize;
+            if (remaining >= batchSize) {
+                setSize = batchSize;
+                remaining -= batchSize;
+            }
+            else setSize = remaining;
+
+            Order[] workingSet = new Order[setSize];
+            for (int k = 0; k < setSize && kk < totalOrders; k++, kk++) {
+                workingSet[k] = allOrders[kk];
+            }
+            resetGraph(workingSet, lastOrder);
+            resetColony();
+            //run();
+            // save partial results
+            for (int x = 0; x < nTruck; x++) {
+                ArrayList<Node> tour = savedTours.get(x);
+                tour.addAll(trucks[x].tour);
+                savedTours.set(x, tour);
+            }
+        }
+
+        for (int i = 0; i < nTruck; i++)
+            trucks[i].tour = savedTours.get(i);
+    }
+
+    public double getRandom() {
+        return ThreadLocalRandom.current().nextDouble(0.0, 1.0);
+    }
+
+    public void solve()  {
+        int truckIdx = 0;
+        while (!isAllVisited()) {
+            if (trucks[truckIdx].tour.isEmpty()) // add main depot as starting point
+                trucks[truckIdx].addNode(nodes[0], distanceMatrix);
+            ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
+            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
+                for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
+                    if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
+                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix))
+                        feasibleEdges.add(new Pair<>(trucks[truckIdx].nowIdx, nodeIdx));
+                }
+                if (feasibleEdges.isEmpty()) {
+                    if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix); //return to main depot
+                    else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(30); // wait at main depot
+                }
+            }
+
+            if (feasibleEdges.isEmpty()) {
+                if (truckIdx + 1 < nTruck) { // check if there are other available trucks
+                    if (trucks[truckIdx].nowIdx != 0) // current truck didn't returned to main plaint
+                        trucks[truckIdx].addNode(nodes[0], distanceMatrix);
+                    truckIdx += 1;
+                } else {
+                    break; // collapse
+                };
+            } else {
+                int nextNodeIdx;
+                if (getRandom() < threshold) {
+                    // choose randomly next node to prevent local optimization
+                    nextNodeIdx = feasibleEdges.get(Math.abs(rand.nextInt()) % feasibleEdges.size()).second;
+                } else {                     
+                    // follow pheromone trail and heuristic to choose next node
+                    ArrayList<Double> ups = new ArrayList<>();
+                    ArrayList<Double> probs = new ArrayList<>();
+                    ArrayList<Double> cumulativeSum = new ArrayList<>();
+                    double sum = 0.0;
+                    for (Pair<Integer, Integer> feasibleEdge : feasibleEdges){
+                        double up = calculateProbability(feasibleEdge.first, feasibleEdge.second);
+                        sum += up;
+                        ups.add(up);
+                    }
+                    for (Double up : ups){
+                        probs.add(up / sum);
+                    }
+                    cumulativeSum.add(probs.get(0));
+                    for (int i = 0; i < probs.size()-1; i++) {
+                        probs.set(i+1, probs.get(i+1) + probs.get(i));
+                        cumulativeSum.add(probs.get(i+1));
+                    }
+                    int bestIdx = 0;
+                    double bestV = INF;
+                    double r = getRandom();
+                    for (int x = 0; x < cumulativeSum.size(); x++) {
+                        if (r <= cumulativeSum.get(x)) {
+                            double candidateV = cumulativeSum.get(x);
+                            if (candidateV < bestV) {
+                                bestIdx = x;
+                                bestV = candidateV;
+                            }
+                        }
+                    }
+                    if ((int)bestV == INF)
+                        break;
+                    nextNodeIdx = feasibleEdges.get(bestIdx).second;
+                }
+                trucks[truckIdx].addNode(nodes[nextNodeIdx], distanceMatrix);
+            }
+        }
+        if (trucks[truckIdx].nowIdx != 0) {
+            // in case the vehicle did not return back to the depot
+            trucks[truckIdx].addNode(nodes[0], distanceMatrix);
+        }
+   }
+}
