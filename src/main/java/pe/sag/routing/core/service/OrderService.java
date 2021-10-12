@@ -24,7 +24,10 @@ public class OrderService {
 
         //asign code
         Order lastOrder = findFirstByOrderByCodeDesc();
-        order.setCode(lastOrder.getCode()+1);
+        int code = 0;
+        if (lastOrder == null) code++;
+        else code = lastOrder.getCode()+1;
+        order.setCode(code);
 
         order.setStatus(OrderStatus.PENDING);
         order.setDeliveryDate(null);
@@ -35,8 +38,8 @@ public class OrderService {
         return orderRepository.findAll(Sort.by(Sort.Direction.ASC,"code")).stream().map(OrderParser::toDto).collect(Collectors.toList());
     }
 
-    public List<OrderDto> listPendings() {
-        return orderRepository.findByStatus(OrderStatus.PENDING).stream().map(OrderParser::toDto).collect(Collectors.toList());
+    public List<Order> listPendings() {
+        return orderRepository.findByStatus(OrderStatus.PENDING);
     }
 
     public Order findByCode(String code) throws IllegalAccessException {
@@ -48,6 +51,7 @@ public class OrderService {
     }
 
     public Order findFirstByOrderByCodeDesc() throws IllegalAccessException {
-        return orderRepository.findFirstByOrderByCodeDesc().orElseThrow(IllegalAccessException::new);
+        Optional<Order> lastOrder = orderRepository.findFirstByOrderByCodeDesc();
+        return lastOrder.orElse(null);
     }
 }

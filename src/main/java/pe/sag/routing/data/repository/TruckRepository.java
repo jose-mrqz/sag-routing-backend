@@ -6,5 +6,5 @@ import pe.sag.routing.core.model.Truck;
 import java.util.List;
 
 public interface TruckRepository extends MongoRepository<Truck,String> {
-    List<Truck> findByAvailable(boolean available);
+    List<Truck> findByAvailableOrderByModelDesc(boolean available);
 }

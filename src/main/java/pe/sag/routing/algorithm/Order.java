@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class Order extends Node {
+    String _id;
     double demand;
     double totalDemand;
     LocalDateTime twOpen;
@@ -19,9 +20,10 @@ public class Order extends Node {
     LocalDateTime deliveryTime;
     boolean visited = false;
 
-    public Order(int x, int y, int idx, double demand,
+    public Order(String _id, int x, int y, int idx, double demand,
                  LocalDateTime twOpen, LocalDateTime twClose) {
         super(x, y, idx);
+        this._id = _id;
         this.twOpen = twOpen;
         this.twClose = twClose;
         this.demand = demand;

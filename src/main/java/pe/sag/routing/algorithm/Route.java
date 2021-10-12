@@ -7,15 +7,17 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Queue;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Route {
-    ArrayList<Node> tour;
-    Queue<LocalDateTime> times;
+    String truckId;
+    ArrayList<Node> nodes;
+    ArrayList<LocalDateTime> times;
     int totalTourDistance;
     double totalFuelConsumption;
+    LocalDateTime startDate;
+    LocalDateTime finishDate;
 }
