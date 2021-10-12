@@ -27,11 +27,10 @@ public class Colony extends Graph {
     private Double[][] ethaMatrix;
     private Random rand;
 
-    public List<Route> solutionTrucks = null;
-    public List<Node> solutionNodes = null;
+    public List<Route> solutionRoutes = null;
     public double bestSolutionQuality;
 
-    public Colony(List<Order> orders, List<Truck> trucks, LocalDateTime startingDate) {
+    public Colony(List<Order> orders, List<Truck> trucks) {
         super(trucks, orders);
         this.rand = new Random();
         this.threshold = 0.5;
@@ -110,31 +109,37 @@ public class Colony extends Graph {
     }
 
     private void saveBestSolution() {
-        solutionTrucks = new ArrayList<>();
-        solutionNodes = new ArrayList<>();
+        solutionRoutes = new ArrayList<>();
         for (Truck t : trucks) {
+            ArrayList<Node> tour = new ArrayList<>();
+            for (Node n : t.tour) {
+                if (n instanceof Depot) {
+                    Depot dp = (Depot) n;
+                    Depot d = new Depot(dp.isMain, dp.x, dp.y, dp.idx);
+                    d.remainingGlp = (HashMap<LocalDate, Double>) dp.remainingGlp.clone();
+                    tour.add(d);
+                } else {
+                    Order op = (Order) n;
+                    Order o = new Order(op._id, op.x, op.y, op.idx, op.demand, op.twOpen, op.twClose);
+                    o.visited = op.visited;
+                    o.totalDemand = op.totalDemand;
+                    o.deliveryTime = op.deliveryTime;
+                    tour.add(o);
+                }
+            }
+            ArrayList<LocalDateTime> tourTimes = new ArrayList<>(t.timeRegistry);
+            tourTimes.add(t.finishDate);
             Route route = Route.builder()
-                    .tour(new ArrayList<>(t.tour))
+                    .truckId(t._id)
+                    .nodes(new ArrayList<>(tour))
                     .totalFuelConsumption(t.totalFuelConsumption)
                     .totalTourDistance(calculateTourDistance(t.tour, 0))
                     .totalFuelConsumption(t.totalFuelConsumption)
+                    .times(tourTimes)
+                    .startDate(t.startDate)
+                    .finishDate(t.finishDate)
                     .build();
-            solutionTrucks.add(route);
-        }
-        for (Node n : nodes) {
-            if (n instanceof Depot) {
-                Depot dp = (Depot)n;
-                Depot d = new Depot(dp.isMain, dp.x, dp.y, dp.idx);
-                d.remainingGlp = (HashMap<LocalDate, Double>) dp.remainingGlp.clone();
-                solutionNodes.add(d);
-            } else {
-                Order op = (Order)n;
-                Order o = new Order(op.x, op.y, op.idx, op.demand, op.twOpen, op.twClose);
-                o.visited = op.visited;
-                o.totalDemand = op.totalDemand;
-                o.deliveryTime = op.deliveryTime;
-                solutionNodes.add(o);
-            }
+            solutionRoutes.add(route);
         }
     }
 

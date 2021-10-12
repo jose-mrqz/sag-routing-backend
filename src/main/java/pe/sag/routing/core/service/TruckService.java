@@ -28,10 +28,6 @@ public class TruckService {
     }
 
     public List<Truck> findByAvailable(boolean available) {
-        return truckRepository.findByAvailable(available);
-    }
-
-    public void createPlanner(){
-        Planner planner = new Planner();
+        return truckRepository.findByAvailableOrderByModelDesc(available);
     }
 }
