@@ -2,11 +2,12 @@ package pe.sag.routing.algorithm;
 
 import lombok.*;
 
-import java.io.IOException;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -25,29 +26,20 @@ public class Colony extends Graph {
     private Double[][] pheromoneMatrix;
     private Double[][] ethaMatrix;
     private Random rand;
-    private int totalOrders;
-    private Order[] allOrders;
 
+    public List<Route> solutionTrucks = null;
+    public List<Node> solutionNodes = null;
     public double bestSolutionQuality;
 
-    public Colony(Order[] orders, Truck[] trucks, Double smallestOrder,
-                  LocalDateTime startingDate, LocalDateTime lastOrder) {
-        super(trucks);
+    public Colony(List<Order> orders, List<Truck> trucks, LocalDateTime startingDate) {
+        super(trucks, orders);
         this.rand = new Random();
-        this.allOrders = orders;
-        this.totalOrders = orders.length;
-    }
-
-    private void resetColony() {
         this.threshold = 0.5;
         this.pheromoneMatrix = new Double[nNode][nNode];
         this.ethaMatrix = new Double[nNode][nNode];
-        for (int i = 0; i < nNode; i++) {
-            for (int j = 0; j < nNode; j++) {
-                pheromoneMatrix[i][j] = 0.0;
-                ethaMatrix[i][j] = 0.0;
-            }
-        }
+        this.lastOrder = orders.get(orders.size()-1).twClose;
+
+        // init pheromone/heuristic matrix
         for(int i = 0; i < nNode; i++) {
             for (int j = i+1; j < nNode; j++) {
                 pheromoneMatrix[i][j] =  INIT_PHERO;
@@ -60,7 +52,6 @@ public class Colony extends Graph {
                     ethaMatrix[j][i] += Q / Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours();
             }
         }
-
     }
 
     public Double calculateProbability(int nowNodeIdx, int nextNodeIdx) {
@@ -73,11 +64,9 @@ public class Colony extends Graph {
         this.threshold *= DECAY_RATE;
     }
 
-    public int updatePheroMatrix(int totalTourDistance) {
+    public void updatePheroMatrix() {
         for (int i = 0; i < nTruck; i++) {
-            int tourDistance = 0;
-            tourDistance = calculateTourDistance(trucks[i].tour, tourDistance);
-            totalTourDistance += tourDistance;
+            int tourDistance = calculateTourDistance(trucks[i].tour, 0);
             for (int j = 0; j < trucks[i].tour.size(); j++) {
                 if (j+1 != trucks[i].tour.size()) {
                     int currIdx = trucks[i].tour.get(j).idx;
@@ -87,7 +76,6 @@ public class Colony extends Graph {
                 }
             }
         }
-        return totalTourDistance;
     }
 
     public void resetStep() {
@@ -97,12 +85,11 @@ public class Colony extends Graph {
             nodes[i].reset();
     }
 
-    public void run() throws IOException, InterruptedException {
+    public void run()  {
         double bestSolution = Double.MIN_VALUE;
         for(int i = 0; i < ITERATOR; i++) {
             solve();
-            int totalTourDistance = 0;
-            totalTourDistance = updatePheroMatrix(totalTourDistance);
+            updatePheroMatrix();
             int attendedCustomers = 0;
             double totalGLP = 0.0;
             double totalConsumption = 0.0;
@@ -112,11 +99,9 @@ public class Colony extends Graph {
                 totalConsumption += t.totalFuelConsumption;
             }
             double quality = (totalGLP * attendedCustomers) / totalConsumption;
-//            double quality = attendedCustomers;
             if (quality > bestSolution) {
                 bestSolution = quality;
-                //save best solution tours
-//                showEachTour();
+                saveBestSolution();
             }
             updateThreshold();
             resetStep();
@@ -124,40 +109,33 @@ public class Colony extends Graph {
         this.bestSolutionQuality = bestSolution;
     }
 
-    public void runBatched() {
-        int batchSize = 100;
-        int nBatches = (totalOrders/batchSize) + (totalOrders/batchSize >= 1 ? 1 : 0);
-        int remaining = totalOrders;
-        ArrayList<ArrayList<Node>> savedTours = new ArrayList<>();
-        for (int i = 0; i < nTruck; i++)
-            savedTours.add(new ArrayList<>());
-
-        for (int i = 0; i < nBatches; i++) {
-            int kk = 0;
-            int setSize;
-            if (remaining >= batchSize) {
-                setSize = batchSize;
-                remaining -= batchSize;
-            }
-            else setSize = remaining;
-
-            Order[] workingSet = new Order[setSize];
-            for (int k = 0; k < setSize && kk < totalOrders; k++, kk++) {
-                workingSet[k] = allOrders[kk];
-            }
-            resetGraph(workingSet, lastOrder);
-            resetColony();
-            //run();
-            // save partial results
-            for (int x = 0; x < nTruck; x++) {
-                ArrayList<Node> tour = savedTours.get(x);
-                tour.addAll(trucks[x].tour);
-                savedTours.set(x, tour);
+    private void saveBestSolution() {
+        solutionTrucks = new ArrayList<>();
+        solutionNodes = new ArrayList<>();
+        for (Truck t : trucks) {
+            Route route = Route.builder()
+                    .tour(new ArrayList<>(t.tour))
+                    .totalFuelConsumption(t.totalFuelConsumption)
+                    .totalTourDistance(calculateTourDistance(t.tour, 0))
+                    .totalFuelConsumption(t.totalFuelConsumption)
+                    .build();
+            solutionTrucks.add(route);
+        }
+        for (Node n : nodes) {
+            if (n instanceof Depot) {
+                Depot dp = (Depot)n;
+                Depot d = new Depot(dp.isMain, dp.x, dp.y, dp.idx);
+                d.remainingGlp = (HashMap<LocalDate, Double>) dp.remainingGlp.clone();
+                solutionNodes.add(d);
+            } else {
+                Order op = (Order)n;
+                Order o = new Order(op.x, op.y, op.idx, op.demand, op.twOpen, op.twClose);
+                o.visited = op.visited;
+                o.totalDemand = op.totalDemand;
+                o.deliveryTime = op.deliveryTime;
+                solutionNodes.add(o);
             }
         }
-
-        for (int i = 0; i < nTruck; i++)
-            trucks[i].tour = savedTours.get(i);
     }
 
     public double getRandom() {

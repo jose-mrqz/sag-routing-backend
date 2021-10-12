@@ -14,34 +14,30 @@ public class Truck {
     double capacity;
     int nowIdx;
     double nowLoad;
-    LocalDateTime nowTime;
     double speed;
-    double smallestOrder;
     double fuel;
     double weight;
     double tareWeight;
-    double totalFuelConsumption;
-    ArrayList<Node> tour;
-    String code;
     int attendedCustomers;
+    double totalFuelConsumption;
     double totalDelivered;
+    ArrayList<Node> tour;
     ArrayList<LocalDateTime> arrivalRegistry;
     ArrayList<LocalDateTime> departureRegistry;
-    LocalDateTime currentShift;
+    LocalDateTime nowTime;
+
     private LocalDateTime startingDate;
 
     // general parameters
     private static final Double AVG_SPEED = 50.0;
     private static final Double CONSUMPTION_RATE = 150.0;
     private static final Double MAX_FUEL = 25.0;
-    private static final Double TRUCK_WEIGHT = 1.0;
     private static final Double GLP_WEIGHT = 0.5;
 
-    public Truck(double capacity, double tareWeight, int nowIdx, double smallestOrder, String type, LocalDateTime startingDate) {
+    public Truck(double capacity, double tareWeight, int nowIdx, LocalDateTime startingDate) {
         this.startingDate = startingDate;
         this.capacity = capacity;
         this.nowIdx = nowIdx;
-        this.smallestOrder = smallestOrder;
         nowLoad = capacity;
         nowTime = startingDate;
         speed = AVG_SPEED;
@@ -50,12 +46,10 @@ public class Truck {
         weight = tareWeight + capacity * GLP_WEIGHT;
         tour = new ArrayList<>();
         totalFuelConsumption = 0.0;
-        this.code = "A";
         attendedCustomers = 0;
         totalDelivered = 0.0;
         arrivalRegistry = new ArrayList<>();
         departureRegistry = new ArrayList<>();
-        currentShift = startingDate;
     }
 
     // a* stub
@@ -114,17 +108,17 @@ public class Truck {
     }
 
     public void visitOrder(Order order) {
-        if (nowLoad >= order.demand) {
+        double aux = nowLoad;
+        if (nowLoad > order.demand) {
             totalDelivered += order.demand;
             nowLoad -= order.demand;
             weight -= order.demand * GLP_WEIGHT;
-            order.visited = true;
         } else {
             totalDelivered += nowLoad;
             nowLoad = 0.0;
             weight = tareWeight;
         }
-        order.handleVisit(nowTime, nowLoad);
+        order.handleVisit(nowTime, aux);
         attendedCustomers += 1;
     }
 
@@ -144,13 +138,17 @@ public class Truck {
 
     public void addNode(Node n, int[][] matrix) {
         int travelTime = calculateTravelTime(matrix, nowIdx, n.idx);
-        nowTime = nowTime.plusMinutes(travelTime);
         double consumption = calculateFuelConsumption(nowIdx, n.idx, matrix, this.weight);
+        nowTime = nowTime.plusMinutes(travelTime);
         fuel -= consumption;
         totalFuelConsumption += consumption;
 
         if (n instanceof Order) visitOrder((Order)n);
         else visitDepot((Depot)n);
+
+        tour.add(n);
+        arrivalRegistry.add(nowTime);
+        nowIdx = n.idx;
     }
 
     public void reset() {

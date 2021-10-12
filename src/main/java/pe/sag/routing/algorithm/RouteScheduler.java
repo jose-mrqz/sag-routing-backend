@@ -25,27 +25,12 @@ public class RouteScheduler {
         orderParser.readFile(ordersFilePath);
         truckParser.readFile(trucksFilePath);
 
-        for (int i = 0; i < 50; i++) {
-            long startTime = System.nanoTime();
+//        Colony colony = new Colony(orderParser.getParams(), truckParser.getParams(),
+//                orderParser.smallestOrder, orderParser.startingDate, orderParser.lastOrder);
+//        colony.run();
 
-            Colony colony = new Colony(orderParser.getParams(), truckParser.getParams(),
-                    orderParser.smallestOrder, orderParser.startingDate, orderParser.lastOrder);
-            colony.run();
-
-            long endTime = System.nanoTime();
-            double quality = colony.bestSolutionQuality;
-            double time = (endTime-startTime)/1000000000.0;
-
-//            printWriter.println(formatter.format(quality) + "," + time);
-            printWriter.println(formatter.format(quality) + "," + formatter.format(time));
-
-//            System.out.println("iter: " + (i+1) + " - " + time);
-        }
 
         printWriter.close();
-
-//        System.out.println();
-//        System.out.println("Total execution time: " + (endTime - startTime)/1000000000 + "s");
     }
 
 }

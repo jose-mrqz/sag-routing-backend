@@ -7,9 +7,9 @@ import lombok.SneakyThrows;
 
 import java.io.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -29,23 +29,24 @@ public class Graph {
     private static final int D2X = 63;
     private static final int D2Y = 3;
 
-    public Graph(Truck[] trucks) {
-        this.nTruck = trucks.length;
-        this.trucks = trucks;
-    }
+    public Graph(List<Truck> trucks, List<Order> orders) {
+        this.nTruck = trucks.size();
+        this.trucks = trucks.toArray(Truck[]::new);
+        this.nNode = orders.size()+3;
 
-    public void resetGraph(Order[] orders, LocalDateTime lastOrder) {
-        this.nNode = orders.length+3;
-        this.lastOrder = lastOrder;
+        // depots - add availableGlp
+        nodes = new Node[nNode];
+        nodes[0] = new Depot(true, MDX, MDY, 0);
+        nodes[1] = new Depot(false, D1X, D1Y, 1);
+        nodes[2] = new Depot(false, D2X, D2Y, 2);
 
-        // depots
-        nodes[0] = new Depot(true);
-        nodes[1] = new Depot(false);
-        nodes[2] = new Depot(false);
-
-        if (nNode-3 >= 0) System.arraycopy(orders, 0, nodes, 3, nNode-3);
+        for (int i = 0; i < orders.size(); i++) {
+            nodes[i+3] = orders.get(i);
+            nodes[i+3].idx = i+3;
+        }
 
         distanceMatrix = new int[nNode][nNode];
+
         calculateNodeDistance();
     }
 
