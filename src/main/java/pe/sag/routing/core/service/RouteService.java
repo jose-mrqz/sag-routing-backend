@@ -7,6 +7,7 @@ import pe.sag.routing.data.parser.RouteParser;
 import pe.sag.routing.data.repository.RouteRepository;
 import pe.sag.routing.shared.dto.RouteDto;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,10 @@ public class RouteService {
 
     public List<RouteDto> list() {
         return routeRepository.findAll().stream().map(RouteParser::toDto).collect(Collectors.toList());
+    }
+
+    public List<Route> getActiveRoutes() {
+        return routeRepository.findAllByStartDateIsAfterAndFinishDateIsBefore(LocalDateTime.now(), LocalDateTime.now());
     }
 }
 

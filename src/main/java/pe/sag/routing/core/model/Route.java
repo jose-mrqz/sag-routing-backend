@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import pe.sag.routing.algorithm.Pair;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Document
@@ -22,9 +23,11 @@ public class Route {
     @Indexed(unique = true)
     private Truck truck;
     private List<Order> orders;
+    private List<Pair<Integer,Integer>> nodes;
     private double distance;
     private double fuelConsumed;
     private double deliveredGLP;
-    private List<Pair<Integer,Integer>> nodes;
     private boolean active = true;
+    private LocalDateTime startDate;
+    private LocalDateTime finishDate;
 }

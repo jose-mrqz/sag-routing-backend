@@ -1,5 +1,7 @@
 package pe.sag.routing.algorithm;
 
+import pe.sag.routing.core.model.Order;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.time.LocalDateTime;
