@@ -1,5 +1,8 @@
 package pe.sag.routing.algorithm;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import pe.sag.routing.core.service.TruckService;
+
 import java.io.*;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -24,6 +27,7 @@ public class RouteScheduler {
         TruckParser truckParser = new TruckParser();
         orderParser.readFile(ordersFilePath);
         truckParser.readFile(trucksFilePath);
+
 
 //        Colony colony = new Colony(orderParser.getParams(), truckParser.getParams(),
 //                orderParser.smallestOrder, orderParser.startingDate, orderParser.lastOrder);

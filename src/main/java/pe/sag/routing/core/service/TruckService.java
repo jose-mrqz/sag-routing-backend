@@ -2,6 +2,8 @@ package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.sag.routing.algorithm.Planner;
+import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.data.parser.TruckParser;
 import pe.sag.routing.data.repository.TruckRepository;
@@ -23,5 +25,13 @@ public class TruckService {
 
     public List<TruckDto> list() {
         return truckRepository.findAll().stream().map(TruckParser::toDto).collect(Collectors.toList());
+    }
+
+    public List<Truck> findByAvailable(boolean available) {
+        return truckRepository.findByAvailable(available);
+    }
+
+    public void createPlanner(){
+        Planner planner = new Planner();
     }
 }

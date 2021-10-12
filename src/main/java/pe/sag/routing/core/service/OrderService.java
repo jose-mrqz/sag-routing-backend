@@ -36,7 +36,7 @@ public class OrderService {
         return orderRepository.findByCode(code).orElseThrow(IllegalAccessException::new);
     }
 
-    public List<Order> findByStatus(OrderStatus status) throws IllegalAccessException {
+    public List<Order> findByStatus(OrderStatus status) {
         return orderRepository.findByStatus(status);
     }
 }

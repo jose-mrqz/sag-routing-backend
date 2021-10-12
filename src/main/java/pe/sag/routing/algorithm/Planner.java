@@ -1,10 +1,22 @@
 package pe.sag.routing.algorithm;
 
+import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
+import pe.sag.routing.core.service.TruckService;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
+@Data
 public class Planner {
-    public static void main(String[] args) {
+    @Autowired
+    private TruckService truckService;
+
+    public Planner(){
+    }
+
+    public void run() {
         Order o1 = Order.builder()
                 .demand(3.5)
                 .totalDemand(3.5)
@@ -39,9 +51,14 @@ public class Planner {
 
         List<Order> orders = List.of(o1, o2, o3);
 
-        Truck t1 = new Truck(5.0, 1.0, 0, LocalDateTime.now());
-        Truck t2 = new Truck(5.0, 1.0, 0, LocalDateTime.now());
-        List<Truck> trucks = List.of(t1, t2);
+        //Read trucks
+        List<pe.sag.routing.core.model.Truck> trucksModel = truckService.findByAvailable(true);
+        ArrayList<Truck> trucks = new ArrayList<>();
+
+        for(pe.sag.routing.core.model.Truck tm : trucksModel){
+            Truck t = new Truck(tm.getModel().getCapacity(), tm.getModel().getTareWeight(), 0, LocalDateTime.now());
+            trucks.add(t);
+        }
 
         Colony colony = new Colony(orders, trucks, LocalDateTime.now());
         colony.run();
