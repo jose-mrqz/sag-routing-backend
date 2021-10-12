@@ -49,6 +49,6 @@ public class Planner {
 
         List<Route> solutionTrucks = colony.solutionTrucks;
         List<Node> solutionNodes = colony.solutionNodes;
-        System.out.println("gaaa");
+        System.out.println("Listo");
     }
 }
