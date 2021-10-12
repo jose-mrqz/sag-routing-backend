@@ -21,7 +21,9 @@ public class TruckParser {
             String line = reader.nextLine();
             String[] data = line.split(",");
             Double[] args = new Double[2];
+            //capacidad total de glp
             args[0] = Double.parseDouble(data[0]);
+            //peso tara
             args[1] = Double.parseDouble(data[1]);
             params.add(args);
         }
