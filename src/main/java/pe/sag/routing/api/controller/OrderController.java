@@ -29,7 +29,8 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<?> list() {
-        RestResponse response = new RestResponse(HttpStatus.OK, orderService.list());
+        RestResponse response = new RestResponse(HttpStatus.OK, orderService.listPendings());
+        //RestResponse response = new RestResponse(HttpStatus.OK, orderService.list());
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

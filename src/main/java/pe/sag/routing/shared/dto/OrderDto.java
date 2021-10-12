@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class OrderDto {
-    @NotBlank
     private String code;
     @NotBlank
     private double demandGLP;

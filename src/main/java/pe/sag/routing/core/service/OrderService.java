@@ -18,6 +18,7 @@ public class OrderService {
 
     public Order register(OrderDto orderRequest) {
         Order order = OrderParser.fromDto(orderRequest);
+        //asignar codigo
         order.setStatus(OrderStatus.PENDING);
         order.setDeliveryDate(null);
         return orderRepository.save(order);
@@ -27,7 +28,15 @@ public class OrderService {
         return orderRepository.findAll().stream().map(OrderParser::toDto).collect(Collectors.toList());
     }
 
+    public List<OrderDto> listPendings() {
+        return orderRepository.findByStatus(OrderStatus.PENDING).stream().map(OrderParser::toDto).collect(Collectors.toList());
+    }
+
     public Order findByCode(String code) throws IllegalAccessException {
         return orderRepository.findByCode(code).orElseThrow(IllegalAccessException::new);
+    }
+
+    public List<Order> findByStatus(OrderStatus status) throws IllegalAccessException {
+        return orderRepository.findByStatus(status);
     }
 }
