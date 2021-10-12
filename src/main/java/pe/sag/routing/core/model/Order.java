@@ -20,7 +20,7 @@ public class Order {
     @Id
     private String _id;
     @Indexed(unique = true)
-    private String code;
+    private int code;
     private double demandGLP;
     private int x;
     private int y;

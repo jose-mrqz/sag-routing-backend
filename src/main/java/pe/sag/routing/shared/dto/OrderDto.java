@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class OrderDto {
-    private String code;
+    private int code;
     @NotBlank
     private double demandGLP;
     @NotBlank

@@ -17,7 +17,7 @@ public class OrderController {
     private OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<?> register(@RequestBody OrderDto orderDto) {
+    public ResponseEntity<?> register(@RequestBody OrderDto orderDto) throws IllegalAccessException {
         Order order = orderService.register(orderDto);
         RestResponse response;
         if (order == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo pedido.");
