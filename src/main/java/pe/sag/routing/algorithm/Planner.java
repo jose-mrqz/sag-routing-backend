@@ -37,7 +37,6 @@ public class Planner {
         o3.y = 22;
         o2.y = 40;
 
-
         List<Order> orders = List.of(o1, o2, o3);
 
         Truck t1 = new Truck(5.0, 1.0, 0, LocalDateTime.now());
