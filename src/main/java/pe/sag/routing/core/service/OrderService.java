@@ -69,12 +69,12 @@ public class OrderService {
         return order.orElse(null);
     }
 
-    public void scheduleStatusChange(Order order, OrderStatus status) {
+    public void scheduleStatusChange(String id, OrderStatus status, LocalDateTime now) {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
-                Optional<Order> orderOptional = orderRepository.findById(order.get_id());
+                Optional<Order> orderOptional = orderRepository.findById(id);
                 if (orderOptional.isPresent()) {
                     Order o = orderOptional.get();
                     o.setStatus(status);
@@ -83,7 +83,7 @@ public class OrderService {
                 timer.cancel();
             }
         };
-        long wait = Duration.between(LocalDateTime.now(), order.getDeliveryDate()).toMillis();
+        long wait = Duration.between(LocalDateTime.now(), now).toMillis();
         timer.schedule(task, wait, Long.MAX_VALUE);
     }
 }

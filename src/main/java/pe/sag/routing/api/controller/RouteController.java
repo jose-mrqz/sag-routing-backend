@@ -68,7 +68,7 @@ public class RouteController {
         }
         for(Order o : pendingOrders){
             orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
-            orderService.scheduleStatusChange(o, OrderStatus.COMPLETED);
+            orderService.scheduleStatusChange(o.get_id(), OrderStatus.COMPLETED, o.getDeliveryDate());
         }
 
         for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
