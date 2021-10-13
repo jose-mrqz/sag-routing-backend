@@ -22,7 +22,7 @@ public class Route {
     private String _id;
     @Indexed(unique = true)
     private Truck truck;
-    private List<String> orders;
+    private List<Order> orders;
     private List<Pair<Integer,Integer>> nodes;
     private double distance;
     private double fuelConsumed;

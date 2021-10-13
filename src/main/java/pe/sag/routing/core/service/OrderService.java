@@ -54,4 +54,9 @@ public class OrderService {
         Optional<Order> lastOrder = orderRepository.findFirstByOrderByCodeDesc();
         return lastOrder.orElse(null);
     }
+
+    public Order findById(String id) {
+        Optional<Order> order = orderRepository.findBy_id(id);
+        return order.orElse(null);
+    }
 }

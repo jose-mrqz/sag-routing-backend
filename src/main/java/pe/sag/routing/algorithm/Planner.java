@@ -16,7 +16,6 @@ public class Planner {
     private List<pe.sag.routing.core.model.Truck> modelTrucks;
     private List<pe.sag.routing.core.model.Order> modelOrders;
     List<Route> solutionRoutes;
-    List<Node> solutionNodes;
 
     public Planner(List<pe.sag.routing.core.model.Truck> modelTrucks,
                    List<pe.sag.routing.core.model.Order> modelOrders) {

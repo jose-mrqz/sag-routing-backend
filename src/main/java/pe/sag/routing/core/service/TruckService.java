@@ -10,6 +10,7 @@ import pe.sag.routing.data.repository.TruckRepository;
 import pe.sag.routing.shared.dto.TruckDto;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,6 +26,11 @@ public class TruckService {
 
     public List<TruckDto> list() {
         return truckRepository.findAll().stream().map(TruckParser::toDto).collect(Collectors.toList());
+    }
+
+    public Truck findById(String id) {
+        Optional<Truck> ot = truckRepository.findById(id);
+        return ot.orElse(null);
     }
 
     public List<Truck> findByAvailable(boolean available) {

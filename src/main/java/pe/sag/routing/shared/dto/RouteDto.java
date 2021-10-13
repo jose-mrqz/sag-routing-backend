@@ -19,7 +19,7 @@ public class RouteDto {
     @NotBlank
     private Truck truck;
     @NotBlank
-    private List<String> orders;
+    private List<Order> orders;
     @NotBlank
     private double distance;
     @NotBlank
