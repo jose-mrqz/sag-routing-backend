@@ -1,6 +1,5 @@
 package pe.sag.routing.core.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.Route;
 import pe.sag.routing.data.parser.RouteParser;
@@ -13,8 +12,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class RouteService {
-    @Autowired
-    private RouteRepository routeRepository;
+    private final RouteRepository routeRepository;
+
+    public RouteService(RouteRepository routeRepository) {
+        this.routeRepository = routeRepository;
+    }
 
     public Route register(Route route) {
         return routeRepository.save(route);

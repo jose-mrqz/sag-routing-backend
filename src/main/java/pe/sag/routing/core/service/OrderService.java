@@ -4,14 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.Order;
+import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
-import java.util.ArrayList;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,5 +67,23 @@ public class OrderService {
     public Order findById(String id) {
         Optional<Order> order = orderRepository.findBy_id(id);
         return order.orElse(null);
+    }
+
+    public void scheduleStatusChange(Order order, OrderStatus status) {
+        Timer timer = new Timer();
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                Optional<Order> orderOptional = orderRepository.findById(order.get_id());
+                if (orderOptional.isPresent()) {
+                    Order o = orderOptional.get();
+                    o.setStatus(status);
+                    orderRepository.save(o);
+                }
+                timer.cancel();
+            }
+        };
+        long wait = Duration.between(LocalDateTime.now(), order.getDeliveryDate()).toMillis();
+        timer.schedule(task, wait, Long.MAX_VALUE);
     }
 }
