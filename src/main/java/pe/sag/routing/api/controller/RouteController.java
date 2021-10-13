@@ -17,7 +17,6 @@ import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
 import pe.sag.routing.data.parser.OrderParser;
-import pe.sag.routing.data.parser.TruckParser;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.util.ArrayList;
@@ -65,9 +64,11 @@ public class RouteController {
             pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
             if(sr.getTotalTourDistance() == 0) continue;
             truckService.updateAvailable(availableTrucks.get(i),false);
+            truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
         }
         for(Order o : pendingOrders){
             orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
+            orderService.scheduleStatusChange(o, OrderStatus.COMPLETED);
         }
 
         for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
