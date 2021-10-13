@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class Pair<F,S> {
-    F first;
-    S second;
+    F x;
+    S y;
 }
