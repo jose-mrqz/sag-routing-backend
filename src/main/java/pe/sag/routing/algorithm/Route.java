@@ -18,6 +18,7 @@ public class Route {
     ArrayList<LocalDateTime> times;
     int totalTourDistance;
     double totalFuelConsumption;
+    double totalDelivered;
     LocalDateTime startDate;
     LocalDateTime finishDate;
 }

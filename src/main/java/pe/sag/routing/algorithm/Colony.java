@@ -134,7 +134,7 @@ public class Colony extends Graph {
                     .nodes(new ArrayList<>(tour))
                     .totalFuelConsumption(t.totalFuelConsumption)
                     .totalTourDistance(calculateTourDistance(t.tour, 0))
-                    .totalFuelConsumption(t.totalFuelConsumption)
+                    .totalDelivered(t.totalDelivered)
                     .times(tourTimes)
                     .startDate(t.startDate)
                     .finishDate(t.finishDate)
