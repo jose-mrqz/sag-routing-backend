@@ -16,8 +16,7 @@ public class RouteService {
     @Autowired
     private RouteRepository routeRepository;
 
-    public Route register(RouteDto routeRequest) {
-        Route route = RouteParser.fromDto(routeRequest);
+    public Route register(Route route) {
         return routeRepository.save(route);
     }
 
