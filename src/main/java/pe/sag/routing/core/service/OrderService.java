@@ -34,6 +34,11 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    public Order updateStatus(Order order, OrderStatus status){
+        order.setStatus(status);
+        return orderRepository.save(order);
+    }
+
     public List<OrderDto> list() {
         return orderRepository.findAll(Sort.by(Sort.Direction.ASC,"code")).stream().map(OrderParser::toDto).collect(Collectors.toList());
     }

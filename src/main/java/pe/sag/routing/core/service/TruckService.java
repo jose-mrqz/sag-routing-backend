@@ -24,6 +24,11 @@ public class TruckService {
         return truckRepository.save(truck);
     }
 
+    public Truck updateAvailable(Truck truck, boolean available) {
+        truck.setAvailable(available);
+        return truckRepository.save(truck);
+    }
+
     public List<TruckDto> list() {
         return truckRepository.findAll().stream().map(TruckParser::toDto).collect(Collectors.toList());
     }

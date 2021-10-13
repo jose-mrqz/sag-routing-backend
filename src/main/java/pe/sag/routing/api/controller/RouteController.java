@@ -17,6 +17,7 @@ import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
 import pe.sag.routing.data.parser.OrderParser;
+import pe.sag.routing.data.parser.TruckParser;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.util.ArrayList;
@@ -53,24 +54,22 @@ public class RouteController {
     }
 
     @PostMapping
-    protected ResponseEntity<?> scheduleRoutes() {
+    protected ResponseEntity<?> scheduleRoutes() throws IllegalAccessException {
         List<Truck> availableTrucks = truckService.findByAvailable(true);
         List<Order> pendingOrders = orderService.listPendings();
         Planner planner = new Planner(availableTrucks, pendingOrders);
         planner.run();
+        List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
 
-        /*
-        for(Truck t : availableTrucks){
-            t.setAvailable(false);
-            //truckService.edit(t); //como implementar edit
+        for(int i=0;i< availableTrucks.size();i++){
+            pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
+            if(sr.getTotalTourDistance() == 0) continue;
+            truckService.updateAvailable(availableTrucks.get(i),false);
         }
         for(Order o : pendingOrders){
-            o.setStatus(OrderStatus.IN_PROGRESS);
-            //orderService.edit(o); //como implementar edit
+            orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
         }
-         */
 
-        List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
         for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
             if(sr.getTotalTourDistance() == 0) continue;
             ArrayList<Order> orders = new ArrayList<>();
@@ -94,10 +93,7 @@ public class RouteController {
                     .build();
             routeService.register(r);
         }
-
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo realizado correctamente.");
         return ResponseEntity.status(response.getStatus()).body(response);
-//        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
-//                .body(planner.getSolutionRoutes());
     }
 }
