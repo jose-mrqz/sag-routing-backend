@@ -37,7 +37,8 @@ public class RouteController {
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
-        List<Route> activeRoutes = routeService.getActiveRoutes();
+//        List<Route> activeRoutes = routeService.getActiveRoutes();
+        List<Route> activeRoutes = routeService.getAll();
         List<ActiveRouteResponse> payload = new ArrayList<>();
         activeRoutes.forEach(r -> payload.add(ActiveRouteResponse.builder()
                 .startDate(r.getStartDate())
@@ -66,21 +67,25 @@ public class RouteController {
                     orders.add(orderService.findById(((pe.sag.routing.algorithm.Order)n).get_id()));
                 }
             }
+            sr.generatePath();
             Route r = Route.builder()
                     .truck(truckService.findById(sr.getTruckId()))
                     .orders(orders)
-                    //.nodes(sr.getNodes()).stream().map(Pair::valueOf).collect(Collectors.toList()))
+                    .nodes(sr.getPath())
                     .distance(sr.getTotalTourDistance())
                     .fuelConsumed(sr.getTotalFuelConsumption())
                     .deliveredGLP(sr.getTotalDelivered())
                     .startDate(sr.getStartDate())
                     .finishDate(sr.getFinishDate())
+                    .times(sr.getTimes())
                     .active(true)
                     .build();
             routeService.register(r);
         }
 
-        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
-                .body(planner.getSolutionRoutes());
+        RestResponse response = new RestResponse(HttpStatus.I_AM_A_TEAPOT, "Por la puta madre.");
+        return ResponseEntity.status(response.getStatus()).body(response);
+//        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
+//                .body(planner.getSolutionRoutes());
     }
 }

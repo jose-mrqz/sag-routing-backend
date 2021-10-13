@@ -23,6 +23,7 @@ public class Route {
     @Indexed(unique = true)
     private Truck truck;
     private List<Order> orders;
+    private List<LocalDateTime> times;
     private List<Pair<Integer,Integer>> nodes;
     private double distance;
     private double fuelConsumed;
