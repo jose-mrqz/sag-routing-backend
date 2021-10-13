@@ -20,6 +20,10 @@ public class RouteService {
         return routeRepository.save(route);
     }
 
+    public Route edit(Route route) {
+        return routeRepository.save(route);
+    }
+
     public List<RouteDto> list() {
         return routeRepository.findAll().stream().map(RouteParser::toDto).collect(Collectors.toList());
     }

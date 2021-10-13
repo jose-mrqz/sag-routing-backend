@@ -17,6 +17,7 @@ import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
 import pe.sag.routing.data.parser.OrderParser;
+import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +59,17 @@ public class RouteController {
         Planner planner = new Planner(availableTrucks, pendingOrders);
         planner.run();
 
+        /*
+        for(Truck t : availableTrucks){
+            t.setAvailable(false);
+            //truckService.edit(t); //como implementar edit
+        }
+        for(Order o : pendingOrders){
+            o.setStatus(OrderStatus.IN_PROGRESS);
+            //orderService.edit(o); //como implementar edit
+        }
+         */
+
         List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
         for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
             if(sr.getTotalTourDistance() == 0) continue;
@@ -83,7 +95,7 @@ public class RouteController {
             routeService.register(r);
         }
 
-        RestResponse response = new RestResponse(HttpStatus.I_AM_A_TEAPOT, "Algoritmo realizado correctamente.");
+        RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo realizado correctamente.");
         return ResponseEntity.status(response.getStatus()).body(response);
 //        return ResponseEntity.status(HttpStatus.I_AM_A_TEAPOT)
 //                .body(planner.getSolutionRoutes());
