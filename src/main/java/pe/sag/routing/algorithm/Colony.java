@@ -7,7 +7,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.stream.Collectors;
 
 @Data
 @AllArgsConstructor
@@ -177,7 +176,7 @@ public class Colony extends Graph {
                 int nextNodeIdx;
                 if (getRandom() < threshold) {
                     // choose randomly next node to prevent local optimization
-                    nextNodeIdx = feasibleEdges.get(Math.abs(rand.nextInt()) % feasibleEdges.size()).second;
+                    nextNodeIdx = feasibleEdges.get(Math.abs(rand.nextInt()) % feasibleEdges.size()).y;
                 } else {                     
                     // follow pheromone trail and heuristic to choose next node
                     ArrayList<Double> ups = new ArrayList<>();
@@ -185,7 +184,7 @@ public class Colony extends Graph {
                     ArrayList<Double> cumulativeSum = new ArrayList<>();
                     double sum = 0.0;
                     for (Pair<Integer, Integer> feasibleEdge : feasibleEdges){
-                        double up = calculateProbability(feasibleEdge.first, feasibleEdge.second);
+                        double up = calculateProbability(feasibleEdge.x, feasibleEdge.y);
                         sum += up;
                         ups.add(up);
                     }
@@ -211,7 +210,7 @@ public class Colony extends Graph {
                     }
                     if ((int)bestV == INF)
                         break;
-                    nextNodeIdx = feasibleEdges.get(bestIdx).second;
+                    nextNodeIdx = feasibleEdges.get(bestIdx).y;
                 }
                 trucks[truckIdx].addNode(nodes[nextNodeIdx], distanceMatrix);
             }

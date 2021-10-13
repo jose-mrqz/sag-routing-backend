@@ -31,10 +31,10 @@ public class Route {
         for (int i = 1; i < nodes.size(); i++) {
             startingPoint = new Pair(nodes.get(i-1).x, nodes.get(i-1).y);
             endingPoint = new Pair(nodes.get(i).x, nodes.get(i).y);
-            int xi = startingPoint.first;
-            int yi = startingPoint.second;
-            int xf = endingPoint.first;
-            int yf = endingPoint.second;
+            int xi = startingPoint.x;
+            int yi = startingPoint.y;
+            int xf = endingPoint.x;
+            int yf = endingPoint.y;
             path.add(new Pair<>(xi, yi)) ;
             while (xi != xf || yi != yf) {
                 int random = ThreadLocalRandom.current().nextInt(0, 2);

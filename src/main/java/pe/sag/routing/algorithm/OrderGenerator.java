@@ -40,8 +40,8 @@ public class OrderGenerator {
                 x == 60 && y == 5) continue;
             else break;
         }
-        coords.first = x;
-        coords.second = y;
+        coords.x = x;
+        coords.y = y;
         return coords;
     }
 
@@ -89,8 +89,8 @@ public class OrderGenerator {
                     demand = demandLimit - currentDemand;
                 currentDemand += demand;
                 LocalDateTime day = getRandomDate();
-                data[0] = coords.first;
-                data[1] = coords.second;
+                data[0] = coords.x;
+                data[1] = coords.y;
                 data[2] = tw;
                 data[3] = demand;
                 data[4] = day;
