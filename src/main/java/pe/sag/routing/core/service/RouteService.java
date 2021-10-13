@@ -27,5 +27,9 @@ public class RouteService {
     public List<Route> getActiveRoutes() {
         return routeRepository.findAllByStartDateIsAfterAndFinishDateIsBefore(LocalDateTime.now(), LocalDateTime.now());
     }
+
+    public List<Route> getAll() {
+        return routeRepository.findAll();
+    }
 }
 
