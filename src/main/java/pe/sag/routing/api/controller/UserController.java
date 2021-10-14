@@ -39,6 +39,14 @@ public class UserController {
                 .body(userService.createAdmin());
     }
 
+    @GetMapping
+    public ResponseEntity<?> list() {
+        RestResponse response = new RestResponse(HttpStatus.OK, userService.list());
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
     @GetMapping("/{email}")
     protected ResponseEntity<?> getByEmail(@PathVariable String email) throws IllegalAccessException {
         User user = userService.findByEmail(email);

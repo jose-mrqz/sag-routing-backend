@@ -15,7 +15,6 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 public class UserDto {
-    @NotBlank
     private String code;
     @NotBlank
     private String firstName;
