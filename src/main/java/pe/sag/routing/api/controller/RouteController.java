@@ -56,43 +56,46 @@ public class RouteController {
     protected ResponseEntity<?> scheduleRoutes() throws IllegalAccessException {
         List<Truck> availableTrucks = truckService.findByAvailable(true);
         List<Order> pendingOrders = orderService.listPendings();
-        Planner planner = new Planner(availableTrucks, pendingOrders);
-        planner.run();
-        List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
+        if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
+            Planner planner = new Planner(availableTrucks, pendingOrders);
+            planner.run();
+            List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
 
-        for(int i=0;i< availableTrucks.size();i++){
-            pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
-            if(sr.getTotalTourDistance() == 0) continue;
-            truckService.updateAvailable(availableTrucks.get(i),false);
-//            truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
-        }
-        for(Order o : pendingOrders){
-            orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
-//            orderService.scheduleStatusChange(o.get_id(), OrderStatus.COMPLETED, o.getDeliveryDate());
-        }
-
-        for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
-            if(sr.getTotalTourDistance() == 0) continue;
-            ArrayList<Order> orders = new ArrayList<>();
-            for (Node n : sr.getNodes()) {
-                if (n instanceof pe.sag.routing.algorithm.Order) {
-                    orders.add(orderService.findById(((pe.sag.routing.algorithm.Order)n).get_id()));
-                }
+            for(int i=0;i< availableTrucks.size();i++){
+                pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
+                if(sr.getTotalTourDistance() == 0) continue;
+                truckService.updateAvailable(availableTrucks.get(i),false);
+            truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
             }
-            sr.generatePath();
-            Route r = Route.builder()
-                    .truck(truckService.findById(sr.getTruckId()))
-                    .orders(orders)
-                    .nodes(sr.getPath())
-                    .distance(sr.getTotalTourDistance())
-                    .fuelConsumed(sr.getTotalFuelConsumption())
-                    .deliveredGLP(sr.getTotalDelivered())
-                    .startDate(sr.getStartDate())
-                    .finishDate(sr.getFinishDate())
-                    .times(sr.getTimes())
-                    .active(true)
-                    .build();
-            routeService.register(r);
+            for(Order o : pendingOrders){
+                orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
+            }
+
+            for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
+                if(sr.getTotalTourDistance() == 0) continue;
+                ArrayList<Order> orders = new ArrayList<>();
+                for (Node n : sr.getNodes()) {
+                    if (n instanceof pe.sag.routing.algorithm.Order) {
+                        orders.add(orderService.findById(((pe.sag.routing.algorithm.Order)n).get_id()));
+                        orderService.scheduleStatusChange(((pe.sag.routing.algorithm.Order)n).get_id(),
+                                OrderStatus.COMPLETED, ((pe.sag.routing.algorithm.Order)n).getDeliveryTime());
+                    }
+                }
+                sr.generatePath();
+                Route r = Route.builder()
+                        .truck(truckService.findById(sr.getTruckId()))
+                        .orders(orders)
+                        .nodes(sr.getPath())
+                        .distance(sr.getTotalTourDistance())
+                        .fuelConsumed(sr.getTotalFuelConsumption())
+                        .deliveredGLP(sr.getTotalDelivered())
+                        .startDate(sr.getStartDate())
+                        .finishDate(sr.getFinishDate())
+                        .times(sr.getTimes())
+                        .active(true)
+                        .build();
+                routeService.register(r);
+            }
         }
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo realizado correctamente.");
         return ResponseEntity.status(response.getStatus()).body(response);
