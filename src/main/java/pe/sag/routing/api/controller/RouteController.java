@@ -56,19 +56,25 @@ public class RouteController {
     protected ResponseEntity<?> scheduleRoutes() throws IllegalAccessException {
         List<Truck> availableTrucks = truckService.findByAvailable(true);
         List<Order> pendingOrders = orderService.listPendings();
+        List<Route> activeRoutes = new ArrayList<>();
+        for (Truck t : availableTrucks) {
+            Route r = routeService.getActiveRouteByTruck(t);
+            if (r != null) activeRoutes.add(r);
+        }
+
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Planner planner = new Planner(availableTrucks, pendingOrders);
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
 
-            for(int i=0;i< availableTrucks.size();i++){
+            for(int i = 0; i < availableTrucks.size(); i++){
                 pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
                 if(sr.getTotalTourDistance() == 0) continue;
-                truckService.updateAvailable(availableTrucks.get(i),false);
-            truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
+//                truckService.updateAvailable(availableTrucks.get(i),false);
+//                truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
             }
             for(Order o : pendingOrders){
-                orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
+//                orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
             }
 
             for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
@@ -77,8 +83,8 @@ public class RouteController {
                 for (Node n : sr.getNodes()) {
                     if (n instanceof pe.sag.routing.algorithm.Order) {
                         orders.add(orderService.findById(((pe.sag.routing.algorithm.Order)n).get_id()));
-                        orderService.scheduleStatusChange(((pe.sag.routing.algorithm.Order)n).get_id(),
-                                OrderStatus.COMPLETED, ((pe.sag.routing.algorithm.Order)n).getDeliveryTime());
+//                        orderService.scheduleStatusChange(((pe.sag.routing.algorithm.Order)n).get_id(),
+//                                OrderStatus.COMPLETED, ((pe.sag.routing.algorithm.Order)n).getDeliveryTime());
                     }
                 }
                 sr.generatePath();

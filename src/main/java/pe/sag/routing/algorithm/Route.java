@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +15,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Route {
     String truckId;
     ArrayList<Node> nodes;
+    ArrayList<NodeInfo> nodeInfos;
     ArrayList<Pair<Integer,Integer>> path;
     ArrayList<LocalDateTime> times;
     int totalTourDistance;
@@ -23,6 +23,14 @@ public class Route {
     double totalDelivered;
     LocalDateTime startDate;
     LocalDateTime finishDate;
+
+    public Route (String truckId, LocalDateTime startDate, LocalDateTime finishDate,
+                  ArrayList<NodeInfo> nodeInfos) {
+        this.truckId = truckId;
+        this.startDate = startDate;
+        this.finishDate = finishDate;
+        this.nodeInfos = nodeInfos;
+    }
 
     public void generatePath() {
         path = new ArrayList<>();
@@ -36,21 +44,15 @@ public class Route {
             int xf = endingPoint.x;
             int yf = endingPoint.y;
             path.add(new Pair<>(xi, yi)) ;
-            while (xi != xf || yi != yf) {
-                int random = ThreadLocalRandom.current().nextInt(0, 2);
-                if (random == 0) {
-                    if (xi != xf) {
-                        if (xi > xf) xi--;
-                        else xi++;
-                        path.add(new Pair<>(xi, yi)) ;
-                    }
-                } else {
-                    if (yi != yf) {
-                        if (yi > yf) yi--;
-                        else yi++;
-                        path.add(new Pair<>(xi, yi)) ;
-                    }
-                }
+            while (xi != xf) {
+                if (xi > xf) xi--;
+                else xi++;
+                path.add(new Pair<>(xi, yi)) ;
+            }
+            while (yi != yf) {
+                if (yi > yf) yi--;
+                else yi++;
+                path.add(new Pair<>(xi, yi)) ;
             }
         }
     }

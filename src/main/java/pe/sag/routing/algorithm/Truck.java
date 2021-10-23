@@ -19,18 +19,23 @@ public class Truck {
     double fuel;
     double weight;
     double tareWeight;
-    int attendedCustomers;
-    double totalFuelConsumption;
-    double totalDelivered;
     ArrayList<Node> tour;
-    ArrayList<LocalDateTime> timeRegistry;
     LocalDateTime nowTime;
     LocalDateTime startDate;
     LocalDateTime finishDate;
 
     private LocalDateTime startingDate;
 
-    // general parameters
+    ArrayList<LocalDateTime> timeRegistry;
+    ArrayList<LocalDateTime> departureRegistry;
+    ArrayList<LocalDateTime> arrivalRegistry;
+    ArrayList<Double> fuelConsumption;
+    ArrayList<Double> glpRegistry;
+
+    int attendedCustomers;
+    double totalFuelConsumption;
+    double totalDelivered;
+
     private static final Double AVG_SPEED = 50.0;
     private static final Double CONSUMPTION_RATE = 150.0;
     private static final Double MAX_FUEL = 25.0;
@@ -54,6 +59,10 @@ public class Truck {
         timeRegistry = new ArrayList<>();
         startDate = null;
         finishDate = null;
+        departureRegistry = new ArrayList<>();
+        arrivalRegistry = new ArrayList<>();
+        fuelConsumption = new ArrayList<>();
+        glpRegistry = new ArrayList<>();
     }
 
     // a* stub
@@ -67,7 +76,7 @@ public class Truck {
 
     private boolean okTime(Order o, int travelTime) {
         LocalDateTime arrivalTime = nowTime.plusMinutes(travelTime);
-        return !arrivalTime.isAfter(o.twClose);
+        return !arrivalTime.isAfter(o.twClose.plusMinutes(o.unloadTime));
     }
 
     private boolean okCapacity(Node n, int travelTime) {
@@ -115,10 +124,12 @@ public class Truck {
         double aux = nowLoad;
         if (nowLoad > order.demand) {
             totalDelivered += order.demand;
+            glpRegistry.add(order.demand);
             nowLoad -= order.demand;
             weight -= order.demand * GLP_WEIGHT;
         } else {
             totalDelivered += nowLoad;
+            glpRegistry.add(nowLoad);
             nowLoad = 0.0;
             weight = tareWeight;
         }
@@ -132,9 +143,11 @@ public class Truck {
         if (availableGlp >= missingGlp) {
             nowLoad = capacity;
             weight +=  missingGlp * GLP_WEIGHT;
+            if (depot.idx != 0) glpRegistry.add(missingGlp);
         } else {
             nowLoad += availableGlp;
             weight += availableGlp * GLP_WEIGHT;
+            if (depot.idx != 0) glpRegistry.add(availableGlp);
         }
         depot.handleVisit(nowTime, missingGlp);
         fuel = MAX_FUEL;
@@ -150,12 +163,26 @@ public class Truck {
             if (n instanceof Order) timeRegistry.add(nowTime.plusMinutes(travelTime));
         }
 
-        double consumption = calculateFuelConsumption(nowIdx, n.idx, matrix, this.weight);
-        nowTime = nowTime.plusMinutes(travelTime);
-        fuel -= consumption;
-        totalFuelConsumption += consumption;
+        if (nowIdx == 0 && !tour.isEmpty()) {
+            departureRegistry.add(nowTime);
+        }
 
-        if (n instanceof Order) visitOrder((Order)n);
+        double consumption = calculateFuelConsumption(nowIdx, n.idx, matrix, this.weight);
+        fuel -= consumption;
+        if (!tour.isEmpty()) {
+            fuelConsumption.add(consumption);
+        }
+        totalFuelConsumption += consumption;
+        nowTime = nowTime.plusMinutes(travelTime);
+
+        if (!tour.isEmpty()) {
+            arrivalRegistry.add(nowTime);
+        }
+
+        if (n instanceof Order) {
+            nowTime = nowTime.plusMinutes(((Order)n).unloadTime);
+            visitOrder((Order)n);
+        }
         else visitDepot((Depot)n);
 
         tour.add(n);
@@ -166,6 +193,9 @@ public class Truck {
     public void reset() {
         tour.clear();
         timeRegistry.clear();
+        departureRegistry.clear();
+        glpRegistry.clear();
+        fuelConsumption.clear();
         nowLoad = capacity;
         fuel = MAX_FUEL;
         weight = tareWeight + capacity * GLP_WEIGHT;
