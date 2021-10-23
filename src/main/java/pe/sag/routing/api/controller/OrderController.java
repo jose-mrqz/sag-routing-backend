@@ -28,7 +28,7 @@ public class OrderController {
                 .registrationDate(LocalDateTime.now())
                 .deadlineDate(LocalDateTime.now().plusHours(request.getSlack()))
                 .build();
-        Order order = orderService.register(orderDto);
+        Order order = orderService.register(orderDto, true);
         RestResponse response;
         if (order == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo pedido.");
         else response = new RestResponse(HttpStatus.OK, "Nuevo pedido agregado correctamente.", order);

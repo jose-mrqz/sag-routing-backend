@@ -17,9 +17,10 @@ public class TruckController {
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody TruckDto truckDto) {
-        Truck truck = truckService.register(truckDto);
+        Truck truck1 = truckService.register(truckDto, true);
+        Truck truck2 = truckService.register(truckDto, false);
         RestResponse response;
-        if (truck == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo camion.");
+        if (truck1 == null && truck2 == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo camion.");
         else response = new RestResponse(HttpStatus.OK, "Nuevo camion agregado correctamente.", truckDto);
         return ResponseEntity
                 .status(response.getStatus())

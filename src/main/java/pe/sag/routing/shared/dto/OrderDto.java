@@ -26,4 +26,6 @@ public class OrderDto {
     private LocalDateTime deliveryDate;
     @NotBlank
     private String status;
+    @NotBlank
+    private boolean monitoring;
 }

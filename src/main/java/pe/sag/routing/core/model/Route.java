@@ -31,4 +31,5 @@ public class Route {
     private boolean active = true;
     private LocalDateTime startDate;
     private LocalDateTime finishDate;
+    private boolean monitoring;
 }

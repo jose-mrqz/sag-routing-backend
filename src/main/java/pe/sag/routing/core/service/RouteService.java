@@ -30,12 +30,8 @@ public class RouteService {
         return routeRepository.findAll().stream().map(RouteParser::toDto).collect(Collectors.toList());
     }
 
-    public List<Route> getActiveRoutes() {
-        return routeRepository.findAllByStartDateIsAfterAndFinishDateIsBefore(LocalDateTime.now(), LocalDateTime.now());
-    }
-
-    public List<Route> getAll() {
-        return routeRepository.findAll();
+    public List<Route> getActiveRoutes(boolean monitoring) {
+        return routeRepository.findAllByStartDateIsAfterAndFinishDateIsBeforeAndMonitoring(LocalDateTime.now(), LocalDateTime.now(), monitoring);
     }
 }
 

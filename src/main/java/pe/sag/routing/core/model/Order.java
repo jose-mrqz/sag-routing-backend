@@ -28,5 +28,6 @@ public class Order {
     private LocalDateTime deadlineDate;
     private LocalDateTime deliveryDate;
     private OrderStatus status;
+    private boolean monitoring;
     private boolean active = true;
 }

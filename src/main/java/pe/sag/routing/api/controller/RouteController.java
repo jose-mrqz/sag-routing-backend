@@ -38,8 +38,7 @@ public class RouteController {
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
-//        List<Route> activeRoutes = routeService.getActiveRoutes();
-        List<Route> activeRoutes = routeService.getAll();
+        List<Route> activeRoutes = routeService.getActiveRoutes(true);
         List<ActiveRouteResponse> payload = new ArrayList<>();
         activeRoutes.forEach(r -> payload.add(ActiveRouteResponse.builder()
                 .startDate(r.getStartDate())
@@ -54,8 +53,8 @@ public class RouteController {
 
     @PostMapping
     protected ResponseEntity<?> scheduleRoutes() throws IllegalAccessException {
-        List<Truck> availableTrucks = truckService.findByAvailable(true);
-        List<Order> pendingOrders = orderService.listPendings();
+        List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
+        List<Order> pendingOrders = orderService.listPendingsMonitoring(true);
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Planner planner = new Planner(availableTrucks, pendingOrders);
             planner.run();
@@ -65,7 +64,7 @@ public class RouteController {
                 pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
                 if(sr.getTotalTourDistance() == 0) continue;
                 truckService.updateAvailable(availableTrucks.get(i),false);
-            truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
+                truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
             }
             for(Order o : pendingOrders){
                 orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
@@ -93,6 +92,7 @@ public class RouteController {
                         .finishDate(sr.getFinishDate())
                         .times(sr.getTimes())
                         .active(true)
+                        .monitoring(true)
                         .build();
                 routeService.register(r);
             }

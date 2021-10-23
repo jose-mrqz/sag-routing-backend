@@ -23,7 +23,7 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
-    public Order register(OrderDto orderRequest) throws IllegalAccessException {
+    public Order register(OrderDto orderRequest, boolean monitoring) throws IllegalAccessException {
         Order order = OrderParser.fromDto(orderRequest);
 
         //asign code
@@ -34,6 +34,7 @@ public class OrderService {
         order.setCode(code);
 
         order.setStatus(OrderStatus.PENDING);
+        order.setMonitoring(monitoring);
         order.setDeliveryDate(null);
         return orderRepository.save(order);
     }
@@ -44,19 +45,15 @@ public class OrderService {
     }
 
     public List<OrderDto> list() {
-        return orderRepository.findAll(Sort.by(Sort.Direction.ASC,"code")).stream().map(OrderParser::toDto).collect(Collectors.toList());
+        return orderRepository.findByMonitoringOrderByCodeAsc(true).stream().map(OrderParser::toDto).collect(Collectors.toList());
     }
 
-    public List<Order> listPendings() {
-        return orderRepository.findByStatus(OrderStatus.PENDING);
+    public List<Order> listPendingsMonitoring(boolean monitoring) {
+        return orderRepository.findByStatusAndMonitoring(OrderStatus.PENDING,monitoring);
     }
 
     public Order findByCode(String code) throws IllegalAccessException {
         return orderRepository.findByCode(code).orElseThrow(IllegalAccessException::new);
-    }
-
-    public List<Order> findByStatus(OrderStatus status) {
-        return orderRepository.findByStatus(status);
     }
 
     public Order findFirstByOrderByCodeDesc() throws IllegalAccessException {
