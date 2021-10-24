@@ -19,4 +19,6 @@ public class TruckDto {
     private TruckModel model;
     @NotBlank
     private boolean available;
+    @NotBlank
+    private boolean monitoring;
 }

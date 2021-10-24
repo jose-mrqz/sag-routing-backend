@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface OrderRepository extends MongoRepository<Order,String> {
     Optional<Order> findBy_id(String id);
     Optional<Order> findByCode(String code);
-    List<Order> findByStatus(OrderStatus status);
+    List<Order> findByStatusAndMonitoring(OrderStatus status, boolean monitoring);
     Optional<Order> findFirstByOrderByCodeDesc();
+    List<Order> findByMonitoringOrderByCodeAsc(boolean monitoring);
 }

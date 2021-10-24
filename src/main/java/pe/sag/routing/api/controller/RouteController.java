@@ -33,7 +33,7 @@ public class RouteController {
     private final TruckService truckService;
     private final OrderService orderService;
 
-    public RouteController(RouteService routeService, TruckService truckService, OrderService orderService) {
+    public RouteController(RouteService routeService, TruckService truckService, Ord can still create the pullerService orderService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
@@ -49,10 +49,11 @@ public class RouteController {
     }
 
     @PostMapping
+
     protected ResponseEntity<?> scheduleRoutes() {
         List<Truck> availableTrucks = truckService.findByAvailable(true);
         List<Order> pendingOrders = orderService.listPendings();
-
+      
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Planner planner = new Planner(availableTrucks, pendingOrders);
             planner.run();

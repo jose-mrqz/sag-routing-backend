@@ -20,5 +20,6 @@ public class Truck {
     private String code;
     private TruckModel model;
     private boolean available = true;
+    private boolean monitoring;
     private boolean active = true;
 }

@@ -20,8 +20,9 @@ public class TruckService {
     @Autowired
     private TruckRepository truckRepository;
 
-    public Truck register(TruckDto truckRequest) {
+    public Truck register(TruckDto truckRequest, boolean monitoring) {
         Truck truck = TruckParser.fromDto(truckRequest);
+        truck.setMonitoring(monitoring);
         truck.setAvailable(true);
         return truckRepository.save(truck);
     }
@@ -32,7 +33,7 @@ public class TruckService {
     }
 
     public List<TruckDto> list() {
-        return truckRepository.findAll().stream().map(TruckParser::toDto).collect(Collectors.toList());
+        return truckRepository.findByMonitoring(true).stream().map(TruckParser::toDto).collect(Collectors.toList());
     }
 
     public Truck findById(String id) {
@@ -40,8 +41,8 @@ public class TruckService {
         return ot.orElse(null);
     }
 
-    public List<Truck> findByAvailable(boolean available) {
-        return truckRepository.findByAvailableOrderByModelDesc(available);
+    public List<Truck> findByAvailableAndMonitoring(boolean available, boolean monitoring) {
+        return truckRepository.findByAvailableAndMonitoringOrderByModelDesc(available, monitoring);
     }
 
     public void scheduleStatusChange(Truck truck, boolean b, LocalDateTime endTime) {

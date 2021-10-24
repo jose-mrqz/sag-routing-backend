@@ -28,4 +28,6 @@ public class RouteDto {
     private double deliveredGLP;
     @NotBlank
     private List<Pair<Integer,Integer>> nodes;
+    @NotBlank
+    private boolean monitoring;
 }
