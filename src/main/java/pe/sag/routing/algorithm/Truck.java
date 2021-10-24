@@ -67,7 +67,7 @@ public class Truck {
 
     // a* stub
     private int calculateTravelTime(int[][] matrix, int i, int j) {
-        return (int)(60*matrix[i][j]/speed);
+        return (int)(3600*matrix[i][j]/speed);
     }
 
     private double calculateFuelConsumption(int i, int j, int[][] matrix, double weight) {
@@ -75,7 +75,7 @@ public class Truck {
     }
 
     private boolean okTime(Order o, int travelTime) {
-        LocalDateTime arrivalTime = nowTime.plusMinutes(travelTime);
+        LocalDateTime arrivalTime = nowTime.plusSeconds(travelTime);
         return !arrivalTime.isAfter(o.twClose.plusMinutes(o.unloadTime));
     }
 
@@ -83,7 +83,7 @@ public class Truck {
         if (n instanceof Order) {
             return ((Order)n).demand > capacity && nowLoad > capacity/4 || nowLoad >= ((Order)n).demand;
         } else {
-            double remainingGlp = ((Depot)n).getAvailableGLp(nowTime.plusMinutes(travelTime).toLocalDate());
+            double remainingGlp = ((Depot)n).getAvailableGLp(nowTime.plusSeconds(travelTime).toLocalDate());
             return remainingGlp >= capacity/4 && nowLoad <= capacity/4;
         }
     }
@@ -160,7 +160,7 @@ public class Truck {
                 timeRegistry.add(nowTime);
                 if (startDate == null) startDate = nowTime;
             }
-            if (n instanceof Order) timeRegistry.add(nowTime.plusMinutes(travelTime));
+            if (n instanceof Order) timeRegistry.add(nowTime.plusSeconds(travelTime));
         }
 
         if (nowIdx == 0 && !tour.isEmpty()) {
@@ -173,7 +173,7 @@ public class Truck {
             fuelConsumption.add(consumption);
         }
         totalFuelConsumption += consumption;
-        nowTime = nowTime.plusMinutes(travelTime);
+        nowTime = nowTime.plusSeconds(travelTime);
 
         if (!tour.isEmpty()) {
             arrivalRegistry.add(nowTime);
