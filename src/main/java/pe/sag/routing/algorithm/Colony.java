@@ -3,7 +3,6 @@ package pe.sag.routing.algorithm;
 import lombok.*;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,6 +26,7 @@ public class Colony extends Graph {
     private Random rand;
 
     public List<Route> solutionRoutes = null;
+    public List<Pair<String,LocalDateTime>> solutionOrders;
     public double bestSolutionQuality;
 
     public Colony(List<Order> orders, List<Truck> trucks) {
@@ -109,6 +109,13 @@ public class Colony extends Graph {
 
     private void saveBestSolution() {
         solutionRoutes = new ArrayList<>();
+        solutionOrders = new ArrayList<>();
+        for (Node node : nodes) {
+            if (node instanceof Order) {
+                Order order = (Order)node;
+                solutionOrders.add(new Pair<>(order._id, order.deliveryTime));
+            }
+        }
         for (Truck t : trucks) {
             int depIdx = 0;
             int arrIdx = 0;
