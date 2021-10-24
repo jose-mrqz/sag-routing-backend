@@ -3,6 +3,7 @@ package pe.sag.routing.core.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.Truck;
+import pe.sag.routing.core.model.TruckModel;
 import pe.sag.routing.data.parser.TruckParser;
 import pe.sag.routing.data.repository.TruckRepository;
 import pe.sag.routing.shared.dto.TruckDto;
@@ -17,8 +18,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class TruckService {
-    @Autowired
-    private TruckRepository truckRepository;
+    private final TruckRepository truckRepository;
+
+    public TruckService(TruckRepository truckRepository) {
+        this.truckRepository = truckRepository;
+    }
 
     public Truck register(TruckDto truckRequest, boolean monitoring) {
         Truck truck = TruckParser.fromDto(truckRequest);
@@ -61,5 +65,13 @@ public class TruckService {
         };
         long wait = Duration.between(LocalDateTime.now(), endTime).toMillis();
         timer.schedule(task, wait, Long.MAX_VALUE);
+    }
+
+    public int getLastCodeByModel(TruckModel model) {
+        Optional<Truck> truckOptional = truckRepository.findTopByModelOrderByCodeDesc(model);
+        if (truckOptional.isPresent()) {
+            String code = truckOptional.get().getCode();
+            return Integer.parseInt(code.substring(2));
+        } else return -1;
     }
 }
