@@ -15,11 +15,14 @@ import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
+import pe.sag.routing.data.parser.RouteParser;
 import pe.sag.routing.shared.dto.RouteDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/route")
@@ -37,7 +40,8 @@ public class RouteController {
     @GetMapping
     protected ResponseEntity<?> getActive() {
         List<Route> activeRoutes = routeService.getActiveRoutes(true);
-        RestResponse response = new RestResponse(HttpStatus.OK, activeRoutes);
+        List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
+        RestResponse response = new RestResponse(HttpStatus.OK, routesDto);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
