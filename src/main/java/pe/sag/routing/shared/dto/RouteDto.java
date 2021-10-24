@@ -71,9 +71,28 @@ public class RouteDto {
     public void setNodes(List<Pair<Integer, Integer>> nodes) {
         this.route = new ArrayList<>();
         for (Pair<Integer, Integer> node : nodes) {
+            boolean isOrder = false;
+            for (RouteDto.Order order : this.orders) {
+                if (order.getX() == node.getX() && order.getY() == node.getY()) {
+                    isOrder = true;
+                    break;
+                }
+            }
             RouteDto.Node newNode = Node.builder()
                     .x(node.getX())
-                    .y(node.getY()).build();
+                    .y(node.getY())
+                    .order(isOrder)
+                    .build();
+        }
+        int index = 0;
+        for (RouteDto.Order order : this.orders) {
+            for (; index < this.route.size(); index++) {
+                if (order.getY() == route.get(index).getY() &&
+                    order.getX() == route.get(index).getX()) {
+                    order.setIndexRoute(index);
+                    break;
+                }
+            }
         }
     }
 }
