@@ -48,7 +48,7 @@ public class RouteController {
     }
 
     @PostMapping
-    protected ResponseEntity<?> scheduleRoutes() {
+    public ResponseEntity<?> scheduleRoutes() {
         List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
         List<Order> pendingOrders = orderService.listPendingsMonitoring(true);
 
