@@ -14,31 +14,30 @@ import java.util.ArrayList;
 @Builder
 public class Route {
     String truckId;
-    ArrayList<Node> nodes;
-    ArrayList<NodeInfo> nodeInfos;
+    ArrayList<NodeInfo> nodesInfo;
     ArrayList<Pair<Integer,Integer>> path;
-    ArrayList<LocalDateTime> times;
-    int totalTourDistance;
     double totalFuelConsumption;
     double totalDelivered;
     LocalDateTime startDate;
     LocalDateTime finishDate;
 
     public Route (String truckId, LocalDateTime startDate, LocalDateTime finishDate,
-                  ArrayList<NodeInfo> nodeInfos) {
+                  ArrayList<NodeInfo> nodesInfo, double totalFuelConsumption, double totalDelivered) {
         this.truckId = truckId;
         this.startDate = startDate;
         this.finishDate = finishDate;
-        this.nodeInfos = nodeInfos;
+        this.nodesInfo = nodesInfo;
+        this.totalFuelConsumption = totalFuelConsumption;
+        this.totalDelivered = totalDelivered;
     }
 
     public void generatePath() {
         path = new ArrayList<>();
-        Pair<Integer,Integer> startingPoint;
+        Pair<Integer,Integer> startingPoint = new Pair<>(12, 8);
         Pair<Integer,Integer> endingPoint;
-        for (int i = 1; i < nodes.size(); i++) {
-            startingPoint = new Pair(nodes.get(i-1).x, nodes.get(i-1).y);
-            endingPoint = new Pair(nodes.get(i).x, nodes.get(i).y);
+        for (int i = 0; i <= nodesInfo.size(); i++) {
+            if (i != nodesInfo.size()) endingPoint = new Pair(nodesInfo.get(i).x, nodesInfo.get(i).y);
+            else endingPoint = new Pair<>(12,8);
             int xi = startingPoint.x;
             int yi = startingPoint.y;
             int xf = endingPoint.x;
@@ -54,6 +53,7 @@ public class Route {
                 else yi++;
                 path.add(new Pair<>(xi, yi)) ;
             }
+            startingPoint = endingPoint;
         }
     }
 }

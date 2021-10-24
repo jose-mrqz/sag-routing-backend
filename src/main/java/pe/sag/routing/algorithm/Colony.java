@@ -99,7 +99,7 @@ public class Colony extends Graph {
             double quality = (totalGLP * attendedCustomers) / totalConsumption;
             if (quality > bestSolution) {
                 bestSolution = quality;
-                saveBestSolution2();
+                saveBestSolution();
             }
             updateThreshold();
             resetStep();
@@ -110,70 +110,45 @@ public class Colony extends Graph {
     private void saveBestSolution() {
         solutionRoutes = new ArrayList<>();
         for (Truck t : trucks) {
-            ArrayList<Node> tour = new ArrayList<>();
-            for (Node n : t.tour) {
-                if (n instanceof Depot) {
-                    Depot dp = (Depot) n;
-                    Depot d = new Depot(dp.isMain, dp.x, dp.y, dp.idx);
-                    d.remainingGlp = (HashMap<LocalDate, Double>) dp.remainingGlp.clone();
-                    tour.add(d);
-                } else {
-                    Order op = (Order) n;
-                    Order o = new Order(op._id, op.x, op.y, op.idx, op.demand, op.twOpen, op.twClose);
-                    o.visited = op.visited;
-                    o.totalDemand = op.totalDemand;
-                    o.deliveryTime = op.deliveryTime;
-                    tour.add(o);
-                }
-            }
-            ArrayList<LocalDateTime> tourTimes = new ArrayList<>(t.timeRegistry);
-            tourTimes.add(t.finishDate);
-            Route route = Route.builder()
-                    .truckId(t._id)
-                    .nodes(new ArrayList<>(tour))
-                    .totalFuelConsumption(t.totalFuelConsumption)
-                    .totalTourDistance(calculateTourDistance(t.tour, 0))
-                    .totalDelivered(t.totalDelivered)
-                    .times(tourTimes)
-                    .startDate(t.startDate)
-                    .finishDate(t.finishDate)
-                    .build();
-            solutionRoutes.add(route);
-        }
-    }
-
-    private void saveBestSolution2() {
-        solutionRoutes = new ArrayList<>();
-        for (Truck t : trucks) {
             int depIdx = 0;
             int arrIdx = 0;
             int fuelIdx = 0;
             int glpIdx = 0;
             double routeConsumption = 0.0;
             double routeDelivered = 0.0;
+            double consumption;
             ArrayList<NodeInfo> routeNodes = new ArrayList<>();
             LocalDateTime startTime = null;
             LocalDateTime endTime = null;
             if (t.tour.size() == 1) continue;
             int i = 0;
-            while (i != t.tour.size()) {
+            while (i < t.tour.size()) {
                 Node n = t.tour.get(i);
                 if (n.idx == 0) {  //start of new route
                     if (routeNodes.isEmpty()) {
                         startTime = t.departureRegistry.get(depIdx++);
+                        routeConsumption = 0.0;
+                        routeDelivered = 0.0;
                         i++;
                     } else {
-                        endTime = t.departureRegistry.get(depIdx++);
-                        routeNodes.clear();
-                        Route route = new Route(t._id, startTime, endTime, routeNodes);
+                        routeConsumption += t.fuelConsumption.get(fuelIdx++);
+                        endTime = t.arrivalRegistry.get(arrIdx++);
+                        Route route = new Route(t._id, startTime, endTime, routeNodes, routeConsumption, routeDelivered);
                         solutionRoutes.add(route);
+                        routeNodes = new ArrayList<>();
+                        if (i == t.tour.size()-1) break;
                     }
                 } else {
+                    consumption = t.fuelConsumption.get(fuelIdx++);
+                    routeConsumption += consumption;
                     if (n instanceof Depot)
-                        routeNodes.add(new DepotInfo(n.x, n.y, t.fuelConsumption.get(fuelIdx++),
-                                t.glpRegistry.get(glpIdx++), t.arrivalRegistry.get(arrIdx++)));
-                    else routeNodes.add(new OrderInfo(n.x, n.y, t.fuelConsumption.get(fuelIdx++),
-                            ((Order)n)._id, ((Order)n).deliveryTime,t.glpRegistry.get(glpIdx++), t.arrivalRegistry.get(arrIdx++)));
+                        routeNodes.add(new DepotInfo(n.x, n.y, t.glpRegistry.get(glpIdx++), t.arrivalRegistry.get(arrIdx++)));
+                    else {
+                        double delivered = t.glpRegistry.get(glpIdx++);
+                        routeDelivered += delivered;
+                        routeNodes.add(new OrderInfo(n.x, n.y, ((Order)n)._id, ((Order)n).deliveryTime, delivered,
+                                t.arrivalRegistry.get(arrIdx++)));
+                    }
                     i++;
                 }
             }

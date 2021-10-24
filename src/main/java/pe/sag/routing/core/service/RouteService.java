@@ -42,7 +42,7 @@ public class RouteService {
 
     public Route getActiveRouteByTruck(Truck truck) {
         Optional<Route> route = routeRepository.
-                findFirstByTruckAndStartDateIsBeforeAndFinishDateIsAfter(truck, LocalDateTime.now(), LocalDateTime.now());
+                findFirstByTruckIdAndStartDateIsBeforeAndFinishDateIsAfter(truck.get_id(), LocalDateTime.now(), LocalDateTime.now());
         return route.orElse(null);
     }
 }

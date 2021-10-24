@@ -1,17 +1,20 @@
 package pe.sag.routing.algorithm;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
 
+@Data
+@NoArgsConstructor
 public abstract class NodeInfo {
     int x;
     int y;
-    double fuelConsumed;
     LocalDateTime arrivalTime;
 
-    public NodeInfo(int x, int y, double fuel, LocalDateTime arrivalTime) {
+    public NodeInfo(int x, int y, LocalDateTime arrivalTime) {
         this.x = x;
         this.y = y;
-        this.fuelConsumed = fuel;
         this.arrivalTime = arrivalTime;
     }
 }

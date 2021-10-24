@@ -3,9 +3,6 @@ package pe.sag.routing.algorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import pe.sag.routing.core.service.RouteService;
-import pe.sag.routing.data.repository.OrderRepository;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -41,5 +38,9 @@ public class Planner {
         colony.run();
 
         solutionRoutes = colony.solutionRoutes;
+        for (int i = 0; i < solutionRoutes.size(); i++) {
+            Route route = solutionRoutes.get(i);
+            route.generatePath();
+        }
     }
 }

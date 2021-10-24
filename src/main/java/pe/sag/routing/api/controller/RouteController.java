@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pe.sag.routing.algorithm.Node;
+import pe.sag.routing.algorithm.NodeInfo;
 import pe.sag.routing.algorithm.Planner;
 import pe.sag.routing.api.response.ActiveRouteResponse;
 import pe.sag.routing.api.response.RestResponse;
@@ -38,15 +39,8 @@ public class RouteController {
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
-//        List<Route> activeRoutes = routeService.getActiveRoutes();
         List<Route> activeRoutes = routeService.getAll();
-        List<ActiveRouteResponse> payload = new ArrayList<>();
-        activeRoutes.forEach(r -> payload.add(ActiveRouteResponse.builder()
-                .startDate(r.getStartDate())
-                .velocity(13.889)
-                .orders(r.getOrders().stream().map(OrderParser::toDto).collect(Collectors.toList()))
-                .route(r.getNodes()).build()));
-        RestResponse response = new RestResponse(HttpStatus.OK, payload);
+        RestResponse response = new RestResponse(HttpStatus.OK, activeRoutes);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -56,50 +50,31 @@ public class RouteController {
     protected ResponseEntity<?> scheduleRoutes() throws IllegalAccessException {
         List<Truck> availableTrucks = truckService.findByAvailable(true);
         List<Order> pendingOrders = orderService.listPendings();
-        List<Route> activeRoutes = new ArrayList<>();
-        for (Truck t : availableTrucks) {
-            Route r = routeService.getActiveRouteByTruck(t);
-            if (r != null) activeRoutes.add(r);
-        }
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Planner planner = new Planner(availableTrucks, pendingOrders);
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
 
-            for(int i = 0; i < availableTrucks.size(); i++){
-                pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
-                if(sr.getTotalTourDistance() == 0) continue;
+//            for(int i = 0; i < availableTrucks.size(); i++){
+//                pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
+//                if(sr.getTotalTourDistance() == 0) continue;
 //                truckService.updateAvailable(availableTrucks.get(i),false);
 //                truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
-            }
-            for(Order o : pendingOrders){
+//            }
+//            for(Order o : pendingOrders){
 //                orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
-            }
+//            }
 
             for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
-                if(sr.getTotalTourDistance() == 0) continue;
                 ArrayList<Order> orders = new ArrayList<>();
-                for (Node n : sr.getNodes()) {
-                    if (n instanceof pe.sag.routing.algorithm.Order) {
-                        orders.add(orderService.findById(((pe.sag.routing.algorithm.Order)n).get_id()));
+//                for (NodeInfo n : sr.getNodesInfo()) {
+//                    if (n instanceof pe.sag.routing.algorithm.OrderInfo) {
 //                        orderService.scheduleStatusChange(((pe.sag.routing.algorithm.Order)n).get_id(),
 //                                OrderStatus.COMPLETED, ((pe.sag.routing.algorithm.Order)n).getDeliveryTime());
-                    }
-                }
-                sr.generatePath();
-                Route r = Route.builder()
-                        .truck(truckService.findById(sr.getTruckId()))
-                        .orders(orders)
-                        .nodes(sr.getPath())
-                        .distance(sr.getTotalTourDistance())
-                        .fuelConsumed(sr.getTotalFuelConsumption())
-                        .deliveredGLP(sr.getTotalDelivered())
-                        .startDate(sr.getStartDate())
-                        .finishDate(sr.getFinishDate())
-                        .times(sr.getTimes())
-                        .active(true)
-                        .build();
+//                    }
+//                }
+                Route r = new Route(sr);
                 routeService.register(r);
             }
         }

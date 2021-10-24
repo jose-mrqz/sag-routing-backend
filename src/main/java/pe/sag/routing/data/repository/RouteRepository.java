@@ -10,5 +10,5 @@ import java.util.Optional;
 
 public interface RouteRepository extends MongoRepository<Route,String> {
     List<Route> findAllByStartDateIsAfterAndFinishDateIsBefore(LocalDateTime startDate, LocalDateTime finishDate);
-    Optional<Route> findFirstByTruckAndStartDateIsBeforeAndFinishDateIsAfter(Truck truck, LocalDateTime startDate, LocalDateTime finishDate);
+    Optional<Route> findFirstByTruckIdAndStartDateIsBeforeAndFinishDateIsAfter(String truck, LocalDateTime startDate, LocalDateTime finishDate);
 }
