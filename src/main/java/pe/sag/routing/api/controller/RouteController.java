@@ -36,8 +36,7 @@ public class RouteController {
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
-//        List<Route> activeRoutes = routeService.getActiveRoutes(true);
-        List<Route> activeRoutes = routeService.list();
+        List<Route> activeRoutes = routeService.getActiveRoutes(true);
         RestResponse response = new RestResponse(HttpStatus.OK, activeRoutes);
         return ResponseEntity
                 .status(response.getStatus())
