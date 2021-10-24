@@ -44,9 +44,9 @@ public class RouteDto {
     @NotBlank
     private String endDate;
     @NotBlank
-    private int timeAttention = 10;
+    private int timeAttention = 10*60;
     @NotBlank
-    private double velocity = 50;
+    private double velocity = 13.8889;
     @NotBlank
     private String truckCode;
     @NotBlank
