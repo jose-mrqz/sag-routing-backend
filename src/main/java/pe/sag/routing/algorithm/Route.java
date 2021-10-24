@@ -35,6 +35,7 @@ public class Route {
         path = new ArrayList<>();
         Pair<Integer,Integer> startingPoint = new Pair<>(12, 8);
         Pair<Integer,Integer> endingPoint;
+        path.add(startingPoint);
         for (int i = 0; i <= nodesInfo.size(); i++) {
             if (i != nodesInfo.size()) endingPoint = new Pair(nodesInfo.get(i).x, nodesInfo.get(i).y);
             else endingPoint = new Pair<>(12,8);
@@ -42,16 +43,15 @@ public class Route {
             int yi = startingPoint.y;
             int xf = endingPoint.x;
             int yf = endingPoint.y;
-            path.add(new Pair<>(xi, yi)) ;
             while (xi != xf) {
                 if (xi > xf) xi--;
                 else xi++;
-                path.add(new Pair<>(xi, yi)) ;
+                path.add(new Pair<>(xi, yi));
             }
             while (yi != yf) {
                 if (yi > yf) yi--;
                 else yi++;
-                path.add(new Pair<>(xi, yi)) ;
+                path.add(new Pair<>(xi, yi));
             }
             startingPoint = endingPoint;
         }

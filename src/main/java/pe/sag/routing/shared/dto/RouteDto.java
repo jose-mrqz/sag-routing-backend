@@ -83,6 +83,7 @@ public class RouteDto {
                     .y(node.getY())
                     .order(isOrder)
                     .build();
+            this.route.add(newNode);
         }
         int index = 0;
         for (RouteDto.Order order : this.orders) {
