@@ -3,7 +3,6 @@ package pe.sag.routing.algorithm;
 import lombok.*;
 
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
@@ -27,6 +26,7 @@ public class Colony extends Graph {
     private Random rand;
 
     public List<Route> solutionRoutes = null;
+    public List<Pair<String,LocalDateTime>> solutionOrders;
     public double bestSolutionQuality;
 
     public Colony(List<Order> orders, List<Truck> trucks) {
@@ -109,36 +109,56 @@ public class Colony extends Graph {
 
     private void saveBestSolution() {
         solutionRoutes = new ArrayList<>();
+        solutionOrders = new ArrayList<>();
+        for (Node node : nodes) {
+            if (node instanceof Order) {
+                Order order = (Order)node;
+                solutionOrders.add(new Pair<>(order._id, order.deliveryTime));
+            }
+        }
         for (Truck t : trucks) {
-            ArrayList<Node> tour = new ArrayList<>();
-            for (Node n : t.tour) {
-                if (n instanceof Depot) {
-                    Depot dp = (Depot) n;
-                    Depot d = new Depot(dp.isMain, dp.x, dp.y, dp.idx);
-                    d.remainingGlp = (HashMap<LocalDate, Double>) dp.remainingGlp.clone();
-                    tour.add(d);
+            int depIdx = 0;
+            int arrIdx = 0;
+            int fuelIdx = 0;
+            int glpIdx = 0;
+            double routeConsumption = 0.0;
+            double routeDelivered = 0.0;
+            double consumption;
+            ArrayList<NodeInfo> routeNodes = new ArrayList<>();
+            LocalDateTime startTime = null;
+            LocalDateTime endTime = null;
+            if (t.tour.size() == 1) continue;
+            int i = 0;
+            while (i < t.tour.size()) {
+                Node n = t.tour.get(i);
+                if (n.idx == 0) {  //start of new route
+                    if (routeNodes.isEmpty()) {
+                        startTime = t.departureRegistry.get(depIdx++);
+                        routeConsumption = 0.0;
+                        routeDelivered = 0.0;
+                        i++;
+                    } else {
+                        routeConsumption += t.fuelConsumption.get(fuelIdx++);
+                        endTime = t.arrivalRegistry.get(arrIdx++);
+                        Route route = new Route(t._id, startTime, endTime, routeNodes, routeConsumption, routeDelivered);
+                        solutionRoutes.add(route);
+                        routeNodes = new ArrayList<>();
+                        if (i == t.tour.size()-1) break;
+                    }
                 } else {
-                    Order op = (Order) n;
-                    Order o = new Order(op._id, op.x, op.y, op.idx, op.demand, op.twOpen, op.twClose);
-                    o.visited = op.visited;
-                    o.totalDemand = op.totalDemand;
-                    o.deliveryTime = op.deliveryTime;
-                    tour.add(o);
+                    consumption = t.fuelConsumption.get(fuelIdx++);
+                    routeConsumption += consumption;
+                    if (n instanceof Depot)
+                        routeNodes.add(new DepotInfo(n.x, n.y, t.glpRegistry.get(glpIdx++), t.arrivalRegistry.get(arrIdx++)));
+                    else {
+                        double delivered = t.glpRegistry.get(glpIdx++);
+                        routeDelivered += delivered;
+                        routeNodes.add(new OrderInfo(n.x, n.y, ((Order)n)._id, ((Order)n).deliveryTime, delivered,
+                                t.arrivalRegistry.get(arrIdx++)));
+                    }
+                    i++;
                 }
             }
-            ArrayList<LocalDateTime> tourTimes = new ArrayList<>(t.timeRegistry);
-            tourTimes.add(t.finishDate);
-            Route route = Route.builder()
-                    .truckId(t._id)
-                    .nodes(new ArrayList<>(tour))
-                    .totalFuelConsumption(t.totalFuelConsumption)
-                    .totalTourDistance(calculateTourDistance(t.tour, 0))
-                    .totalDelivered(t.totalDelivered)
-                    .times(tourTimes)
-                    .startDate(t.startDate)
-                    .finishDate(t.finishDate)
-                    .build();
-            solutionRoutes.add(route);
         }
     }
 
@@ -148,16 +168,21 @@ public class Colony extends Graph {
 
     public void solve()  {
         int truckIdx = 0;
+        boolean onlyDepot;
         while (!isAllVisited()) {
             if (trucks[truckIdx].tour.isEmpty()) // add main depot as starting point
                 trucks[truckIdx].addNode(nodes[0], distanceMatrix);
             ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
             while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
+                onlyDepot = true;
                 for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
                     if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
-                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix))
+                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix)) {
+                        if (onlyDepot && nodes[nodeIdx] instanceof Order) onlyDepot = false;
                         feasibleEdges.add(new Pair<>(trucks[truckIdx].nowIdx, nodeIdx));
+                    }
                 }
+                if (onlyDepot) feasibleEdges.clear();
                 if (feasibleEdges.isEmpty()) {
                     if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix); //return to main depot
                     else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(30); // wait at main depot

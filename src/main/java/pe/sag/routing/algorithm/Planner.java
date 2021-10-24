@@ -16,6 +16,7 @@ public class Planner {
     private List<pe.sag.routing.core.model.Truck> modelTrucks;
     private List<pe.sag.routing.core.model.Order> modelOrders;
     List<Route> solutionRoutes;
+    List<Pair<String,LocalDateTime>> solutionOrders;
 
     public Planner(List<pe.sag.routing.core.model.Truck> modelTrucks,
                    List<pe.sag.routing.core.model.Order> modelOrders) {
@@ -38,5 +39,11 @@ public class Planner {
         colony.run();
 
         solutionRoutes = colony.solutionRoutes;
+        solutionOrders = colony.solutionOrders;
+
+        for (int i = 0; i < solutionRoutes.size(); i++) {
+            Route route = solutionRoutes.get(i);
+            route.generatePath();
+        }
     }
 }

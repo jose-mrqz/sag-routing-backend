@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import pe.sag.routing.algorithm.Node;
+import pe.sag.routing.algorithm.NodeInfo;
+import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
 import pe.sag.routing.api.response.ActiveRouteResponse;
 import pe.sag.routing.api.response.RestResponse;
@@ -19,6 +21,7 @@ import pe.sag.routing.core.service.TruckService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,7 +33,7 @@ public class RouteController {
     private final TruckService truckService;
     private final OrderService orderService;
 
-    public RouteController(RouteService routeService, TruckService truckService, OrderService orderService) {
+    public RouteController(RouteService routeService, TruckService truckService, Ord can still create the pullerService orderService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
@@ -38,62 +41,33 @@ public class RouteController {
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
-        List<Route> activeRoutes = routeService.getActiveRoutes(true);
-        List<ActiveRouteResponse> payload = new ArrayList<>();
-        activeRoutes.forEach(r -> payload.add(ActiveRouteResponse.builder()
-                .startDate(r.getStartDate())
-                .velocity(13.889)
-                .orders(r.getOrders().stream().map(OrderParser::toDto).collect(Collectors.toList()))
-                .route(r.getNodes()).build()));
-        RestResponse response = new RestResponse(HttpStatus.OK, payload);
+        List<Route> activeRoutes = routeService.getAll();
+        RestResponse response = new RestResponse(HttpStatus.OK, activeRoutes);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
     }
 
     @PostMapping
-    protected ResponseEntity<?> scheduleRoutes() throws IllegalAccessException {
-        List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
-        List<Order> pendingOrders = orderService.listPendingsMonitoring(true);
+
+    protected ResponseEntity<?> scheduleRoutes() {
+        List<Truck> availableTrucks = truckService.findByAvailable(true);
+        List<Order> pendingOrders = orderService.listPendings();
+      
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Planner planner = new Planner(availableTrucks, pendingOrders);
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
+            List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
 
-            for(int i=0;i< availableTrucks.size();i++){
-                pe.sag.routing.algorithm.Route sr = solutionRoutes.get(i);
-                if(sr.getTotalTourDistance() == 0) continue;
-                truckService.updateAvailable(availableTrucks.get(i),false);
-                truckService.scheduleStatusChange(availableTrucks.get(i), true, sr.getFinishDate());
-            }
             for(Order o : pendingOrders){
-                orderService.updateStatus(o,OrderStatus.IN_PROGRESS);
+                orderService.updateStatus(o, OrderStatus.IN_PROGRESS);
             }
-
+            for (Pair<String,LocalDateTime> delivery : solutionOrders) {
+                orderService.scheduleStatusChange(delivery.getX(), OrderStatus.COMPLETED, delivery.getY());
+            }
             for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
-                if(sr.getTotalTourDistance() == 0) continue;
-                ArrayList<Order> orders = new ArrayList<>();
-                for (Node n : sr.getNodes()) {
-                    if (n instanceof pe.sag.routing.algorithm.Order) {
-                        orders.add(orderService.findById(((pe.sag.routing.algorithm.Order)n).get_id()));
-                        orderService.scheduleStatusChange(((pe.sag.routing.algorithm.Order)n).get_id(),
-                                OrderStatus.COMPLETED, ((pe.sag.routing.algorithm.Order)n).getDeliveryTime());
-                    }
-                }
-                sr.generatePath();
-                Route r = Route.builder()
-                        .truck(truckService.findById(sr.getTruckId()))
-                        .orders(orders)
-                        .nodes(sr.getPath())
-                        .distance(sr.getTotalTourDistance())
-                        .fuelConsumed(sr.getTotalFuelConsumption())
-                        .deliveredGLP(sr.getTotalDelivered())
-                        .startDate(sr.getStartDate())
-                        .finishDate(sr.getFinishDate())
-                        .times(sr.getTimes())
-                        .active(true)
-                        .monitoring(true)
-                        .build();
+                Route r = new Route(sr);
                 routeService.register(r);
             }
         }

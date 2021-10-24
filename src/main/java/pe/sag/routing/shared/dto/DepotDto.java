@@ -16,6 +16,10 @@ import javax.validation.constraints.NotBlank;
 @Builder
 public class DepotDto {
     @NotBlank
+    private int x;
+    @NotBlank
+    private int y;
+    @NotBlank
     private String name;
     @NotBlank
     private double capacityGLP;

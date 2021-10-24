@@ -19,6 +19,7 @@ public class Order extends Node {
     LocalDateTime twClose;
     LocalDateTime deliveryTime;
     boolean visited = false;
+    int unloadTime = 10;
 
     public Order(String _id, int x, int y, int idx, double demand,
                  LocalDateTime twOpen, LocalDateTime twClose) {
