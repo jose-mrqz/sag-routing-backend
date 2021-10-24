@@ -62,7 +62,7 @@ public class RouteDto {
                     .x(order.getX())
                     .y(order.getY())
                     .deliveryDate(order.getDeliveryDate().format(format))
-                    .leftDate(order.getDeliveryDate().plusMinutes(timeAttention).format(format))
+                    .leftDate(order.getDeliveryDate().plusSeconds(timeAttention).format(format))
                     .build();
             this.orders.add(newOrder);
         }
