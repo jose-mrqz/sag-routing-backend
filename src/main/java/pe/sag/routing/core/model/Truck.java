@@ -8,6 +8,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document
 @Data
 @AllArgsConstructor
@@ -20,6 +22,7 @@ public class Truck {
     private String code;
     private TruckModel model;
     private boolean available = true;
+    private LocalDateTime lastRouteEndTime = null;
     private boolean monitoring;
     private boolean active = true;
 }

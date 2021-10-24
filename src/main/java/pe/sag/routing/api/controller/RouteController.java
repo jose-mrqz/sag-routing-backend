@@ -6,11 +6,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pe.sag.routing.algorithm.Node;
-import pe.sag.routing.algorithm.NodeInfo;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
-import pe.sag.routing.api.response.ActiveRouteResponse;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Route;
@@ -18,13 +15,11 @@ import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
-import pe.sag.routing.data.parser.OrderParser;
+import pe.sag.routing.shared.dto.RouteDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/route")
@@ -33,7 +28,7 @@ public class RouteController {
     private final TruckService truckService;
     private final OrderService orderService;
 
-    public RouteController(RouteService routeService, TruckService truckService, Ord can still create the pullerService orderService) {
+    public RouteController(RouteService routeService, TruckService truckService, OrderService orderService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
@@ -41,7 +36,8 @@ public class RouteController {
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
-        List<Route> activeRoutes = routeService.getAll();
+//        List<Route> activeRoutes = routeService.getActiveRoutes(true);
+        List<Route> activeRoutes = routeService.list();
         RestResponse response = new RestResponse(HttpStatus.OK, activeRoutes);
         return ResponseEntity
                 .status(response.getStatus())
@@ -49,11 +45,16 @@ public class RouteController {
     }
 
     @PostMapping
-
     protected ResponseEntity<?> scheduleRoutes() {
-        List<Truck> availableTrucks = truckService.findByAvailable(true);
-        List<Order> pendingOrders = orderService.listPendings();
-      
+        List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
+        List<Order> pendingOrders = orderService.listPendingsMonitoring(true);
+
+        for (Truck truck : availableTrucks) {
+            Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck);
+            if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
+            else truck.setLastRouteEndTime(LocalDateTime.now());
+        }
+
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Planner planner = new Planner(availableTrucks, pendingOrders);
             planner.run();
@@ -61,7 +62,14 @@ public class RouteController {
             List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
 
             for(Order o : pendingOrders){
-                orderService.updateStatus(o, OrderStatus.IN_PROGRESS);
+                boolean scheduled = false;
+                for (Pair<String, LocalDateTime> delivery : solutionOrders) {
+                    if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                        scheduled = true;
+                        break;
+                    }
+                }
+                if (scheduled) orderService.updateStatus(o, OrderStatus.IN_PROGRESS);
             }
             for (Pair<String,LocalDateTime> delivery : solutionOrders) {
                 orderService.scheduleStatusChange(delivery.getX(), OrderStatus.COMPLETED, delivery.getY());

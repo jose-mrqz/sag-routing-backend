@@ -29,7 +29,7 @@ public class Planner {
         ArrayList<Order> orders = new ArrayList<>();
 
         modelTrucks.forEach(tm -> trucks.add(new Truck(tm.get_id(), tm.getModel().getCapacity(),
-                tm.getModel().getTareWeight(), 0, LocalDateTime.now())));
+                tm.getModel().getTareWeight(), 0, tm.getLastRouteEndTime())));
 
         AtomicInteger idx = new AtomicInteger();
         modelOrders.forEach(om -> orders.add(new Order(om.get_id(), om.getX(), om.getY(), idx.getAndIncrement(),
@@ -41,8 +41,7 @@ public class Planner {
         solutionRoutes = colony.solutionRoutes;
         solutionOrders = colony.solutionOrders;
 
-        for (int i = 0; i < solutionRoutes.size(); i++) {
-            Route route = solutionRoutes.get(i);
+        for (Route route : solutionRoutes) {
             route.generatePath();
         }
     }

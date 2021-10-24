@@ -31,8 +31,8 @@ public class RouteService {
         return routeRepository.save(route);
     }
 
-    public List<RouteDto> list() {
-        return routeRepository.findAll().stream().map(RouteParser::toDto).collect(Collectors.toList());
+    public List<Route> list() {
+        return routeRepository.findAll();
     }
 
     public List<Route> getActiveRoutes(boolean monitoring) {
@@ -47,34 +47,34 @@ public class RouteService {
         return transformedDate;
     }
 
-    public Route transformRoute(Route routeToTransform, LocalDateTime simulationStart, int speed){
-        Route transformedRoute = Route.builder()
-                .truck(routeToTransform.getTruck())
-                .orders(routeToTransform.getOrders())
-                .times(routeToTransform.getTimes())
-                .nodes(routeToTransform.getNodes())
-                .distance(routeToTransform.getDistance())
-                .fuelConsumed(routeToTransform.getFuelConsumed())
-                .deliveredGLP(routeToTransform.getDeliveredGLP())
-                .active(true)
-                .startDate(routeToTransform.getStartDate())
-                .finishDate(routeToTransform.getFinishDate())
-                .build();
+//    public Route transformRoute(Route routeToTransform, LocalDateTime simulationStart, int speed){
+//        Route transformedRoute = Route.builder()
+//                .truck(routeToTransform.getTruck())
+//                .orders(routeToTransform.getOrders())
+//                .times(routeToTransform.getTimes())
+//                .nodes(routeToTransform.getNodes())
+//                .distance(routeToTransform.getDistance())
+//                .fuelConsumed(routeToTransform.getFuelConsumed())
+//                .deliveredGLP(routeToTransform.getDeliveredGLP())
+//                .active(true)
+//                .startDate(routeToTransform.getStartDate())
+//                .finishDate(routeToTransform.getFinishDate())
+//                .build();
+//
+//        routeToTransform.setStartDate(transformDate(simulationStart,speed,routeToTransform.getStartDate()));
+//        routeToTransform.setFinishDate(transformDate(simulationStart,speed,routeToTransform.getFinishDate()));
+//
+//        for(Order o : routeToTransform.getOrders()){
+//            o.setDeliveryDate(transformDate(simulationStart,speed,routeToTransform.getStartDate()));
+//            //o.setLeftDate(transformDate(simulationStart,speed,routeToTransform.getLeftDate()));
+//        }
+//
+//        return transformedRoute;
+//    }
 
-        routeToTransform.setStartDate(transformDate(simulationStart,speed,routeToTransform.getStartDate()));
-        routeToTransform.setFinishDate(transformDate(simulationStart,speed,routeToTransform.getFinishDate()));
-
-        for(Order o : routeToTransform.getOrders()){
-            o.setDeliveryDate(transformDate(simulationStart,speed,routeToTransform.getStartDate()));
-            //o.setLeftDate(transformDate(simulationStart,speed,routeToTransform.getLeftDate()));
-        }
-
-        return transformedRoute;
-    }
-
-    public Route getActiveRouteByTruck(Truck truck) {
+    public Route getLastRouteByTruckMonitoring(Truck truck) {
         Optional<Route> route = routeRepository.
-                findFirstByTruckIdAndStartDateIsBeforeAndFinishDateIsAfter(truck.get_id(), LocalDateTime.now(), LocalDateTime.now());
+                findTopByTruckIdAndMonitoringOrderByFinishDateDesc(truck.get_id(), true);
         return route.orElse(null);
     }
 }
