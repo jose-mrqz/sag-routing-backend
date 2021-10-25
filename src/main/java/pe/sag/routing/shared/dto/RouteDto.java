@@ -8,9 +8,12 @@ import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.core.model.Route;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Data
 @AllArgsConstructor
@@ -95,5 +98,38 @@ public class RouteDto {
                 }
             }
         }
+    }
+
+    public String transformDate(LocalDateTime simulationStart, int speed, String sDateToConvert){
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime dateToConvert = LocalDateTime.parse(sDateToConvert, format);
+
+        long amountSeconds = SECONDS.between(simulationStart, dateToConvert);
+        amountSeconds /= speed;
+        LocalDateTime transformedDate = LocalDateTime.of(simulationStart.toLocalDate(),simulationStart.toLocalTime());
+        transformedDate = transformedDate.plusSeconds(amountSeconds);
+        return transformedDate.format(format);
+    }
+
+    public RouteDto transformRoute(LocalDateTime simulationStart, int speed){
+        RouteDto transformedRoute = RouteDto.builder()
+                .startDate(getStartDate())
+                .endDate(getEndDate())
+                .timeAttention(getTimeAttention())
+                .velocity(getVelocity())
+                .truckCode(getTruckCode())
+                .orders(getOrders())
+                .route(getRoute())
+                .build();
+
+        transformedRoute.setStartDate(transformDate(simulationStart,speed,getStartDate()));
+        transformedRoute.setEndDate(transformDate(simulationStart,speed,getEndDate()));
+
+        for(RouteDto.Order o : transformedRoute.getOrders()){
+            o.setDeliveryDate(transformDate(simulationStart,speed,o.getDeliveryDate()));
+            o.setLeftDate(transformDate(simulationStart,speed,o.getLeftDate()));
+        }
+
+        return transformedRoute;
     }
 }

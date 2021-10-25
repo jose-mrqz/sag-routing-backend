@@ -39,42 +39,14 @@ public class RouteService {
         return routeRepository.findByStartDateBeforeAndFinishDateAfterAndMonitoring(actualDate, actualDate, monitoring);
     }
 
-    public LocalDateTime transformDate(LocalDateTime simulationStart, int speed, LocalDateTime dateToConvert){
-        long amountSeconds = SECONDS.between(simulationStart, dateToConvert);
-        amountSeconds /= speed;
-        LocalDateTime transformedDate = LocalDateTime.of(simulationStart.toLocalDate(),simulationStart.toLocalTime());
-        transformedDate = transformedDate.plusSeconds(amountSeconds);
-        return transformedDate;
-    }
-
-    public Route transformRoute(Route routeToTransform, LocalDateTime simulationStart, int speed){
-        Route transformedRoute = Route.builder()
-                .truckId(routeToTransform.getTruckId())
-                .orders(routeToTransform.getOrders())
-                .nodes(routeToTransform.getNodes())
-                .fuelConsumed(routeToTransform.getFuelConsumed())
-                .deliveredGLP(routeToTransform.getDeliveredGLP())
-                .active(true)
-                .startDate(routeToTransform.getStartDate())
-                .finishDate(routeToTransform.getFinishDate())
-                .monitoring(false)
-                .build();
-
-        transformedRoute.setStartDate(transformDate(simulationStart,speed,routeToTransform.getStartDate()));
-        transformedRoute.setFinishDate(transformDate(simulationStart,speed,routeToTransform.getFinishDate()));
-
-        for(Route.Order o : routeToTransform.getOrders()){
-            o.setDeliveryDate(transformDate(simulationStart,speed,routeToTransform.getStartDate()));
-            //o.setLeftDate(transformDate(simulationStart,speed,routeToTransform.getLeftDate()));
-        }
-
-        return transformedRoute;
-    }
-
-    public Route getLastRouteByTruckMonitoring(Truck truck) {
+    public Route getLastRouteByTruckMonitoring(Truck truck, boolean monitoring) {
         Optional<Route> route = routeRepository.
-                findTopByTruckIdAndMonitoringOrderByFinishDateDesc(truck.get_id(), true);
+                findTopByTruckIdAndMonitoringOrderByFinishDateDesc(truck.get_id(), monitoring);
         return route.orElse(null);
+    }
+
+    public void deleteByMonitoring(boolean monitoring){
+        routeRepository.deleteByMonitoring(monitoring);
     }
 }
 

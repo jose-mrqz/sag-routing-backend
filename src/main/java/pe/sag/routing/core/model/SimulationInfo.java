@@ -4,7 +4,6 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 
 @Document
 @Data
@@ -13,6 +12,5 @@ import java.util.ArrayList;
 @Builder
 public class SimulationInfo {
     private LocalDateTime startDate;
-    private ArrayList<Integer> codeOrders;
 }
 

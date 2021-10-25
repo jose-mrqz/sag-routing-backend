@@ -4,7 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.sag.routing.api.request.NewHistoricOrdersRequest;
 import pe.sag.routing.api.request.NewOrderRequest;
+import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.SimulationInfo;
@@ -22,7 +24,10 @@ import java.util.List;
 public class OrderController {
     @Autowired
     private OrderService orderService;
+    @Autowired
     private SimulationInfoRepository simulationInfoRepository;
+    @Autowired
+    private RouteController routeController;
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody NewOrderRequest request) throws IllegalAccessException {
@@ -43,11 +48,12 @@ public class OrderController {
     }
 
     @PostMapping(path = "/historic")
-    public ResponseEntity<?> insertHistoricOrders(@RequestBody List<NewOrderRequest> request) throws IllegalAccessException {
+    public ResponseEntity<?> insertHistoricOrders(@RequestBody NewHistoricOrdersRequest request) throws IllegalAccessException {
+        orderService.deleteByMonitoring(false);
+
         ArrayList<Order> orders = new ArrayList<>();
-        ArrayList<Integer> codeOrders = new ArrayList<>();
         boolean responseOK = true;
-        for(NewOrderRequest r : request){
+        for(NewOrderRequest r : request.getOrderRequests()){
             OrderDto orderDto = OrderDto.builder()
                     .x(r.getX())
                     .y(r.getY())
@@ -60,22 +66,29 @@ public class OrderController {
                 responseOK = false;
                 break;
             }
-            codeOrders.add(order.getCode());
             orders.add(order);
         }
 
-        //guardar informacion de simulacion - startDate
+        //correr algoritmo
+        routeController.scheduleRoutesSimulation();
+        SimulationRequest simulationRequest = new SimulationRequest(LocalDateTime.now(), request.getSpeed());
+        ResponseEntity<?> responseRoutes = routeController.getActiveSimulation(simulationRequest);
+
+        simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();
-        simulationInfo.setStartDate(LocalDateTime.now());
-        simulationInfo.setCodeOrders(codeOrders);//
+        simulationInfo.setStartDate(LocalDateTime.now()); //considerar margen, preguntar a renzo
         simulationInfoRepository.save(simulationInfo);
 
-        RestResponse response;
-        if (responseOK) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", orders);
-        else response = new RestResponse(HttpStatus.OK, "Error al agregar pedidos.");
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
+        /*RestResponse response;
+        if (responseOK) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", responseRoutes);
+        else response = new RestResponse(HttpStatus.OK, "Error al agregar pedidos.");*/
+        if (responseOK) return responseRoutes;
+        else{
+            RestResponse response = new RestResponse(HttpStatus.OK, "Error al agregar pedidos.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
     }
 
     @GetMapping

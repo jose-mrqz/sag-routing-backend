@@ -13,4 +13,5 @@ public interface OrderRepository extends MongoRepository<Order,String> {
     List<Order> findByStatusAndMonitoring(OrderStatus status, boolean monitoring);
     Optional<Order> findFirstByOrderByCodeDesc();
     List<Order> findByMonitoringOrderByCodeAsc(boolean monitoring);
+    void deleteByMonitoring(boolean monitoring);
 }

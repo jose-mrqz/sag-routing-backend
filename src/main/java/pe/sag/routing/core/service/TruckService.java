@@ -10,10 +10,7 @@ import pe.sag.routing.shared.dto.TruckDto;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,6 +31,15 @@ public class TruckService {
     public Truck updateAvailable(Truck truck, boolean available) {
         truck.setAvailable(available);
         return truckRepository.save(truck);
+    }
+
+    public void updateAvailablesSimulation() {
+        List<Truck> trucks = truckRepository.findByMonitoring(false);
+        for(Truck t : trucks){
+            if(!t.isAvailable()){
+                updateAvailable(t,true);
+            }
+        }
     }
 
     public List<TruckDto> list() {

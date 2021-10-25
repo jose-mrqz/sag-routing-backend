@@ -66,6 +66,10 @@ public class OrderService {
         return order.orElse(null);
     }
 
+    public void deleteByMonitoring(boolean monitoring) {
+        orderRepository.deleteByMonitoring(monitoring);
+    }
+
     public void scheduleStatusChange(String id, OrderStatus status, LocalDateTime now) {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {

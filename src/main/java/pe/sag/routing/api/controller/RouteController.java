@@ -1,21 +1,24 @@
 package pe.sag.routing.api.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
+import pe.sag.routing.api.request.NewOrderRequest;
+import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
+import pe.sag.routing.api.response.SimulationResponse;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Route;
+import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
 import pe.sag.routing.data.parser.RouteParser;
+import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.RouteDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
@@ -27,15 +30,26 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/route")
 public class RouteController {
-    private final RouteService routeService;
+    @Autowired
+    private RouteService routeService;
+    @Autowired
+    private TruckService truckService;
+    @Autowired
+    private OrderService orderService;
+    @Autowired
+    private SimulationInfoRepository simulationInfoRepository;
+
+    /*private final RouteService routeService;
     private final TruckService truckService;
     private final OrderService orderService;
+    private final SimulationInfoRepository simulationInfoRepository;
 
-    public RouteController(RouteService routeService, TruckService truckService, OrderService orderService) {
+    public RouteController(RouteService routeService, TruckService truckService, OrderService orderService, SimulationInfoRepository simulationInfoRepository) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
-    }
+        this.simulationInfoRepository = simulationInfoRepository;
+    }*/
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
@@ -48,11 +62,22 @@ public class RouteController {
     }
 
     @GetMapping(path = "/simulation")
-    protected ResponseEntity<?> getActiveSimulation(LocalDateTime actualDate) {
-        List<Route> activeRoutes = routeService.getActiveRoutes(actualDate, false);
+    protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
+        List<Route> activeRoutes = routeService.getActiveRoutes(request.getActualDate(), false);
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        //List<RouteDto> routesTransformedDto = activeRoutes.stream().map(RouteParser::toTransformDto).collect(Collectors.toList());
-        RestResponse response = new RestResponse(HttpStatus.OK, routesDto);
+        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
+
+        //sacar simulation info de bd
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        SimulationInfo simulationInfo = listSimulationInfo.get(0);
+
+        for(RouteDto r : routesDto){
+            RouteDto rt = r.transformRoute(simulationInfo.getStartDate(),request.getSpeed());
+            routesTransformedDto.add(rt);
+        }
+
+        SimulationResponse simulationResponse = new SimulationResponse(routesDto, routesTransformedDto);
+        RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -64,7 +89,7 @@ public class RouteController {
         List<Order> pendingOrders = orderService.listPendingsMonitoring(true);
 
         for (Truck truck : availableTrucks) {
-            Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck);
+            Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
             if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
             else truck.setLastRouteEndTime(LocalDateTime.now());
         }
@@ -103,11 +128,14 @@ public class RouteController {
 
     @PostMapping(path = "/simulation")
     public ResponseEntity<?> scheduleRoutesSimulation() {
+        routeService.deleteByMonitoring(false);
+        truckService.updateAvailablesSimulation();
+
         List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
         List<Order> pendingOrders = orderService.listPendingsMonitoring(false);
 
         for (Truck truck : availableTrucks) {
-            Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck);
+            Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
             if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
             else truck.setLastRouteEndTime(LocalDateTime.now());
         }
