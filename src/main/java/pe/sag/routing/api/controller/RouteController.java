@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
-import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.api.response.SimulationResponse;
@@ -24,6 +23,7 @@ import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,40 +73,43 @@ public class RouteController {
 
     @PostMapping
     public ResponseEntity<?> scheduleRoutes() {
-        List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
-        List<Order> pendingOrders = orderService.listPendingsMonitoring(true);
+        while (true) {
+            List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
+            if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
+            List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
+            for (Truck truck : availableTrucks) {
+                Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
+                if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
+                else truck.setLastRouteEndTime(LocalDateTime.now());
+            }
 
-        for (Truck truck : availableTrucks) {
-            Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
-            if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
-            else truck.setLastRouteEndTime(LocalDateTime.now());
-        }
+            //mejorar con formato de error: colapso logistico
+            if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
+                Collections.shuffle(availableTrucks);
+                Planner planner = new Planner(availableTrucks, pendingOrders);
+                planner.run();
+                if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
+                List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
+                List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
 
-        //mejorar con formato de error: colapso logistico
-        if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-            Planner planner = new Planner(availableTrucks, pendingOrders);
-            planner.run();
-            List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
-            List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
-
-            for(Order o : pendingOrders){
-                boolean scheduled = false;
-                for (Pair<String, LocalDateTime> delivery : solutionOrders) {
-                    //if(delivery.getY() == null) //muere
-
-                    if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
-                        scheduled = true;
-                        break;
+                for(Order o : pendingOrders){
+                    boolean scheduled = false;
+                    for (Pair<String, LocalDateTime> delivery : solutionOrders) {
+                        //if(delivery.getY() == null) //muere
+                        if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                            scheduled = true;
+                            break;
+                        }
                     }
+                    if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                 }
-                if (scheduled) orderService.updateStatus(o, OrderStatus.IN_PROGRESS);
-            }
-            for (Pair<String,LocalDateTime> delivery : solutionOrders) {
-                orderService.scheduleStatusChange(delivery.getX(), OrderStatus.COMPLETED, delivery.getY());
-            }
-            for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
-                Route r = new Route(sr);
-                routeService.register(r);
+                for (Pair<String,LocalDateTime> delivery : solutionOrders) {
+                    orderService.scheduleStatusChange(delivery.getX(), OrderStatus.ENTREGADO, delivery.getY());
+                }
+                for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
+                    Route r = new Route(sr);
+                    routeService.register(r);
+                }
             }
         }
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo de Monitoreo realizado correctamente.");
@@ -142,7 +145,7 @@ public class RouteController {
                         break;
                     }
                 }
-                if (scheduled) orderService.updateStatus(o, OrderStatus.IN_PROGRESS);
+                if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
             }
             for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                 Route r = new Route(sr);

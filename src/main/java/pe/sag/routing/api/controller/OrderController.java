@@ -1,6 +1,5 @@
 package pe.sag.routing.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -8,30 +7,30 @@ import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationInputRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
-import pe.sag.routing.core.model.Route;
 import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.service.OrderService;
-import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
-import pe.sag.routing.shared.dto.RouteDto;
+import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/order")
 public class OrderController {
-    @Autowired
-    private OrderService orderService;
-    @Autowired
-    private SimulationInfoRepository simulationInfoRepository;
-    @Autowired
-    private RouteController routeController;
-    @Autowired
-    private RouteService routeService;
+    private final OrderService orderService;
+    private final SimulationInfoRepository simulationInfoRepository;
+    private final RouteController routeController;
+
+    public OrderController(OrderService orderService, SimulationInfoRepository simulationInfoRepository, RouteController routeController) {
+        this.orderService = orderService;
+        this.simulationInfoRepository = simulationInfoRepository;
+        this.routeController = routeController;
+    }
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody NewOrderRequest request) throws IllegalAccessException {
@@ -110,6 +109,16 @@ public class OrderController {
     protected ResponseEntity<?> getByCode(@PathVariable String code) throws IllegalAccessException {
         Order order = orderService.findByCode(code);
         RestResponse response = new RestResponse(HttpStatus.OK, OrderParser.toDto(order));
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @GetMapping("/batched")
+    protected ResponseEntity<?> getBatched() {
+        List<Order> orders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
+        List<OrderDto> ordersDto = orders.stream().map(OrderParser::toDto).collect(Collectors.toList());
+        RestResponse response = new RestResponse(HttpStatus.OK, ordersDto);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
