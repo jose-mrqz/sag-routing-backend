@@ -49,7 +49,7 @@ public class RouteController {
                 .body(response);
     }
 
-    @GetMapping(path = "/simulation")
+    @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
         List<Route> activeRoutes = routeService.findByMonitoring(false);
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
