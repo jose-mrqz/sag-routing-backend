@@ -59,8 +59,8 @@ public class OrderController {
                     .x(r.getX())
                     .y(r.getY())
                     .demandGLP(r.getDemandGLP())
-                    .registrationDate(LocalDateTime.now())
-                    .deadlineDate(LocalDateTime.now().plusHours(r.getSlack()))
+                    .registrationDate(r.getDate())
+                    .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
             Order order = orderService.register(orderDto, false);
             if (order == null) {
