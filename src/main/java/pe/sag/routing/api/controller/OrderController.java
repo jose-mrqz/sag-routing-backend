@@ -4,17 +4,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.sag.routing.api.request.NewHistoricOrdersRequest;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationInputRequest;
-import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
+import pe.sag.routing.core.model.Route;
 import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.service.OrderService;
+import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
+import pe.sag.routing.shared.dto.RouteDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -29,6 +30,8 @@ public class OrderController {
     private SimulationInfoRepository simulationInfoRepository;
     @Autowired
     private RouteController routeController;
+    @Autowired
+    private RouteService routeService;
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody NewOrderRequest request) throws IllegalAccessException {
@@ -52,6 +55,8 @@ public class OrderController {
     public ResponseEntity<?> insertHistoricOrders(@RequestBody SimulationInputRequest request) throws IllegalAccessException {
         orderService.deleteByMonitoring(false);
 
+        //fijar fecha muy menor
+        LocalDateTime startDateReal = LocalDateTime.of(1950,1,1,1,0,0);
         ArrayList<Order> orders = new ArrayList<>();
         boolean responseOK = true;
         for(SimulationInputRequest.SimulationOrder r : request.getOrders()){
@@ -62,34 +67,35 @@ public class OrderController {
                     .registrationDate(r.getDate())
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
-            Order order = orderService.register(orderDto, false);
+            Order order = orderService.register(orderDto, false);//cambiar a registerAll (save all)
             if (order == null) {
                 responseOK = false;
                 break;
             }
+            //menor registration date
+            if(order.getRegistrationDate().isAfter(startDateReal)){
+                startDateReal = LocalDateTime.of(order.getRegistrationDate().toLocalDate(),order.getRegistrationDate().toLocalTime());
+            }
+
             orders.add(order);
         }
-        
+
         simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();
-        simulationInfo.setStartDate(LocalDateTime.now()); //considerar margen, preguntar a renzo
-        simulationInfoRepository.save(simulationInfo);
+        simulationInfo.setStartDateReal(startDateReal);
 
         //correr algoritmo
-        routeController.scheduleRoutesSimulation();
-        SimulationRequest simulationRequest = new SimulationRequest(LocalDateTime.now(), request.getSpeed());
-        ResponseEntity<?> responseRoutes = routeController.getActiveSimulation(simulationRequest);
+        routeController.scheduleRoutesSimulation(startDateReal);
 
-        /*RestResponse response;
-        if (responseOK) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", responseRoutes);
-        else response = new RestResponse(HttpStatus.OK, "Error al agregar pedidos.");*/
-        if (responseOK) return responseRoutes;
-        else{
-            RestResponse response = new RestResponse(HttpStatus.OK, "Error al agregar pedidos.");
-            return ResponseEntity
-                    .status(response.getStatus())
-                    .body(response);
-        }
+        simulationInfo.setStartDateTransformed(LocalDateTime.now()); //considerar margen, preguntar a renzo
+        simulationInfoRepository.save(simulationInfo);
+
+        RestResponse response;
+        if (responseOK) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", simulationInfo);
+        else response = new RestResponse(HttpStatus.OK, "Error al agregar pedidos.");
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
     }
 
     @GetMapping

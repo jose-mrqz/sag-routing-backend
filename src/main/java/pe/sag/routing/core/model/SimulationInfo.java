@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class SimulationInfo {
-    private LocalDateTime startDate;
+    private LocalDateTime startDateReal;
+    private LocalDateTime startDateTransformed;
 }
 

@@ -72,7 +72,7 @@ public class RouteController {
         SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
         for(RouteDto r : routesDto){
-            RouteDto rt = r.transformRoute(simulationInfo.getStartDate(),request.getSpeed());
+            RouteDto rt = r.transformRoute(simulationInfo.getStartDateTransformed(),request.getSpeed());
             routesTransformedDto.add(rt);
         }
 
@@ -127,7 +127,7 @@ public class RouteController {
 
 
     @PostMapping(path = "/simulation")
-    public ResponseEntity<?> scheduleRoutesSimulation() {
+    public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
 
@@ -137,7 +137,7 @@ public class RouteController {
         for (Truck truck : availableTrucks) {
             Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
             if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
-            else truck.setLastRouteEndTime(LocalDateTime.now());
+            else truck.setLastRouteEndTime(startDateReal);
         }
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
