@@ -46,7 +46,7 @@ public class OrderService {
             else code = lastOrder.getCode()+1;
             order.setCode(code);
 
-            order.setStatus(OrderStatus.PENDING);
+            order.setStatus(OrderStatus.PENDIENTE);
             order.setMonitoring(monitoring);
             order.setDeliveryDate(null);
 
