@@ -56,7 +56,7 @@ public class OrderController {
         orderService.deleteByMonitoring(false);
 
         //fijar fecha muy menor
-        LocalDateTime startDateReal = LocalDateTime.of(1950,1,1,1,0,0);
+        LocalDateTime startDateReal = LocalDateTime.of(2100,1,1,1,0,0);
         ArrayList<Order> orders = new ArrayList<>();
         boolean responseOK = true;
         for(SimulationInputRequest.SimulationOrder r : request.getOrders()){
@@ -73,7 +73,7 @@ public class OrderController {
                 break;
             }
             //menor registration date
-            if(order.getRegistrationDate().isAfter(startDateReal)){
+            if(order.getRegistrationDate().isBefore(startDateReal)){
                 startDateReal = LocalDateTime.of(order.getRegistrationDate().toLocalDate(),order.getRegistrationDate().toLocalTime());
             }
 

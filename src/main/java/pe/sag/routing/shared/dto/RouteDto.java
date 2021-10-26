@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.core.model.Route;
+import pe.sag.routing.core.model.SimulationInfo;
 
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
@@ -100,18 +101,24 @@ public class RouteDto {
         }
     }
 
-    public String transformDate(LocalDateTime simulationStart, int speed, String sDateToConvert){
+    public String transformDate(SimulationInfo simulationInfo, int speed, String sDateToConvert){
         DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         LocalDateTime dateToConvert = LocalDateTime.parse(sDateToConvert, format);
 
-        long amountSeconds = SECONDS.between(simulationStart, dateToConvert);
+        LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
+        LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
+
+        long differenceTransformReal = SECONDS.between(simulationStartReal, simulationStartTransform);
+        dateToConvert = dateToConvert.plusSeconds(differenceTransformReal);
+
+        long amountSeconds = SECONDS.between(simulationStartTransform, dateToConvert);
         amountSeconds /= speed;
-        LocalDateTime transformedDate = LocalDateTime.of(simulationStart.toLocalDate(),simulationStart.toLocalTime());
+        LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
         transformedDate = transformedDate.plusSeconds(amountSeconds);
         return transformedDate.format(format);
     }
 
-    public RouteDto transformRoute(LocalDateTime simulationStart, int speed){
+    public RouteDto transformRoute(SimulationInfo simulationInfo, int speed){
         RouteDto transformedRoute = RouteDto.builder()
                 .startDate(getStartDate())
                 .endDate(getEndDate())
@@ -122,12 +129,12 @@ public class RouteDto {
                 .route(getRoute())
                 .build();
 
-        transformedRoute.setStartDate(transformDate(simulationStart,speed,getStartDate()));
-        transformedRoute.setEndDate(transformDate(simulationStart,speed,getEndDate()));
+        transformedRoute.setStartDate(transformDate(simulationInfo,speed,getStartDate()));
+        transformedRoute.setEndDate(transformDate(simulationInfo,speed,getEndDate()));
 
         for(RouteDto.Order o : transformedRoute.getOrders()){
-            o.setDeliveryDate(transformDate(simulationStart,speed,o.getDeliveryDate()));
-            o.setLeftDate(transformDate(simulationStart,speed,o.getLeftDate()));
+            o.setDeliveryDate(transformDate(simulationInfo,speed,o.getDeliveryDate()));
+            o.setLeftDate(transformDate(simulationInfo,speed,o.getLeftDate()));
         }
 
         return transformedRoute;

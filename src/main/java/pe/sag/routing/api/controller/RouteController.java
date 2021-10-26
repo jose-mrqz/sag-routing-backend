@@ -63,7 +63,7 @@ public class RouteController {
 
     @GetMapping(path = "/simulation")
     protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
-        List<Route> activeRoutes = routeService.getActiveRoutes(request.getActualDate(), false);
+        List<Route> activeRoutes = routeService.findByMonitoring(false);
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
         ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
 
@@ -72,7 +72,7 @@ public class RouteController {
         SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
         for(RouteDto r : routesDto){
-            RouteDto rt = r.transformRoute(simulationInfo.getStartDateTransformed(),request.getSpeed());
+            RouteDto rt = r.transformRoute(simulationInfo,request.getSpeed());
             routesTransformedDto.add(rt);
         }
 

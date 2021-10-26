@@ -10,6 +10,5 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SimulationRequest {
-    private LocalDateTime actualDate;
     private int speed;
 }

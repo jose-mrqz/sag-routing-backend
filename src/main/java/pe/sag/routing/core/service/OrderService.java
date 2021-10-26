@@ -39,6 +39,22 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
+    /*public Order register(OrderDto orderRequest, boolean monitoring) throws IllegalAccessException {
+        Order order = OrderParser.fromDto(orderRequest);
+
+        //asign code
+        Order lastOrder = findFirstByOrderByCodeDesc();
+        int code = 0;
+        if (lastOrder == null) code++;
+        else code = lastOrder.getCode()+1;
+        order.setCode(code);
+
+        order.setStatus(OrderStatus.PENDING);
+        order.setMonitoring(monitoring);
+        order.setDeliveryDate(null);
+        return orderRepository.save(order);
+    }*/
+
     public Order updateStatus(Order order, OrderStatus status){
         order.setStatus(status);
         return orderRepository.save(order);

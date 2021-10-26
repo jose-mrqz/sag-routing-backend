@@ -39,6 +39,10 @@ public class RouteService {
         return routeRepository.findByStartDateBeforeAndFinishDateAfterAndMonitoring(actualDate, actualDate, monitoring);
     }
 
+    public List<Route> findByMonitoring(boolean monitoring){
+        return routeRepository.findByMonitoring(monitoring);
+    }
+
     public Route getLastRouteByTruckMonitoring(Truck truck, boolean monitoring) {
         Optional<Route> route = routeRepository.
                 findTopByTruckIdAndMonitoringOrderByFinishDateDesc(truck.get_id(), monitoring);
