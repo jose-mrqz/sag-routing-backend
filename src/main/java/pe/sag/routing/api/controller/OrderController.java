@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.request.NewHistoricOrdersRequest;
 import pe.sag.routing.api.request.NewOrderRequest;
+import pe.sag.routing.api.request.SimulationInputRequest;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
@@ -48,12 +49,12 @@ public class OrderController {
     }
 
     @PostMapping(path = "/historic")
-    public ResponseEntity<?> insertHistoricOrders(@RequestBody NewHistoricOrdersRequest request) throws IllegalAccessException {
+    public ResponseEntity<?> insertHistoricOrders(@RequestBody SimulationInputRequest request) throws IllegalAccessException {
         orderService.deleteByMonitoring(false);
 
         ArrayList<Order> orders = new ArrayList<>();
         boolean responseOK = true;
-        for(NewOrderRequest r : request.getOrderRequests()){
+        for(SimulationInputRequest.SimulationOrder r : request.getOrders()){
             OrderDto orderDto = OrderDto.builder()
                     .x(r.getX())
                     .y(r.getY())
