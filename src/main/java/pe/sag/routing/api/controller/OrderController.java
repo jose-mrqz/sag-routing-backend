@@ -69,16 +69,16 @@ public class OrderController {
             }
             orders.add(order);
         }
+        
+        simulationInfoRepository.deleteAll();
+        SimulationInfo simulationInfo = new SimulationInfo();
+        simulationInfo.setStartDate(LocalDateTime.now()); //considerar margen, preguntar a renzo
+        simulationInfoRepository.save(simulationInfo);
 
         //correr algoritmo
         routeController.scheduleRoutesSimulation();
         SimulationRequest simulationRequest = new SimulationRequest(LocalDateTime.now(), request.getSpeed());
         ResponseEntity<?> responseRoutes = routeController.getActiveSimulation(simulationRequest);
-
-        simulationInfoRepository.deleteAll();
-        SimulationInfo simulationInfo = new SimulationInfo();
-        simulationInfo.setStartDate(LocalDateTime.now()); //considerar margen, preguntar a renzo
-        simulationInfoRepository.save(simulationInfo);
 
         /*RestResponse response;
         if (responseOK) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", responseRoutes);
