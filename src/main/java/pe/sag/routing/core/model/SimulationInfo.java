@@ -13,5 +13,6 @@ import java.time.LocalDateTime;
 public class SimulationInfo {
     private LocalDateTime startDateReal;
     private LocalDateTime startDateTransformed;
+    private int speed;
 }
 

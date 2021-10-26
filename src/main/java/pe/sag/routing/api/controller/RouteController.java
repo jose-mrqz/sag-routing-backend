@@ -39,18 +39,6 @@ public class RouteController {
     @Autowired
     private SimulationInfoRepository simulationInfoRepository;
 
-    /*private final RouteService routeService;
-    private final TruckService truckService;
-    private final OrderService orderService;
-    private final SimulationInfoRepository simulationInfoRepository;
-
-    public RouteController(RouteService routeService, TruckService truckService, OrderService orderService, SimulationInfoRepository simulationInfoRepository) {
-        this.routeService = routeService;
-        this.truckService = truckService;
-        this.orderService = orderService;
-        this.simulationInfoRepository = simulationInfoRepository;
-    }*/
-
     @GetMapping
     protected ResponseEntity<?> getActive() {
         List<Route> activeRoutes = routeService.getActiveRoutes(LocalDateTime.now(),true);
@@ -61,7 +49,7 @@ public class RouteController {
                 .body(response);
     }
 
-    @GetMapping(path = "/simulation")
+    @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
         List<Route> activeRoutes = routeService.findByMonitoring(false);
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
@@ -129,7 +117,7 @@ public class RouteController {
     }
 
 
-    @PostMapping(path = "/simulation")
+    @PostMapping(path = "/simulationAlgorithm")
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
