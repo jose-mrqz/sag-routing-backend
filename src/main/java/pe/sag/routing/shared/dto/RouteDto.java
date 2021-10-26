@@ -131,6 +131,8 @@ public class RouteDto {
 
         transformedRoute.setStartDate(transformDate(simulationInfo,speed,getStartDate()));
         transformedRoute.setEndDate(transformDate(simulationInfo,speed,getEndDate()));
+        transformedRoute.setTimeAttention(getTimeAttention()/speed);
+        transformedRoute.setVelocity(getVelocity()*speed);
 
         for(RouteDto.Order o : transformedRoute.getOrders()){
             o.setDeliveryDate(transformDate(simulationInfo,speed,o.getDeliveryDate()));

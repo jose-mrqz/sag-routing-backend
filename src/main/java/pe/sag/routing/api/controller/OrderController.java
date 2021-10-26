@@ -80,6 +80,7 @@ public class OrderController {
         simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();
         simulationInfo.setStartDateReal(startDateReal);
+        simulationInfo.setSpeed(request.getSpeed());
 
         //correr algoritmo
         routeController.scheduleRoutesSimulation(startDateReal);
