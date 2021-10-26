@@ -63,7 +63,7 @@ public class OrderService {
     }
 
     public List<Order> listPendingsMonitoring(boolean monitoring) {
-        return orderRepository.findByStatusAndMonitoringOrderOrderByRegistrationDateAsc(OrderStatus.PENDIENTE,monitoring);
+        return orderRepository.findByStatusAndMonitoringOrderByRegistrationDateAsc(OrderStatus.PENDIENTE,monitoring);
     }
 
     public Order findByCode(String code) throws IllegalAccessException {
