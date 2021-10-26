@@ -39,18 +39,6 @@ public class RouteController {
     @Autowired
     private SimulationInfoRepository simulationInfoRepository;
 
-    /*private final RouteService routeService;
-    private final TruckService truckService;
-    private final OrderService orderService;
-    private final SimulationInfoRepository simulationInfoRepository;
-
-    public RouteController(RouteService routeService, TruckService truckService, OrderService orderService, SimulationInfoRepository simulationInfoRepository) {
-        this.routeService = routeService;
-        this.truckService = truckService;
-        this.orderService = orderService;
-        this.simulationInfoRepository = simulationInfoRepository;
-    }*/
-
     @GetMapping
     protected ResponseEntity<?> getActive() {
         List<Route> activeRoutes = routeService.getActiveRoutes(LocalDateTime.now(),true);

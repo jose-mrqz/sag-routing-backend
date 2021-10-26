@@ -57,8 +57,7 @@ public class OrderController {
 
         //fijar fecha muy menor
         LocalDateTime startDateReal = LocalDateTime.of(2100,1,1,1,0,0);
-        ArrayList<Order> orders = new ArrayList<>();
-        boolean responseOK = true;
+        ArrayList<OrderDto> ordersDto = new ArrayList<>();
         for(SimulationInputRequest.SimulationOrder r : request.getOrders()){
             OrderDto orderDto = OrderDto.builder()
                     .x(r.getX())
@@ -67,17 +66,15 @@ public class OrderController {
                     .registrationDate(r.getDate())
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
-            Order order = orderService.register(orderDto, false);//cambiar a registerAll (save all)
-            if (order == null) {
-                responseOK = false;
-                break;
-            }
+            ordersDto.add(orderDto);
+        }
+
+        List<Order> ordersRegistered = orderService.registerAll(ordersDto,false);
+        for(Order order : ordersRegistered){
             //menor registration date
             if(order.getRegistrationDate().isBefore(startDateReal)){
                 startDateReal = LocalDateTime.of(order.getRegistrationDate().toLocalDate(),order.getRegistrationDate().toLocalTime());
             }
-
-            orders.add(order);
         }
 
         simulationInfoRepository.deleteAll();
@@ -89,6 +86,8 @@ public class OrderController {
 
         simulationInfo.setStartDateTransformed(LocalDateTime.now()); //considerar margen, preguntar a renzo
         simulationInfoRepository.save(simulationInfo);
+
+        boolean responseOK = ordersRegistered.size() != 0;
 
         RestResponse response;
         if (responseOK) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", simulationInfo);
