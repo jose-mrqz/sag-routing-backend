@@ -14,6 +14,6 @@ import java.util.ArrayList;
 @NoArgsConstructor
 @Builder
 public class SimulationResponse {
-    private List<RouteDto> routes1;
-    private ArrayList<RouteDto> routes2;
+    private List<RouteDto> routesReal;
+    private ArrayList<RouteDto> routesTransformed;
 }
