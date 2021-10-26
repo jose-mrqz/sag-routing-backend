@@ -116,6 +116,59 @@ public class RouteController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+    private static class SimulationScheduler implements Runnable {
+        private final RouteService routeService;
+        private final TruckService truckService;
+        private final OrderService orderService;
+        private final LocalDateTime startDateReal;
+
+        public SimulationScheduler(RouteService routeService, TruckService truckService, OrderService orderService, LocalDateTime startDateReal) {
+            this.routeService = routeService;
+            this.truckService = truckService;
+            this.orderService = orderService;
+            this.startDateReal = startDateReal;
+        }
+
+        @Override
+        public void run() {
+            while(true) {
+                List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
+                if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
+                List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
+
+                for (Truck truck : availableTrucks) {
+                    Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
+                    if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
+                    else truck.setLastRouteEndTime(startDateReal);
+                }
+
+                if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
+                    Collections.shuffle(availableTrucks);
+                    Planner planner = new Planner(availableTrucks, pendingOrders);
+                    planner.run();
+                    if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
+                    List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
+                    List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
+
+                    for (Order o : pendingOrders) {
+                        boolean scheduled = false;
+                        for (Pair<String, LocalDateTime> delivery : solutionOrders) {
+                            if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                                scheduled = true;
+                                break;
+                            }
+                        }
+                        if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
+                    }
+                    for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
+                        Route r = new Route(sr);
+                        r.setMonitoring(false);
+                        routeService.register(r);
+                    }
+                }
+            }
+        }
+    }
 
     @PostMapping(path = "/simulationAlgorithm")
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
@@ -123,7 +176,7 @@ public class RouteController {
         truckService.updateAvailablesSimulation();
 
         List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
-        List<Order> pendingOrders = orderService.listPendingsMonitoring(false);
+        List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
 
         for (Truck truck : availableTrucks) {
             Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
@@ -132,6 +185,7 @@ public class RouteController {
         }
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
+            Collections.shuffle(availableTrucks);
             Planner planner = new Planner(availableTrucks, pendingOrders);
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
@@ -153,7 +207,10 @@ public class RouteController {
                 routeService.register(r);
             }
         }
-        //estadisticas de simulacion (mostrar en front?)
+
+        Thread thread = new Thread(new SimulationScheduler(routeService,truckService,orderService,startDateReal));
+        thread.start();
+
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo de Simulacion realizado correctamente.");
         return ResponseEntity.status(response.getStatus()).body(response);
     }
