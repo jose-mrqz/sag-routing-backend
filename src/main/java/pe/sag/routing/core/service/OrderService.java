@@ -12,10 +12,7 @@ import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,21 +36,26 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    /*public Order register(OrderDto orderRequest, boolean monitoring) throws IllegalAccessException {
-        Order order = OrderParser.fromDto(orderRequest);
+    public List<Order> registerAll(ArrayList<OrderDto> orderRequest, boolean monitoring) throws IllegalAccessException {
+        ArrayList<Order> orders = new ArrayList<>();
+        for(OrderDto od : orderRequest){
+            Order order = OrderParser.fromDto(od);
 
-        //asign code
-        Order lastOrder = findFirstByOrderByCodeDesc();
-        int code = 0;
-        if (lastOrder == null) code++;
-        else code = lastOrder.getCode()+1;
-        order.setCode(code);
+            //asign code
+            Order lastOrder = findFirstByOrderByCodeDesc();
+            int code = 0;
+            if (lastOrder == null) code++;
+            else code = lastOrder.getCode()+1;
+            order.setCode(code);
 
-        order.setStatus(OrderStatus.PENDING);
-        order.setMonitoring(monitoring);
-        order.setDeliveryDate(null);
-        return orderRepository.save(order);
-    }*/
+            order.setStatus(OrderStatus.PENDING);
+            order.setMonitoring(monitoring);
+            order.setDeliveryDate(null);
+
+            orders.add(order);
+        }
+        return orderRepository.saveAll(orders);
+    }
 
     public Order updateStatus(Order order, OrderStatus status){
         order.setStatus(status);
