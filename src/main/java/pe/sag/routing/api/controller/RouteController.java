@@ -114,7 +114,7 @@ public class RouteController {
     }
 
 
-    @PostMapping(path = "/simulation")
+    @PostMapping(path = "/simulationAlgorithm")
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
