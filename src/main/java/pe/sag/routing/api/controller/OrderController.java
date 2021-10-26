@@ -8,18 +8,18 @@ import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationInputRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
-import pe.sag.routing.core.model.Route;
 import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
-import pe.sag.routing.shared.dto.RouteDto;
+import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/order")
@@ -110,6 +110,16 @@ public class OrderController {
     protected ResponseEntity<?> getByCode(@PathVariable String code) throws IllegalAccessException {
         Order order = orderService.findByCode(code);
         RestResponse response = new RestResponse(HttpStatus.OK, OrderParser.toDto(order));
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @GetMapping("/batched")
+    protected ResponseEntity<?> getBatched() {
+        List<Order> orders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
+        List<OrderDto> ordersDto = orders.stream().map(OrderParser::toDto).collect(Collectors.toList());
+        RestResponse response = new RestResponse(HttpStatus.OK, ordersDto);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

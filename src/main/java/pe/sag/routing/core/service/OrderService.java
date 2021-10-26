@@ -1,10 +1,8 @@
 package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.Order;
-import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
@@ -33,7 +31,7 @@ public class OrderService {
         else code = lastOrder.getCode()+1;
         order.setCode(code);
 
-        order.setStatus(OrderStatus.PENDING);
+        order.setStatus(OrderStatus.PENDIENTE);
         order.setMonitoring(monitoring);
         order.setDeliveryDate(null);
         return orderRepository.save(order);
@@ -65,7 +63,7 @@ public class OrderService {
     }
 
     public List<Order> listPendingsMonitoring(boolean monitoring) {
-        return orderRepository.findByStatusAndMonitoring(OrderStatus.PENDING,monitoring);
+        return orderRepository.findByStatusAndMonitoringOrderOrderByRegistrationDateAsc(OrderStatus.PENDIENTE,monitoring);
     }
 
     public Order findByCode(String code) throws IllegalAccessException {
@@ -102,5 +100,9 @@ public class OrderService {
         };
         long wait = Duration.between(LocalDateTime.now(), now).toMillis();
         timer.schedule(task, wait, Long.MAX_VALUE);
+    }
+
+    public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
+        return orderRepository.findFirst300ByStatusAndMonitoringOrderByRegistrationDateAsc(status, isMonitoring);
     }
 }
