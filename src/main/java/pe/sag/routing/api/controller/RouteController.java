@@ -57,11 +57,13 @@ public class RouteController {
 
         //sacar simulation info de bd
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
-        SimulationInfo simulationInfo = listSimulationInfo.get(0);
+        if (listSimulationInfo.size() != 0) {
+            SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
-        for(RouteDto r : routesDto){
-            RouteDto rt = r.transformRoute(simulationInfo,request.getSpeed());
-            routesTransformedDto.add(rt);
+            for(RouteDto r : routesDto) {
+                RouteDto rt = r.transformRoute(simulationInfo, request.getSpeed());
+                routesTransformedDto.add(rt);
+            }
         }
 
         SimulationResponse simulationResponse = new SimulationResponse(routesDto, routesTransformedDto);
