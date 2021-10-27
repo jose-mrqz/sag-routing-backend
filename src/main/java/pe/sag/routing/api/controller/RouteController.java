@@ -81,7 +81,8 @@ public class RouteController {
             List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
             if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
             List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
-            for (Truck truck : availableTrucks) {
+            for (int i = 0; i < availableTrucks.size(); i++) {
+                Truck truck = availableTrucks.get(i);
                 Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
                 if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
                 else truck.setLastRouteEndTime(LocalDateTime.now());
@@ -140,7 +141,8 @@ public class RouteController {
                 if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
                 List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
 
-                for (Truck truck : availableTrucks) {
+                for (int i = 0; i < availableTrucks.size(); i++) {
+                    Truck truck = availableTrucks.get(i);
                     Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
                     if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
                     else truck.setLastRouteEndTime(startDateReal);
