@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.time.temporal.ChronoUnit.*;
 
 @Data
 @AllArgsConstructor
@@ -108,13 +108,13 @@ public class RouteDto {
         LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
         LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
 
-        long differenceTransformReal = SECONDS.between(simulationStartReal, simulationStartTransform);
-        dateToConvert = dateToConvert.plusSeconds(differenceTransformReal);
+        long differenceTransformReal = NANOS.between(simulationStartReal, simulationStartTransform);
+        dateToConvert = dateToConvert.plusNanos(differenceTransformReal);
 
-        long amountSeconds = SECONDS.between(simulationStartTransform, dateToConvert);
-        amountSeconds /= speed;
+        long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);
+        amountNanos /= speed;
         LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
-        transformedDate = transformedDate.plusSeconds(amountSeconds);
+        transformedDate = transformedDate.plusNanos(amountNanos);
         return transformedDate.format(format);
     }
 

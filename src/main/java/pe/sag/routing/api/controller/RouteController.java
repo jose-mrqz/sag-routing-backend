@@ -24,6 +24,7 @@ import pe.sag.routing.shared.util.enums.OrderStatus;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,6 +53,7 @@ public class RouteController {
     @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
         List<Route> activeRoutes = routeService.findByMonitoring(false);
+        activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
         ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
 
