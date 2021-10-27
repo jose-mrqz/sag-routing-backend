@@ -3,6 +3,7 @@ package pe.sag.routing.api.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.sag.routing.api.request.ManyOrdersRequest;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationInputRequest;
 import pe.sag.routing.api.response.RestResponse;
@@ -45,6 +46,26 @@ public class OrderController {
         RestResponse response;
         if (order == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo pedido.");
         else response = new RestResponse(HttpStatus.OK, "Nuevo pedido agregado correctamente.", order);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping("/many")
+    public ResponseEntity<?> registerMany(@RequestBody ManyOrdersRequest request) throws IllegalAccessException {
+        int registered = 0;
+        for (ManyOrdersRequest.Order req : request.getOrders()) {
+            OrderDto orderDto = OrderDto.builder()
+                    .x(req.getX())
+                    .y(req.getY())
+                    .demandGLP(req.getDemandGLP())
+                    .registrationDate(LocalDateTime.now())
+                    .deadlineDate(LocalDateTime.now().plusHours(req.getSlack()))
+                    .build();
+            orderService.register(orderDto, true);
+            registered++;
+        }
+        RestResponse response = new RestResponse(HttpStatus.OK, "Se registraron " + registered + " pedidos.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
