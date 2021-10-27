@@ -29,8 +29,8 @@ public class RouteDto {
         int x;
         int y;
         int indexRoute;
-        String deliveryDate;
-        String leftDate;
+        LocalDateTime deliveryDate;
+        LocalDateTime leftDate;
     }
 
     @Data
@@ -44,13 +44,13 @@ public class RouteDto {
     }
 
     @NotBlank
-    private String startDate;
+    private LocalDateTime startDate;
     @NotBlank
-    private String endDate;
+    private LocalDateTime endDate;
     @NotBlank
     private int timeAttention = 10*60;
     @NotBlank
-    private double velocity = 13.8889;
+    private double velocity = 250.0/18;
     @NotBlank
     private String truckCode;
     @NotBlank
@@ -59,14 +59,13 @@ public class RouteDto {
     private List<Node> route;
 
     public void setOrders(List<Route.Order> orders) {
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         this.orders = new ArrayList<>();
         for (Route.Order order : orders) {
             RouteDto.Order newOrder = Order.builder()
                     .x(order.getX())
                     .y(order.getY())
-                    .deliveryDate(order.getDeliveryDate().format(format))
-                    .leftDate(order.getDeliveryDate().plusSeconds(timeAttention).format(format))
+                    .deliveryDate(order.getDeliveryDate())
+                    .leftDate(order.getDeliveryDate().plusSeconds(timeAttention))
                     .build();
             this.orders.add(newOrder);
         }
@@ -101,10 +100,7 @@ public class RouteDto {
         }
     }
 
-    public String transformDate(SimulationInfo simulationInfo, int speed, String sDateToConvert){
-        DateTimeFormatter format = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        LocalDateTime dateToConvert = LocalDateTime.parse(sDateToConvert, format);
-
+    public LocalDateTime transformDate(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
         LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
         LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
 
@@ -115,7 +111,7 @@ public class RouteDto {
         amountNanos /= speed;
         LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
         transformedDate = transformedDate.plusNanos(amountNanos);
-        return transformedDate.format(format);
+        return transformedDate;
     }
 
     public RouteDto transformRoute(SimulationInfo simulationInfo, int speed){
