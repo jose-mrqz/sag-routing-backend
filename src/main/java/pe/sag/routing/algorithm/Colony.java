@@ -26,7 +26,7 @@ public class Colony extends Graph {
     private Random rand;
 
     public List<Route> solutionRoutes = null;
-    public List<Pair<String,LocalDateTime>> solutionOrders;
+    public List<Pair<String,LocalDateTime>> solutionOrders = null;
     public double bestSolutionQuality;
 
     public Colony(List<Order> orders, List<Truck> trucks) {
@@ -131,13 +131,13 @@ public class Colony extends Graph {
             int i = 0;
             while (i < t.tour.size()) {
                 Node n = t.tour.get(i);
-                if (n.idx == 0) {  //start of new route
-                    if (routeNodes.isEmpty()) {
+                if (n.idx == 0) {
+                    if (routeNodes.isEmpty()) { //start of new route
                         startTime = t.departureRegistry.get(depIdx++);
                         routeConsumption = 0.0;
                         routeDelivered = 0.0;
                         i++;
-                    } else {
+                    } else { //end of current route
                         routeConsumption += t.fuelConsumption.get(fuelIdx++);
                         endTime = t.arrivalRegistry.get(arrIdx++);
                         Route route = new Route(t._id, startTime, endTime, routeNodes, routeConsumption, routeDelivered);

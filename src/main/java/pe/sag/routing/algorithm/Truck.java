@@ -26,7 +26,6 @@ public class Truck {
 
     private LocalDateTime startingDate;
 
-    ArrayList<LocalDateTime> timeRegistry;
     ArrayList<LocalDateTime> departureRegistry;
     ArrayList<LocalDateTime> arrivalRegistry;
     ArrayList<Double> fuelConsumption;
@@ -52,13 +51,12 @@ public class Truck {
         fuel = MAX_FUEL;
         this.tareWeight = tareWeight;
         weight = tareWeight + capacity * GLP_WEIGHT;
-        tour = new ArrayList<>();
         totalFuelConsumption = 0.0;
         attendedCustomers = 0;
         totalDelivered = 0.0;
-        timeRegistry = new ArrayList<>();
         startDate = null;
         finishDate = null;
+        tour = new ArrayList<>();
         departureRegistry = new ArrayList<>();
         arrivalRegistry = new ArrayList<>();
         fuelConsumption = new ArrayList<>();
@@ -155,13 +153,6 @@ public class Truck {
 
     public void addNode(Node n, int[][] matrix) {
         int travelTime = calculateTravelTime(matrix, nowIdx, n.idx);
-        if (!tour.isEmpty()) {
-            if (tour.get(tour.size()-1) instanceof Depot) {
-                timeRegistry.add(nowTime);
-                if (startDate == null) startDate = nowTime;
-            }
-            if (n instanceof Order) timeRegistry.add(nowTime.plusSeconds(travelTime));
-        }
 
         if (nowIdx == 0 && !tour.isEmpty()) {
             departureRegistry.add(nowTime);
@@ -180,8 +171,8 @@ public class Truck {
         }
 
         if (n instanceof Order) {
-            nowTime = nowTime.plusMinutes(((Order)n).unloadTime);
             visitOrder((Order)n);
+            nowTime = nowTime.plusMinutes(((Order)n).unloadTime);
         }
         else visitDepot((Depot)n);
 
@@ -192,7 +183,6 @@ public class Truck {
 
     public void reset() {
         tour.clear();
-        timeRegistry.clear();
         departureRegistry.clear();
         glpRegistry.clear();
         fuelConsumption.clear();
