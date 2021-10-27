@@ -41,8 +41,10 @@ public class Planner {
         solutionRoutes = colony.solutionRoutes;
         solutionOrders = colony.solutionOrders;
 
-        for (Route route : solutionRoutes) {
-            route.generatePath();
+        if (solutionRoutes != null) {
+            for (Route route : solutionRoutes) {
+                route.generatePath();
+            }
         }
     }
 }
