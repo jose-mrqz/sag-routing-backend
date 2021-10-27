@@ -82,6 +82,11 @@ public class OrderService {
         return order.orElse(null);
     }
 
+    public List<Order> saveMany(List<OrderDto> ordersDto) {
+        List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
+        return orderRepository.saveAll(orders);
+    }
+
     public void deleteByMonitoring(boolean monitoring) {
         orderRepository.deleteByMonitoring(monitoring);
     }
