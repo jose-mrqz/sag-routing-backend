@@ -8,11 +8,4 @@ public class RoutingApplication {
     public static void main(String[] args) {
         SpringApplication.run(RoutingApplication.class, args);
     }
-
-//    @Scheduled(fixedDelay = 15000L)
-//    void someJob() {
-//        OrderTaskScheduler orderTaskScheduler = new OrderTaskScheduler();
-//        orderTaskScheduler.scheduleMessage();
-//    }
-
 }
