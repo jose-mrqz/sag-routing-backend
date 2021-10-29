@@ -186,6 +186,7 @@ public class Truck {
         departureRegistry.clear();
         glpRegistry.clear();
         fuelConsumption.clear();
+        arrivalRegistry.clear();
         nowLoad = capacity;
         fuel = MAX_FUEL;
         weight = tareWeight + capacity * GLP_WEIGHT;
