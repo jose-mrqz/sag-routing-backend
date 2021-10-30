@@ -22,7 +22,7 @@ public class DepotDto {
     @NotBlank
     private String name;
     @NotBlank
-    private double capacityGLP;
+    private double glpCapacity;
     @NotBlank
-    private double currentGLP;
+    private double currentGlp;
 }

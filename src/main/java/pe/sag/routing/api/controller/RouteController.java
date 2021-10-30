@@ -31,14 +31,18 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/route")
 public class RouteController {
-    @Autowired
-    private RouteService routeService;
-    @Autowired
-    private TruckService truckService;
-    @Autowired
-    private OrderService orderService;
-    @Autowired
-    private SimulationInfoRepository simulationInfoRepository;
+    private final RouteService routeService;
+    private final TruckService truckService;
+    private final OrderService orderService;
+    private final SimulationInfoRepository simulationInfoRepository;
+
+    public RouteController(RouteService routeService, TruckService truckService,
+                           OrderService orderService, SimulationInfoRepository simulationInfoRepository) {
+        this.routeService = routeService;
+        this.truckService = truckService;
+        this.orderService = orderService;
+        this.simulationInfoRepository = simulationInfoRepository;
+    }
 
     @GetMapping
     protected ResponseEntity<?> getActive() {

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import pe.sag.routing.algorithm.DepotInfo;
 import pe.sag.routing.algorithm.NodeInfo;
 import pe.sag.routing.algorithm.OrderInfo;
 import pe.sag.routing.algorithm.Pair;
@@ -32,21 +33,34 @@ public class Route {
         double deliveredGlp;
     }
 
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Depot {
+        String _id;
+        int x;
+        int y;
+        double refilledGlp;
+    }
+
     public Route (pe.sag.routing.algorithm.Route route) {
         this.truckId = route.getTruckId();
         this.startDate = route.getStartDate();
         this.finishDate = route.getFinishDate();
-        this.deliveredGLP = route.getTotalDelivered();
+        this.deliveredGlp = route.getTotalDelivered();
         this.fuelConsumed = route.getTotalFuelConsumption();
         this. nodes = route.getPath();
         this.orders = new ArrayList<>();
+        this.depots = new ArrayList<>();
 
-        for (NodeInfo nf : route.getNodesInfo()) {
-            if (nf instanceof OrderInfo) {
-                OrderInfo orderInfo = (OrderInfo)nf;
-                this.orders.add(new Order(orderInfo.getId(), orderInfo.getX(),
+        for (NodeInfo ni : route.getNodesInfo()) {
+            if (ni instanceof OrderInfo) {
+                OrderInfo orderInfo = (OrderInfo)ni;
+                orders.add(new Order(orderInfo.getId(), orderInfo.getX(),
                         orderInfo.getY(), orderInfo.getArrivalTime(),
                         orderInfo.getDeliveredGlp()));
+            } else {
+                DepotInfo depotInfo = (DepotInfo)ni;
             }
         }
     }
@@ -56,9 +70,11 @@ public class Route {
     @Indexed(unique = true)
     private String truckId;
     private List<Order> orders;
+    private List<Depot> depots;
     private List<Pair<Integer,Integer>> nodes;
     private double fuelConsumed;
-    private double deliveredGLP;
+    private double deliveredGlp;
+    private double refilledGlp;
     private boolean active = true;
     private LocalDateTime startDate;
     private LocalDateTime finishDate;

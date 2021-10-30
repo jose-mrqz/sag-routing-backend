@@ -1,6 +1,5 @@
 package pe.sag.routing.core.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.Depot;
 import pe.sag.routing.data.parser.DepotParser;
@@ -12,8 +11,11 @@ import java.util.stream.Collectors;
 
 @Service
 public class DepotService {
-    @Autowired
-    private DepotRepository depotRepository;
+    private final DepotRepository depotRepository;
+
+    public DepotService(DepotRepository depotRepository) {
+        this.depotRepository = depotRepository;
+    }
 
     public Depot register(DepotDto depotRequest) {
         Depot depot = DepotParser.fromDto(depotRequest);

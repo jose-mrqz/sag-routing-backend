@@ -1,7 +1,9 @@
 package pe.sag.routing.data.repository;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.stereotype.Repository;
 import pe.sag.routing.core.model.Depot;
 
-public interface DepotRepository extends MongoRepository<Depot,String> {
+@Repository
+public interface DepotRepository extends MongoRepository<Depot, String> {
 }

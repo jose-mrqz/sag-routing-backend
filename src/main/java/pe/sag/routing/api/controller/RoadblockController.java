@@ -3,7 +3,6 @@ package pe.sag.routing.api.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import pe.sag.routing.api.response.RestResponse;
@@ -16,7 +15,7 @@ import java.util.Optional;
 
 @RestController("/roadblock")
 public class RoadblockController {
-    private RoadblockRepository roadblockRepository;
+    private final RoadblockRepository roadblockRepository;
 
     public RoadblockController(RoadblockRepository roadblockRepository) {
         this.roadblockRepository = roadblockRepository;

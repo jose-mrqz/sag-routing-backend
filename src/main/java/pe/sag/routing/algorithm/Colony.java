@@ -29,8 +29,8 @@ public class Colony extends Graph {
     public List<Pair<String,LocalDateTime>> solutionOrders = null;
     public double bestSolutionQuality;
 
-    public Colony(List<Order> orders, List<Truck> trucks) {
-        super(trucks, orders);
+    public Colony(List<Order> orders, List<Truck> trucks, List<Depot> depots) {
+        super(trucks, orders, depots);
         this.rand = new Random();
         this.threshold = 0.5;
         this.pheromoneMatrix = new Double[nNode][nNode];

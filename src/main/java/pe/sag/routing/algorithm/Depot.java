@@ -17,6 +17,7 @@ public class Depot extends Node {
     private static final double DEPOT_CAPACITY = 160.0;
 
     HashMap<LocalDate, Double> remainingGlp;
+    HashMap<LocalDate, Double> originalState;
     boolean isMain;
 
     public Depot(boolean isMain, int x, int y, int idx) {
@@ -24,6 +25,13 @@ public class Depot extends Node {
         this.isMain = isMain;
         this.x = x;
         this.y = y;
+        this.idx = idx;
+    }
+
+    public Depot(pe.sag.routing.core.model.Depot depot, int idx) {
+        this.x = depot.getX();
+        this.y = depot.getY();
+        this.isMain = false;
         this.idx = idx;
     }
 

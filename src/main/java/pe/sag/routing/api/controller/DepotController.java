@@ -1,6 +1,5 @@
 package pe.sag.routing.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,8 +11,11 @@ import pe.sag.routing.shared.dto.DepotDto;
 @RestController
 @RequestMapping("/depot")
 public class DepotController {
-    @Autowired
-    private DepotService depotService;
+    private final DepotService depotService;
+
+    public DepotController(DepotService depotService) {
+        this.depotService = depotService;
+    }
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody DepotDto depotDto) {

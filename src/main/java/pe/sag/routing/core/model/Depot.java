@@ -16,7 +16,8 @@ public class Depot extends Node {
     private String _id;
     @Indexed(unique = true)
     private String name;
-    private double capacityGLP;
-    private double currentGLP;
+    private double glpCapacity;
+    private double currentGlp = 0.0;
     private boolean active = true;
 }
+
