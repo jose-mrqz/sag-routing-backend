@@ -19,6 +19,7 @@ public class DepotController {
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody DepotDto depotDto) {
+        depotDto.setCurrentGlp(depotDto.getGlpCapacity());
         Depot depot = depotService.register(depotDto);
         RestResponse response;
         if (depot == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nueva planta.");

@@ -30,4 +30,8 @@ public class RoadblockService {
     public List<Roadblock> findByRange(LocalDateTime startDate, LocalDateTime endDate) {
         return roadblockRepository.findByStartDateBeforeAndEndDateAfter(startDate, endDate);
     }
+
+    public List<Roadblock> saveMany(List<Roadblock> roadblocks) {
+        return roadblockRepository.saveAll(roadblocks);
+    }
 }

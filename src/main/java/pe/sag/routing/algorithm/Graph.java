@@ -37,8 +37,14 @@ public class Graph {
         // depots - add availableGlp
         nodes = new Node[nNode];
         nodes[0] = new Depot(true, MDX, MDY, 0);
-        nodes[1] = depots.get(0);
-        nodes[2] = depots.get(1);
+
+        if (depots == null) {
+            nodes[1] = new Depot(false, D1X, D1Y, 1);
+            nodes[2] = new Depot(false, D2X, D2Y, 2);
+        } else {
+            nodes[1] = depots.get(0);
+            nodes[2] = depots.get(1);
+        }
 
         for (int i = 0; i < orders.size(); i++) {
             nodes[i+3] = orders.get(i);
