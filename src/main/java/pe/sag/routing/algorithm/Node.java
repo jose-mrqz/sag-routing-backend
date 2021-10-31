@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class Node {
+public class Node {
     int x;
     int y;
     int idx;
@@ -16,5 +16,5 @@ public abstract class Node {
     public int calculateDistance(Node n) {
         return Math.abs(x - n.x) + Math.abs(y - n.y);
     }
-    public abstract void reset();
+    public /*abstract*/ void reset(){};
 }
