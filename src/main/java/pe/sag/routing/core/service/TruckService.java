@@ -71,6 +71,7 @@ public class TruckService {
         };
         long wait = Duration.between(LocalDateTime.now(), endTime).toMillis();
         timer.schedule(task, wait, Long.MAX_VALUE);
+
     }
 
     public int getLastCodeByModel(TruckModel model) {
@@ -79,5 +80,10 @@ public class TruckService {
             String code = truckOptional.get().getCode();
             return Integer.parseInt(code.substring(2));
         } else return -1;
+    }
+
+    public Truck findByCode(String code) {
+        Optional<Truck> truckOptional = truckRepository.findByCode(code);
+        return truckOptional.orElse(null);
     }
 }

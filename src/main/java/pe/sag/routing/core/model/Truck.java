@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import pe.sag.routing.shared.util.enums.TruckStatus;
 
 import java.time.LocalDateTime;
 
@@ -25,4 +26,5 @@ public class Truck {
     private LocalDateTime lastRouteEndTime = null;
     private boolean monitoring;
     private boolean active = true;
+    private String status = TruckStatus.DISPONIBLE.toString();
 }

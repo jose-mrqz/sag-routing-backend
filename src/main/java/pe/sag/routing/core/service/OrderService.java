@@ -3,6 +3,7 @@ package pe.sag.routing.core.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.Order;
+import pe.sag.routing.core.scheduler.OrderScheduler;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
@@ -17,6 +18,8 @@ import java.util.stream.Collectors;
 public class OrderService {
     @Autowired
     private OrderRepository orderRepository;
+    @Autowired
+    private OrderScheduler orderScheduler;
 
     public Order register(OrderDto orderRequest, boolean monitoring) throws IllegalAccessException {
         Order order = OrderParser.fromDto(orderRequest);
@@ -92,21 +95,7 @@ public class OrderService {
     }
 
     public void scheduleStatusChange(String id, OrderStatus status, LocalDateTime now) {
-        Timer timer = new Timer();
-        TimerTask task = new TimerTask() {
-            @Override
-            public void run() {
-                Optional<Order> orderOptional = orderRepository.findById(id);
-                if (orderOptional.isPresent()) {
-                    Order o = orderOptional.get();
-                    o.setStatus(status);
-                    orderRepository.save(o);
-                }
-                timer.cancel();
-            }
-        };
-        long wait = Duration.between(LocalDateTime.now(), now).toMillis();
-        timer.schedule(task, wait, Long.MAX_VALUE);
+        orderScheduler.scheduleStatusChange(id, status, now);
     }
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {

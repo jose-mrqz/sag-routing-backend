@@ -1,6 +1,5 @@
 package pe.sag.routing.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -117,7 +116,7 @@ public class RouteController {
                 }
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
-                    routeService.register(r);
+                    routeService.save(r);
                 }
             }
         }
@@ -173,7 +172,7 @@ public class RouteController {
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
-                        routeService.register(r);
+                        routeService.save(r);
                     }
                 }
             }
@@ -214,7 +213,7 @@ public class RouteController {
             for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                 Route r = new Route(sr);
                 r.setMonitoring(false);
-                routeService.register(r);
+                routeService.save(r);
             }
         }
 
