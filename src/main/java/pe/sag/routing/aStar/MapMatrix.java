@@ -41,13 +41,11 @@ public class MapMatrix {
     }
 
     ///////METODO PARA ESTABLECER EL INICIO Y LA META///////////////////////////
-    public int setInitialNodes( int x_ini, int y_ini, int x_fin, int y_fin){
-
+    public void setInitialNodes( int x_ini, int y_ini, int x_fin, int y_fin){
         startNode = new NodeList(x_ini,y_ini);
         goalNode = new NodeList(x_fin,y_fin);
         matrix[x_ini][y_ini] = 8;
         matrix[x_fin][y_fin] = 9;
-        return 0;
     }
 
     ///////METODO QUE INICIALIZA LOS VALORES DE LA MATRIZ///////////////////////

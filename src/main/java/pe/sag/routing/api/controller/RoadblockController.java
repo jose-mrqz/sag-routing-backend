@@ -4,6 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.sag.routing.aStar.AStar;
+import pe.sag.routing.aStar.ListStructure;
+import pe.sag.routing.algorithm.Node;
+import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Roadblock;
 import pe.sag.routing.core.service.RoadblockService;
@@ -49,6 +53,21 @@ public class RoadblockController {
         List<Roadblock> roadblocks = roadblocksDto.stream().map(RoadblockParser::fromDto).collect(Collectors.toList());
         roadblocks = roadblockService.saveMany(roadblocks);
         RestResponse response = new RestResponse(HttpStatus.OK, roadblocks);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/astar")
+    protected ResponseEntity<?> astar() {
+        AStar aStar = new AStar();
+        LocalDateTime startDate = LocalDateTime.now();
+        Node nodeStart = new Node(5,5,1);
+        Node nodeGoal = new Node(40,35,2);
+        List<Roadblock> roadblocks = roadblockService.findAll();
+        List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
+
+        RestResponse response = new RestResponse(HttpStatus.OK, solutionList);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
