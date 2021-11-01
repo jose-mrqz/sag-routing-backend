@@ -11,4 +11,5 @@ public interface TruckRepository extends MongoRepository<Truck,String> {
     Optional<Truck> findTopByModelOrderByCodeDesc(TruckModel model);
     List<Truck> findByAvailableAndMonitoringOrderByModelDesc(boolean available, boolean monitoring);
     List<Truck> findByMonitoring(boolean monitoring);
+    Optional<Truck> findByCode(String code);
 }

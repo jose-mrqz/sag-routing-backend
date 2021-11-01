@@ -75,6 +75,7 @@ public class Route {
     private double fuelConsumed;
     private double deliveredGlp;
     private double refilledGlp;
+    private boolean cancelled = false;
     private boolean active = true;
     private LocalDateTime startDate;
     private LocalDateTime finishDate;

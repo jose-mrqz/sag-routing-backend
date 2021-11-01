@@ -23,7 +23,7 @@ public class RouteService {
         this.routeRepository = routeRepository;
     }
 
-    public Route register(Route route) {
+    public Route save(Route route) {
         return routeRepository.save(route);
     }
 
@@ -46,6 +46,12 @@ public class RouteService {
     public Route getLastRouteByTruckMonitoring(Truck truck, boolean monitoring) {
         Optional<Route> route = routeRepository.
                 findTopByTruckIdAndMonitoringOrderByFinishDateDesc(truck.get_id(), monitoring);
+        return route.orElse(null);
+    }
+
+    public Route getCurrentByTruckId(String truckId, boolean monitoring) {
+        LocalDateTime now = LocalDateTime.now();
+        Optional<Route> route = routeRepository.findByTruckIdAndMonitoringAndStartDateBeforeAndFinishDateAfter(truckId, monitoring, now, now);
         return route.orElse(null);
     }
 

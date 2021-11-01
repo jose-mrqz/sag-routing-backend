@@ -10,7 +10,8 @@ import java.util.Optional;
 
 public interface RouteRepository extends MongoRepository<Route,String> {
     Optional<Route> findTopByTruckIdAndMonitoringOrderByFinishDateDesc(String truck, boolean monitoring);
+    Optional<Route> findByTruckIdAndMonitoringAndStartDateBeforeAndFinishDateAfter(String truckId, boolean monitoring, LocalDateTime startDate, LocalDateTime finishDate);
     List<Route> findByStartDateBeforeAndFinishDateAfterAndMonitoring(LocalDateTime startDate, LocalDateTime finishDate, boolean monitoring);
-    void deleteByMonitoring(boolean monitoring);
     List<Route> findByMonitoring(boolean monitoring);
+    void deleteByMonitoring(boolean monitoring);
 }
