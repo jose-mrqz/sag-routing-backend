@@ -100,12 +100,7 @@ public class RouteDto {
     }
 
     public LocalDateTime transformDate(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
-        LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
         LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
-
-        long differenceTransformReal = NANOS.between(simulationStartReal, simulationStartTransform);
-        dateToConvert = dateToConvert.plusNanos(differenceTransformReal);
-
         long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);
         amountNanos /= speed;
         LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
@@ -113,7 +108,7 @@ public class RouteDto {
         return transformedDate;
     }
 
-    public RouteDto transformRoute(SimulationInfo simulationInfo, int speed){
+    public RouteDto transformRouteSpeed(SimulationInfo simulationInfo, int speed){
         RouteDto transformedRoute = RouteDto.builder()
                 .startDate(getStartDate())
                 .endDate(getEndDate())

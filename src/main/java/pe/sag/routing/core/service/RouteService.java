@@ -1,9 +1,7 @@
 package pe.sag.routing.core.service;
 
 import org.springframework.stereotype.Service;
-import pe.sag.routing.core.model.Order;
-import pe.sag.routing.core.model.Route;
-import pe.sag.routing.core.model.Truck;
+import pe.sag.routing.core.model.*;
 import pe.sag.routing.data.parser.RouteParser;
 import pe.sag.routing.data.repository.RouteRepository;
 import pe.sag.routing.shared.dto.RouteDto;
@@ -13,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.time.temporal.ChronoUnit.NANOS;
 import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Service
@@ -51,6 +50,32 @@ public class RouteService {
 
     public void deleteByMonitoring(boolean monitoring){
         routeRepository.deleteByMonitoring(monitoring);
+    }
+
+    public LocalDateTime transformDate(SimulationInfo simulationInfo, LocalDateTime dateToConvert){
+        LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
+        LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
+
+        long differenceTransformReal = NANOS.between(simulationStartReal, simulationStartTransform);
+        dateToConvert = dateToConvert.plusNanos(differenceTransformReal);
+
+        long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);
+        LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
+        transformedDate = transformedDate.plusNanos(amountNanos);
+        return transformedDate;
+    }
+
+    public Route transformRoute(Route route, SimulationInfo simulationInfo){
+        //Route transformedRoute
+
+        route.setStartDate(transformDate(simulationInfo,route.getStartDate()));
+        route.setFinishDate(transformDate(simulationInfo,route.getFinishDate()));
+
+        for(Route.Order o : route.getOrders()){
+            o.setDeliveryDate(transformDate(simulationInfo,o.getDeliveryDate()));
+        }
+
+        return route;
     }
 }
 

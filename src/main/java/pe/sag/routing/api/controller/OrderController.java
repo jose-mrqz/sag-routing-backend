@@ -101,12 +101,11 @@ public class OrderController {
         SimulationInfo simulationInfo = new SimulationInfo();
         simulationInfo.setStartDateReal(startDateReal);
         simulationInfo.setSpeed(request.getSpeed());
+        simulationInfo.setStartDateTransformed(LocalDateTime.now()); //considerar margen, preguntar a renzo
+        simulationInfoRepository.save(simulationInfo);
 
         //correr algoritmo
         routeController.scheduleRoutesSimulation(startDateReal);
-
-        simulationInfo.setStartDateTransformed(LocalDateTime.now()); //considerar margen, preguntar a renzo
-        simulationInfoRepository.save(simulationInfo);
 
         boolean responseOK = ordersRegistered.size() != 0;
 

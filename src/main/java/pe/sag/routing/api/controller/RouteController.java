@@ -9,10 +9,7 @@ import pe.sag.routing.algorithm.Planner;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.api.response.SimulationResponse;
-import pe.sag.routing.core.model.Order;
-import pe.sag.routing.core.model.Route;
-import pe.sag.routing.core.model.SimulationInfo;
-import pe.sag.routing.core.model.Truck;
+import pe.sag.routing.core.model.*;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
@@ -67,7 +64,7 @@ public class RouteController {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
             for(RouteDto r : routesDto) {
-                RouteDto rt = r.transformRoute(simulationInfo, request.getSpeed());
+                RouteDto rt = r.transformRouteSpeed(simulationInfo, request.getSpeed());
                 routesTransformedDto.add(rt);
             }
         }
@@ -130,12 +127,14 @@ public class RouteController {
         private final TruckService truckService;
         private final OrderService orderService;
         private final LocalDateTime startDateReal;
+        private final SimulationInfo simulationInfo;
 
-        public SimulationScheduler(RouteService routeService, TruckService truckService, OrderService orderService, LocalDateTime startDateReal) {
+        public SimulationScheduler(RouteService routeService, TruckService truckService, OrderService orderService, LocalDateTime startDateReal, SimulationInfo simulationInfo) {
             this.routeService = routeService;
             this.truckService = truckService;
             this.orderService = orderService;
             this.startDateReal = startDateReal;
+            this.simulationInfo = simulationInfo;
         }
 
         @Override
@@ -173,6 +172,7 @@ public class RouteController {
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
+                        r = routeService.transformRoute(r,simulationInfo);
                         routeService.register(r);
                     }
                 }
@@ -184,6 +184,14 @@ public class RouteController {
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        if(listSimulationInfo.size()==0){
+            RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
         List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
         List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
@@ -214,11 +222,12 @@ public class RouteController {
             for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                 Route r = new Route(sr);
                 r.setMonitoring(false);
+                r = routeService.transformRoute(r,simulationInfo);
                 routeService.register(r);
             }
         }
 
-        Thread thread = new Thread(new SimulationScheduler(routeService,truckService,orderService,startDateReal));
+        Thread thread = new Thread(new SimulationScheduler(routeService,truckService,orderService,startDateReal,simulationInfo));
         thread.start();
 
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo de Simulacion realizado correctamente.");

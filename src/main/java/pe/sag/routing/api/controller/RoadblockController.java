@@ -8,13 +8,18 @@ import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.aStar.ListStructure;
 import pe.sag.routing.algorithm.Node;
 import pe.sag.routing.algorithm.Pair;
+import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Roadblock;
+import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.data.parser.RoadblockParser;
+import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.RoadblockDto;
+import pe.sag.routing.shared.dto.RouteDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +27,11 @@ import java.util.stream.Collectors;
 @RequestMapping("/roadblock")
 public class RoadblockController {
     private final RoadblockService roadblockService;
+    private final SimulationInfoRepository simulationInfoRepository;
 
-    public RoadblockController(RoadblockService roadblockService) {
+    public RoadblockController(RoadblockService roadblockService, SimulationInfoRepository simulationInfoRepository) {
         this.roadblockService = roadblockService;
+        this.simulationInfoRepository = simulationInfoRepository;
     }
 
 
@@ -42,6 +49,28 @@ public class RoadblockController {
     protected ResponseEntity<?> getAll() {
         List<Roadblock> roadblocks = roadblockService.findAll();
         List<RoadblockDto> roadblocksDto = roadblocks.stream().map(RoadblockParser::toDto).collect(Collectors.toList());
+        RestResponse response = new RestResponse(HttpStatus.OK, roadblocksDto);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @GetMapping(path = "/simulation")
+    protected ResponseEntity<?> getAllSimulation(@RequestBody SimulationRequest request) {
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        if(listSimulationInfo.size()==0){
+            RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        List<Roadblock> roadblocks = roadblockService.findByDateAfter(listSimulationInfo.get(0).getStartDateTransformed());
+        List<Roadblock> transformedRoadblocks = new ArrayList<>();
+        for(Roadblock rb : roadblocks){
+            Roadblock rbt = roadblockService.transformRoadblock(rb,listSimulationInfo.get(0), request.getSpeed());
+            transformedRoadblocks.add(rbt);
+        }
+        List<RoadblockDto> roadblocksDto = transformedRoadblocks.stream().map(RoadblockParser::toDto).collect(Collectors.toList());
         RestResponse response = new RestResponse(HttpStatus.OK, roadblocksDto);
         return ResponseEntity
                 .status(response.getStatus())
