@@ -2,10 +2,7 @@ package pe.sag.routing.api.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Breakdown;
 import pe.sag.routing.core.model.Route;
@@ -32,6 +29,13 @@ public class BreakdownController {
         this.truckService = truckService;
         this.routeService = routeService;
         this.orderService = orderService;
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getActive() {
+        List<Breakdown> activeBreakdowns = breakdownService.getActive();
+        RestResponse response = new RestResponse(HttpStatus.OK, activeBreakdowns);
+        return ResponseEntity.status(response.getStatus()).body(response);
     }
 
     @PostMapping
