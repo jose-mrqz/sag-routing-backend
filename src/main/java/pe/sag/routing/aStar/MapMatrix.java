@@ -58,25 +58,25 @@ public class MapMatrix {
     }
 
     //////METODO QUE EMPIEZA EL ALGORITMO Y REGRESA EL CAMINO FINAL/////////////
-    public ListStructure getSolutionList(List<Roadblock> roadblocks, LocalDateTime startDate){
+    public ListStructure getSolutionList(List<Roadblock> roadblocks, LocalDateTime startDate, LocalDateTime limitDate){
         //Inicializar atributos antes de algoritmo
         openList = new ListStructure();
         closeList = new ListStructure();
         solutionList = new ListStructure ();
 
         //Iniciar algoritmo
-        startAStar( startNode, roadblocks, startDate );
+        startAStar( startNode, roadblocks, startDate);
 
         //Creacion de lista
         NodeList extra2 = solutionList.first;
-        ListStructure solution = new ListStructure(startDate);
+        ListStructure solution = new ListStructure(startDate, limitDate);
 
         while( extra2 != null ){
             extra2.next = null;
             solution.addNode(extra2);
             extra2 = extra2.father;
         }
-        solution.calcularDistanciaTiempo();
+        solution.calcularDistanceTime();
 
         return solution;
     }///////////////////////////////////////////////////////////////////////////

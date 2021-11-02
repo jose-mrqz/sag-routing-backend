@@ -5,8 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.aStar.ListStructure;
-import pe.sag.routing.algorithm.Node;
-import pe.sag.routing.algorithm.Pair;
+import pe.sag.routing.algorithm.*;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Roadblock;
@@ -86,8 +85,8 @@ public class RoadblockController {
                 .body(response);
     }
 
-    @PostMapping(path = "/astar")
-    protected ResponseEntity<?> astar() {
+    @PostMapping(path = "/astar1")
+    protected ResponseEntity<?> astar1() {
         AStar aStar = new AStar();
         LocalDateTime startDate = LocalDateTime.now();
         Node nodeStart = new Node(5,5,1);
@@ -96,6 +95,43 @@ public class RoadblockController {
         List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
 
         RestResponse response = new RestResponse(HttpStatus.OK, solutionList);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/astar2")
+    protected ResponseEntity<?> astar2() {
+        AStar aStar = new AStar();
+        List<Roadblock> roadblocks = roadblockService.findAll();
+        List<Route> routes = new ArrayList<>();
+
+        ArrayList<NodeInfo> nodesInfo = new ArrayList<>();
+        DepotInfo depotInfo = new DepotInfo(12,8,100,LocalDateTime.of(2021,11,1,5,23,24));
+        nodesInfo.add(depotInfo);
+        OrderInfo orderInfo = new OrderInfo(40,35,"6181658d7378f13a04c4dae5",LocalDateTime.of(2021,11,1,8,23,24),
+                12,LocalDateTime.of(2021,11,1,8,23,24));
+        nodesInfo.add(orderInfo);
+        depotInfo = new DepotInfo(12,8,100,LocalDateTime.of(2021,11,1,11,23,24));
+        nodesInfo.add(depotInfo);
+        Route route = new Route("6178bc8205cbc421b0a7bc18", "TB2", LocalDateTime.of(2021,11,1,7,9),
+                LocalDateTime.of(2021,11,1,9,47,48), nodesInfo, 5.373333333333333, 12.0);
+
+        routes.add(route);
+        //Route route = new Route(truckId=6178bc8205cbc421b0a7bc18, truckCode=TB2, nodesInfo=[OrderInfo(id=6181658d7378f13a04c4dae6, deliveryDate=2021-05-01T11:05:48, deliveredGlp=15.0)], path=null, totalFuelConsumption=4.9833333333333325, totalDelivered=15.0, startDate=2021-05-01T09:47:48, finishDate=2021-05-01T12:33:48));
+
+        List<Order> orders = new ArrayList<>();
+
+        Order order = new Order("181658d7378f13a04c4dae5", 40, 35, 0, 12.0, LocalDateTime.parse("2021-11-01T07:09"), LocalDateTime.parse("2021-11-01T11:09"));
+        order.setDeliveryTime(LocalDateTime.parse("2021-11-01T08:23:24"));
+        order.setVisited(true);
+        order.setUnloadTime(10);
+        //Order order = new Order(_id=6181658d7378f13a04c4dae6, demand=0.0, totalDemand=15.0, twOpen=2021-05-01T07:09:10, twClose=2021-05-01T11:09:10, deliveryTime=2021-05-01T11:05:48, visited=true, unloadTime=10);
+        orders.add(order);
+
+        List<Route> routesSolution = aStar.run(routes, orders, roadblocks);
+
+        RestResponse response = new RestResponse(HttpStatus.OK, routesSolution);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

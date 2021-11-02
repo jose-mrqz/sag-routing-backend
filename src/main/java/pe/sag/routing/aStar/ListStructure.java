@@ -9,6 +9,8 @@ public class ListStructure {
     public long timeSec;
     public LocalDateTime departureDate;
     public LocalDateTime arriveDate;
+    public LocalDateTime limitDate;
+    public boolean limitDateOK;
 
     ///////CONSTRUCTOR//////////////////////////////////////////////////////////
     public ListStructure(){
@@ -18,15 +20,19 @@ public class ListStructure {
         this.timeSec = 0;
         this.departureDate = null;
         this.arriveDate = null;
+        this.limitDate = null;
+        this.limitDateOK = false;
     }
 
-    public ListStructure(LocalDateTime departureDate){
+    public ListStructure(LocalDateTime departureDate, LocalDateTime limitDate){
         this.first = this.last = null;
         this.numberNodes = 0;
         this.distanceKm = 0;
         this.timeSec = 0;
         this.departureDate = LocalDateTime.of(departureDate.toLocalDate(),departureDate.toLocalTime());
         this.arriveDate = null;
+        if(limitDate != null) this.limitDate = LocalDateTime.of(limitDate.toLocalDate(),limitDate.toLocalTime());
+        this.limitDateOK = false;
     }
 
     ///////METODO PARA AGRGAR NODOS/////////////////////////////////////////////
@@ -89,13 +95,15 @@ public class ListStructure {
     }
 
     ///////METODO QUE CALCULA DISTANCIA RECORRIDA (KM) Y TIEMPO DE RECORRIDO (MIN)//////////////////////////////////////
-    public void calcularDistanciaTiempo(){
+    public void calcularDistanceTime(){
         //Calcular distanceKm y timeMin
         distanceKm = numberNodes-1;
         timeSec = (long) distanceKm *60*60/50;
         //Calcular fecha llegada
         arriveDate = LocalDateTime.of(departureDate.toLocalDate(),departureDate.toLocalTime());
         arriveDate = arriveDate.plusSeconds(timeSec);
+        //Revisar si el pedido llego antes de la fecha limite
+        if(limitDate != null) limitDateOK = arriveDate.isBefore(limitDate);
     }
 
     //////METODO PARA DETERMINAR SI LA LISTA ESTA VACIA/////////////////////////

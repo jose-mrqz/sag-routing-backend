@@ -77,9 +77,9 @@ public class Truck {
         Node nodeStart = currentNode;
         Node nodeGoal = destination;
         List<Roadblock> roadblocks = new ArrayList<>();
-        List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
-        return (int)(3600*solutionList.size()/speed);
-//        return (int)(3600*matrix[i][j]/speed);
+//        List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
+//        return (int)(3600*solutionList.size()/speed);
+        return (int)(3600*matrix[i][j]/speed);
     }
 
     private double calculateFuelConsumption(int i, int j, int[][] matrix, double weight) {
