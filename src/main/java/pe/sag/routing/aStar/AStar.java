@@ -1,9 +1,6 @@
 package pe.sag.routing.aStar;
 
-import pe.sag.routing.algorithm.Node;
-import pe.sag.routing.algorithm.Order;
-import pe.sag.routing.algorithm.Pair;
-import pe.sag.routing.algorithm.Route;
+import pe.sag.routing.algorithm.*;
 import pe.sag.routing.core.model.Roadblock;
 
 import java.time.LocalDateTime;
@@ -73,9 +70,17 @@ public class AStar {
             LocalDateTime departureDate, limitDate;
             ArrayList<ListStructure> solutionLists = new ArrayList<>();
             NodeList nodeStart, nodeGoal;
-            for (int j = 0; j < route.getNodesInfo().size() - 1; j++) {
-                nodeStart = new NodeList(route.getNodesInfo().get(j));
-                nodeGoal = new NodeList(route.getNodesInfo().get(j+1));
+
+            ArrayList<NodeInfo> nodes = new ArrayList<>();
+            DepotInfo depotInfo = new DepotInfo(12,8,0,route.getStartDate());
+            nodes.add(depotInfo);
+            nodes.addAll(route.getNodesInfo());
+            depotInfo = new DepotInfo(12,8,0,route.getFinishDate());
+            nodes.add(depotInfo);
+
+            for (int j = 0; j < nodes.size()-1; j++) {
+                nodeStart = new NodeList(nodes.get(j));
+                nodeGoal = new NodeList(nodes.get(j+1));
 
                 //Para departurteDate, revisar si nodeStart no es planta principal/intermedia, es decir, pedido para aumentarle 10min
                 departureDate = LocalDateTime.of(nodeStart.arrivalTime.toLocalDate(),nodeStart.arrivalTime.toLocalTime());
@@ -134,7 +139,7 @@ public class AStar {
                 pairListCompleted.addAll(pairList);
             }
             Collections.reverse(pairListCompleted);
-            nodeStart = new NodeList(route.getNodesInfo().get(0));
+            nodeStart = new NodeList(nodes.get(0));
             Pair<Integer, Integer> pair = new Pair<>(nodeStart.cordX,nodeStart.cordY);
             pairListCompleted.add(0,pair);
             route.setPath(pairListCompleted);

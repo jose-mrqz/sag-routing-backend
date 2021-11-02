@@ -107,13 +107,9 @@ public class RoadblockController {
         List<Route> routes = new ArrayList<>();
 
         ArrayList<NodeInfo> nodesInfo = new ArrayList<>();
-        DepotInfo depotInfo = new DepotInfo(12,8,100,LocalDateTime.of(2021,11,1,5,23,24));
-        nodesInfo.add(depotInfo);
         OrderInfo orderInfo = new OrderInfo(40,35,"6181658d7378f13a04c4dae5",LocalDateTime.of(2021,11,1,8,23,24),
                 12,LocalDateTime.of(2021,11,1,8,23,24));
         nodesInfo.add(orderInfo);
-        depotInfo = new DepotInfo(12,8,100,LocalDateTime.of(2021,11,1,11,23,24));
-        nodesInfo.add(depotInfo);
         Route route = new Route("6178bc8205cbc421b0a7bc18", "TB2", LocalDateTime.of(2021,11,1,7,9),
                 LocalDateTime.of(2021,11,1,9,47,48), nodesInfo, 5.373333333333333, 12.0);
 
