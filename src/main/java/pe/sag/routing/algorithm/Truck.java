@@ -3,9 +3,12 @@ package pe.sag.routing.algorithm;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import pe.sag.routing.aStar.AStar;
+import pe.sag.routing.core.model.Roadblock;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -25,6 +28,8 @@ public class Truck {
     LocalDateTime finishDate;
 
     private LocalDateTime startingDate;
+    private Node currentNode = null;
+    private Node destination = null;
 
     ArrayList<LocalDateTime> departureRegistry;
     ArrayList<LocalDateTime> arrivalRegistry;
@@ -65,7 +70,14 @@ public class Truck {
 
     // a* stub
     private int calculateTravelTime(int[][] matrix, int i, int j) {
-        return (int)(3600*matrix[i][j]/speed);
+        AStar aStar = new AStar();
+        LocalDateTime startDate = LocalDateTime.now();
+        Node nodeStart = currentNode;
+        Node nodeGoal = destination;
+        List<Roadblock> roadblocks = new ArrayList<>();
+        List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
+        return (int)(3600*solutionList.size()/speed);
+//        return (int)(3600*matrix[i][j]/speed);
     }
 
     private double calculateFuelConsumption(int i, int j, int[][] matrix, double weight) {
@@ -113,7 +125,9 @@ public class Truck {
         return (okCapacity(d, travelTime) && okFuel(d, matrix));
     }
 
-    public boolean evaluateNode(Node n, int[][] matrix) {
+    public boolean evaluateNode(Node n, int[][] matrix, Node[] nodes) {
+        currentNode = nodes[nowIdx];
+        destination = n;
         if (n instanceof  Order) return evaluateOrder((Order)n, matrix);
         else return evaluateDepot((Depot)n, matrix);
     }
@@ -151,7 +165,9 @@ public class Truck {
         fuel = MAX_FUEL;
     }
 
-    public void addNode(Node n, int[][] matrix) {
+    public void addNode(Node n, int[][] matrix, Node[] nodes) {
+        currentNode = nodes[nowIdx];
+        destination = n;
         int travelTime = calculateTravelTime(matrix, nowIdx, n.idx);
 
         if (nowIdx == 0 && !tour.isEmpty()) {
