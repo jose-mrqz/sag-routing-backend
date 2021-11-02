@@ -10,6 +10,7 @@ import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.api.response.SimulationResponse;
 import pe.sag.routing.core.model.*;
 import pe.sag.routing.core.service.OrderService;
+import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
 import pe.sag.routing.data.parser.RouteParser;
@@ -31,13 +32,15 @@ public class RouteController {
     private final TruckService truckService;
     private final OrderService orderService;
     private final SimulationInfoRepository simulationInfoRepository;
+    private final RoadblockService roadblockService;
 
     public RouteController(RouteService routeService, TruckService truckService,
-                           OrderService orderService, SimulationInfoRepository simulationInfoRepository) {
+                           OrderService orderService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
         this.simulationInfoRepository = simulationInfoRepository;
+        this.roadblockService = roadblockService;
     }
 
     @GetMapping
@@ -78,6 +81,7 @@ public class RouteController {
     @PostMapping
     public ResponseEntity<?> scheduleRoutes() {
         while (true) {
+            List<Roadblock> roadblocks = roadblockService.findActive();
             List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
             if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
             List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
@@ -91,7 +95,7 @@ public class RouteController {
             //mejorar con formato de error: colapso logistico
             if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
                 Collections.shuffle(availableTrucks);
-                Planner planner = new Planner(availableTrucks, pendingOrders);
+                Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks);
                 planner.run();
                 if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
                 List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
