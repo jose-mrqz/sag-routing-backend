@@ -76,6 +76,7 @@ public class MapMatrix {
             solution.addNode(extra2);
             extra2 = extra2.father;
         }
+        solution.delete(goalNode);
         solution.calcularDistanceTime();
 
         return solution;

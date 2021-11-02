@@ -72,9 +72,10 @@ public class AStar {
             //route.printRoute();
             LocalDateTime departureDate, limitDate;
             ArrayList<ListStructure> solutionLists = new ArrayList<>();
+            NodeList nodeStart, nodeGoal;
             for (int j = 0; j < route.getNodesInfo().size() - 1; j++) {
-                NodeList nodeStart = new NodeList(route.getNodesInfo().get(j));
-                NodeList nodeGoal = new NodeList(route.getNodesInfo().get(j+1));
+                nodeStart = new NodeList(route.getNodesInfo().get(j));
+                nodeGoal = new NodeList(route.getNodesInfo().get(j+1));
 
                 //Para departurteDate, revisar si nodeStart no es planta principal/intermedia, es decir, pedido para aumentarle 10min
                 departureDate = LocalDateTime.of(nodeStart.arrivalTime.toLocalDate(),nodeStart.arrivalTime.toLocalTime());
@@ -116,9 +117,10 @@ public class AStar {
                 solutionLists.add(solutionList);
             }
 
-            ArrayList<Pair<Integer,Integer>> pairList = new ArrayList<>();
+            ArrayList<Pair<Integer,Integer>> pairListCompleted = new ArrayList<>();
 
             for(ListStructure solutionList : solutionLists){
+                ArrayList<Pair<Integer,Integer>> pairList = new ArrayList<>();
                 //Pintar Ruta
                 map.paintRoute(solutionList);
                 //Acumular lista de pares
@@ -128,9 +130,14 @@ public class AStar {
                     pairList.add(pair);
                     aux = aux.next;
                 }
+                Collections.reverse(pairList);
+                pairListCompleted.addAll(pairList);
             }
-            Collections.reverse(pairList);
-            route.setPath(pairList);
+            Collections.reverse(pairListCompleted);
+            nodeStart = new NodeList(route.getNodesInfo().get(0));
+            Pair<Integer, Integer> pair = new Pair<>(nodeStart.cordX,nodeStart.cordY);
+            pairListCompleted.add(0,pair);
+            route.setPath(pairListCompleted);
         }
 
         //Imprimir mapa completo
