@@ -19,7 +19,7 @@ public class Colony extends Graph {
     private static final Double Q = 1.0;
     private static final Double DECAY_RATE = 0.95;
     private static final int INF = Integer.MAX_VALUE;
-    private static final int ITERATOR = 10000;
+    private static final int ITERATOR = 1500;
     private Double threshold;
     private Double[][] pheromoneMatrix;
     private Double[][] ethaMatrix;
@@ -171,20 +171,21 @@ public class Colony extends Graph {
         boolean onlyDepot;
         while (!isAllVisited()) {
             if (trucks[truckIdx].tour.isEmpty()) // add main depot as starting point
-                trucks[truckIdx].addNode(nodes[0], distanceMatrix);
+                trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes);
             ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
             while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
                 onlyDepot = true;
                 for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
                     if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
-                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix)) {
+//                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix)) {
+                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix, nodes)) {
                         if (onlyDepot && nodes[nodeIdx] instanceof Order) onlyDepot = false;
                         feasibleEdges.add(new Pair<>(trucks[truckIdx].nowIdx, nodeIdx));
                     }
                 }
                 if (onlyDepot) feasibleEdges.clear();
                 if (feasibleEdges.isEmpty()) {
-                    if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix); //return to main depot
+                    if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes); //return to main depot
                     else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(30); // wait at main depot
                 }
             }
@@ -192,7 +193,7 @@ public class Colony extends Graph {
             if (feasibleEdges.isEmpty()) {
                 if (truckIdx + 1 < nTruck) { // check if there are other available trucks
                     if (trucks[truckIdx].nowIdx != 0) // current truck didn't returned to main plaint
-                        trucks[truckIdx].addNode(nodes[0], distanceMatrix);
+                        trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes);
                     truckIdx += 1;
                 } else {
                     break; // collapse
@@ -237,12 +238,12 @@ public class Colony extends Graph {
                         break;
                     nextNodeIdx = feasibleEdges.get(bestIdx).y;
                 }
-                trucks[truckIdx].addNode(nodes[nextNodeIdx], distanceMatrix);
+                trucks[truckIdx].addNode(nodes[nextNodeIdx], distanceMatrix, nodes);
             }
         }
         if (trucks[truckIdx].nowIdx != 0) {
             // in case the vehicle did not return back to the depot
-            trucks[truckIdx].addNode(nodes[0], distanceMatrix);
+            trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes);
         }
    }
 }

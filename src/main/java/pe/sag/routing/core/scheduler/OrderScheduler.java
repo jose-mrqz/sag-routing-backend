@@ -24,6 +24,7 @@ public class OrderScheduler {
     }
 
     public void scheduleStatusChange(String id, OrderStatus status, LocalDateTime now) {
+        if (now == null) return; //error handle
         Timer currentTimer = timerRecord.getOrDefault(id, null);
         if (currentTimer != null) currentTimer.cancel();
         Timer timer = new Timer();
