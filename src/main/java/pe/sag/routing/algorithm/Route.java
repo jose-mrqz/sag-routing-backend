@@ -14,6 +14,7 @@ import java.util.ArrayList;
 @Builder
 public class Route {
     String truckId;
+    String truckCode;
     ArrayList<NodeInfo> nodesInfo;
     ArrayList<Pair<Integer,Integer>> path;
     double totalFuelConsumption;
@@ -21,9 +22,10 @@ public class Route {
     LocalDateTime startDate;
     LocalDateTime finishDate;
 
-    public Route (String truckId, LocalDateTime startDate, LocalDateTime finishDate,
+    public Route (String truckId, String truckCode, LocalDateTime startDate, LocalDateTime finishDate,
                   ArrayList<NodeInfo> nodesInfo, double totalFuelConsumption, double totalDelivered) {
         this.truckId = truckId;
+        this.truckCode = truckCode;
         this.startDate = startDate;
         this.finishDate = finishDate;
         this.nodesInfo = nodesInfo;

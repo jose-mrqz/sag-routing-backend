@@ -23,10 +23,12 @@ public class Planner {
 
     public Planner(List<pe.sag.routing.core.model.Truck> modelTrucks,
                    List<pe.sag.routing.core.model.Order> modelOrders,
-                   List<Roadblock> roadblocks) {
+                   List<Roadblock> roadblocks,
+                   List<pe.sag.routing.core.model.Depot> modelDepots) {
         this.modelTrucks = modelTrucks;
         this.modelOrders = modelOrders;
         this.roadblocks = roadblocks;
+        this.modelDepots = modelDepots;
     }
 
     public Planner(List<pe.sag.routing.core.model.Truck> modelTrucks,
@@ -40,7 +42,7 @@ public class Planner {
         ArrayList<Order> orders = new ArrayList<>();
         ArrayList<Depot> depots = null;
 
-        modelTrucks.forEach(tm -> trucks.add(new Truck(tm.get_id(), tm.getModel().getCapacity(),
+        modelTrucks.forEach(tm -> trucks.add(new Truck(tm.get_id(), tm.getCode(), tm.getModel().getCapacity(),
                 tm.getModel().getTareWeight(), 0, tm.getLastRouteEndTime())));
 
         AtomicInteger idx = new AtomicInteger();

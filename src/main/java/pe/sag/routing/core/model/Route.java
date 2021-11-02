@@ -45,6 +45,7 @@ public class Route {
 
     public Route (pe.sag.routing.algorithm.Route route) {
         this.truckId = route.getTruckId();
+        this.truckCode = route.getTruckCode();
         this.startDate = route.getStartDate();
         this.finishDate = route.getFinishDate();
         this.deliveredGlp = route.getTotalDelivered();
@@ -69,6 +70,7 @@ public class Route {
     private String _id;
     @Indexed(unique = true)
     private String truckId;
+    private String truckCode;
     private List<Order> orders;
     private List<Depot> depots;
     private List<Pair<Integer,Integer>> nodes;

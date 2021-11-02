@@ -16,16 +16,19 @@ import java.util.HashMap;
 public class Depot extends Node {
     private static final double DEPOT_CAPACITY = 160.0;
 
-    HashMap<LocalDate, Double> remainingGlp;
-    HashMap<LocalDate, Double> originalState;
+    HashMap<LocalDate, Double> remainingGlp = new HashMap<>();
+    HashMap<LocalDate, Double> originalState = new HashMap<>();
     boolean isMain;
+    String id;
 
     public Depot(boolean isMain, int x, int y, int idx) {
+        originalState = new HashMap<>();
         remainingGlp = new HashMap<>();
         this.isMain = isMain;
         this.x = x;
         this.y = y;
         this.idx = idx;
+        id = null;
     }
 
     public Depot(pe.sag.routing.core.model.Depot depot, int idx) {
@@ -33,6 +36,9 @@ public class Depot extends Node {
         this.y = depot.getY();
         this.isMain = false;
         this.idx = idx;
+        originalState.put(LocalDate.now(), depot.getCurrentGlp());
+        remainingGlp.put(LocalDate.now(), depot.getCurrentGlp());
+        id = depot.get_id();
     }
 
     public double getAvailableGLp(LocalDate time) {
@@ -61,6 +67,6 @@ public class Depot extends Node {
 
     @Override
     public void reset() {
-        remainingGlp.clear();
+        remainingGlp = (HashMap<LocalDate, Double>) originalState.clone();
     }
 }

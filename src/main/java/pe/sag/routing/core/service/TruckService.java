@@ -1,12 +1,13 @@
 package pe.sag.routing.core.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.core.model.TruckModel;
+import pe.sag.routing.core.scheduler.TruckScheduler;
 import pe.sag.routing.data.parser.TruckParser;
 import pe.sag.routing.data.repository.TruckRepository;
 import pe.sag.routing.shared.dto.TruckDto;
+import pe.sag.routing.shared.util.enums.TruckStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -16,9 +17,11 @@ import java.util.stream.Collectors;
 @Service
 public class TruckService {
     private final TruckRepository truckRepository;
+    private final TruckScheduler truckScheduler;
 
-    public TruckService(TruckRepository truckRepository) {
+    public TruckService(TruckRepository truckRepository, TruckScheduler truckScheduler) {
         this.truckRepository = truckRepository;
+        this.truckScheduler = truckScheduler;
     }
 
     public Truck register(TruckDto truckRequest, boolean monitoring) {
@@ -85,5 +88,20 @@ public class TruckService {
     public Truck findByCode(String code) {
         Optional<Truck> truckOptional = truckRepository.findByCode(code);
         return truckOptional.orElse(null);
+    }
+
+    public Truck findByCodeAndMonitoring(String code, boolean monitoring) {
+        Optional<Truck> truckOptional = truckRepository.findByCodeAndMonitoring(code, monitoring);
+        return truckOptional.orElse(null);
+    }
+    public void registerBreakdown(Truck truck, LocalDateTime now) {
+        truck.setStatus(TruckStatus.AVERIADO.toString());
+        truckRepository.save(truck);
+        truckScheduler.scheduleStatusChange(truck.get_id(), TruckStatus.MANTENIMIENTO, now.plusMinutes(60));
+        truckScheduler.scheduleStatusChange(truck.get_id(), TruckStatus.DISPONIBLE, now.plusMinutes(60).plusHours(48));
+    }
+
+    public List<Truck> findByAvailableAndMonitoringAndStatus(boolean available, boolean monitoring, TruckStatus status) {
+        return truckRepository.findByAvailableAndMonitoringAndStatus(available, monitoring, status.toString());
     }
 }

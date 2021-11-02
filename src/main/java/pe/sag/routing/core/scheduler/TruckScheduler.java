@@ -24,8 +24,6 @@ public class TruckScheduler {
     }
 
     public void scheduleStatusChange(String id, TruckStatus status, LocalDateTime now) {
-        Timer currentTimer = timerRecord.getOrDefault(id, null);
-        if (currentTimer != null) currentTimer.cancel();
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             @Override

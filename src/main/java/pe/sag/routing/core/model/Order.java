@@ -20,6 +20,7 @@ public class Order extends Node {
     @Indexed(unique = true)
     private int code;
     private double demandGLP;
+    private double totalDemand;
     private LocalDateTime registrationDate;
     private LocalDateTime deadlineDate;
     private LocalDateTime deliveryDate;

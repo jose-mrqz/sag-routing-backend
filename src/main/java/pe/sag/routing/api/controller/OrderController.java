@@ -39,6 +39,7 @@ public class OrderController {
                 .x(request.getX())
                 .y(request.getY())
                 .demandGLP(request.getDemandGLP())
+                .totalDemand(request.getDemandGLP())
                 .registrationDate(LocalDateTime.now())
                 .deadlineDate(LocalDateTime.now().plusHours(request.getSlack()))
                 .build();
@@ -59,6 +60,7 @@ public class OrderController {
                     .x(req.getX())
                     .y(req.getY())
                     .demandGLP(req.getDemandGLP())
+                    .totalDemand(req.getDemandGLP())
                     .registrationDate(LocalDateTime.now())
                     .deadlineDate(LocalDateTime.now().plusHours(req.getSlack()))
                     .build();
@@ -83,6 +85,7 @@ public class OrderController {
                     .x(r.getX())
                     .y(r.getY())
                     .demandGLP(r.getDemandGLP())
+                    .totalDemand(r.getDemandGLP())
                     .registrationDate(r.getDate())
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
@@ -119,7 +122,8 @@ public class OrderController {
 
     @GetMapping
     public ResponseEntity<?> list() {
-        RestResponse response = new RestResponse(HttpStatus.OK, orderService.list());
+        List<OrderDto> orderDtos = orderService.list();
+        RestResponse response = new RestResponse(HttpStatus.OK, orderDtos);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

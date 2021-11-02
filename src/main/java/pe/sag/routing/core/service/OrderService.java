@@ -9,7 +9,6 @@ import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -30,6 +29,7 @@ public class OrderService {
         if (lastOrder == null) code++;
         else code = lastOrder.getCode()+1;
         order.setCode(code);
+        order.setTotalDemand(order.getDemandGLP());
 
         order.setStatus(OrderStatus.PENDIENTE);
         order.setMonitoring(monitoring);
@@ -58,9 +58,10 @@ public class OrderService {
         return orderRepository.saveAll(orders);
     }
 
-    public Order updateStatus(Order order, OrderStatus status){
+    public void updateStatus(Order order, OrderStatus status){
         order.setStatus(status);
-        return orderRepository.save(order);
+        if (status == OrderStatus.PROGRAMADO) order.setDemandGLP(0.0);
+        orderRepository.save(order);
     }
 
     public List<OrderDto> list() {
@@ -100,5 +101,17 @@ public class OrderService {
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
         return orderRepository.findFirst300ByStatusAndMonitoringOrderByRegistrationDateAsc(status, isMonitoring);
+    }
+
+    public Order cancelOrder(String id, double amount) {
+        Optional<Order> orderOptional = orderRepository.findBy_id(id);
+        if (orderOptional.isPresent()) {
+            Order order = orderOptional.get();
+            order.setDemandGLP(amount + order.getDemandGLP());
+            orderScheduler.cancelStatusChange(id);
+            order.setStatus(OrderStatus.PENDIENTE);
+            order.setDeliveryDate(null);
+            return orderRepository.save(order);
+        } else return null;
     }
 }

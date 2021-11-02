@@ -16,6 +16,8 @@ public class OrderDto {
     @NotBlank
     private double demandGLP;
     @NotBlank
+    private double totalDemand;
+    @NotBlank
     private int x;
     @NotBlank
     private int y;

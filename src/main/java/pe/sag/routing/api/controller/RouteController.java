@@ -3,20 +3,20 @@ package pe.sag.routing.api.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.sag.routing.algorithm.DepotInfo;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.api.response.SimulationResponse;
 import pe.sag.routing.core.model.*;
-import pe.sag.routing.core.service.OrderService;
-import pe.sag.routing.core.service.RoadblockService;
-import pe.sag.routing.core.service.RouteService;
-import pe.sag.routing.core.service.TruckService;
+import pe.sag.routing.core.service.*;
+import pe.sag.routing.data.parser.DepotParser;
 import pe.sag.routing.data.parser.RouteParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.RouteDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
+import pe.sag.routing.shared.util.enums.TruckStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,14 +31,16 @@ public class RouteController {
     private final RouteService routeService;
     private final TruckService truckService;
     private final OrderService orderService;
+    private final DepotService depotService;
     private final SimulationInfoRepository simulationInfoRepository;
     private final RoadblockService roadblockService;
 
     public RouteController(RouteService routeService, TruckService truckService,
-                           OrderService orderService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
+                           OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
+        this.depotService = depotService;
         this.simulationInfoRepository = simulationInfoRepository;
         this.roadblockService = roadblockService;
     }
@@ -84,7 +86,9 @@ public class RouteController {
             List<Roadblock> roadblocks = roadblockService.findActive();
             List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
             if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
-            List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, true);
+            List<Truck> availableTrucks = truckService.findByAvailableAndMonitoringAndStatus(true, true, TruckStatus.DISPONIBLE);
+            List<Depot> depots = depotService.list().stream().map(DepotParser::fromDto).collect(Collectors.toList());
+
             for (int i = 0; i < availableTrucks.size(); i++) {
                 Truck truck = availableTrucks.get(i);
                 Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
@@ -95,13 +99,29 @@ public class RouteController {
             //mejorar con formato de error: colapso logistico
             if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
                 Collections.shuffle(availableTrucks);
-                Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks);
+                Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, depots);
                 planner.run();
                 if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
                 List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
                 List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
 
-                for(Order o : pendingOrders){
+                for (pe.sag.routing.algorithm.Route route : solutionRoutes) {
+                    for (pe.sag.routing.algorithm.NodeInfo ni : route.getNodesInfo()) {
+                        if (ni instanceof DepotInfo) {
+                            DepotInfo di = (DepotInfo)ni;
+                            for (Depot depot : depots) {
+                                if (depot.get_id().compareTo(di.getId()) == 0)
+                                    depot.setCurrentGlp(depot.getCurrentGlp() - di.getRefilledGlp());
+                            }
+                        }
+                    }
+                }
+
+                for (Depot depot : depots) {
+                    depotService.save(depot);
+                }
+
+                for (Order o : pendingOrders) {
                     boolean scheduled = false;
                     for (Pair<String, LocalDateTime> delivery : solutionOrders) {
                         //if(delivery.getY() == null) //muere
@@ -110,7 +130,7 @@ public class RouteController {
                             break;
                         }
                     }
-                    if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
+                    if (scheduled) { orderService.updateStatus(o, OrderStatus.PROGRAMADO); }
                 }
                 for (Pair<String,LocalDateTime> delivery : solutionOrders) {
                     orderService.scheduleStatusChange(delivery.getX(), OrderStatus.ENTREGADO, delivery.getY());

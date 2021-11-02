@@ -25,4 +25,8 @@ public class DepotService {
     public List<DepotDto> list() {
         return depotRepository.findAll().stream().map(DepotParser::toDto).collect(Collectors.toList());
     }
+
+    public Depot save(Depot depot) {
+        return depotRepository.save(depot);
+    }
 }

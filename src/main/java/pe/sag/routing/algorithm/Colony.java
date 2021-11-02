@@ -143,7 +143,7 @@ public class Colony extends Graph {
                     } else { //end of current route
                         routeConsumption += t.fuelConsumption.get(fuelIdx++);
                         endTime = t.arrivalRegistry.get(arrIdx++);
-                        Route route = new Route(t._id, startTime, endTime, routeNodes, routeConsumption, routeDelivered);
+                        Route route = new Route(t._id, t.code, startTime, endTime, routeNodes, routeConsumption, routeDelivered);
                         solutionRoutes.add(route);
                         routeNodes = new ArrayList<>();
                         if (i == t.tour.size()-1) break;
@@ -151,8 +151,12 @@ public class Colony extends Graph {
                 } else {
                     consumption = t.fuelConsumption.get(fuelIdx++);
                     routeConsumption += consumption;
-                    if (n instanceof Depot)
-                        routeNodes.add(new DepotInfo(n.x, n.y, t.glpRegistry.get(glpIdx++), t.arrivalRegistry.get(arrIdx++)));
+                    if (n instanceof Depot) {
+                        Depot depot = (Depot)n;
+                        DepotInfo depotInfo = new DepotInfo(n.x, n.y, t.glpRegistry.get(glpIdx++), t.arrivalRegistry.get(arrIdx++));
+                        if (depot.id != null) depotInfo.setId(depot.id);
+                        routeNodes.add(depotInfo);
+                    }
                     else {
                         double delivered = t.glpRegistry.get(glpIdx++);
                         routeDelivered += delivered;

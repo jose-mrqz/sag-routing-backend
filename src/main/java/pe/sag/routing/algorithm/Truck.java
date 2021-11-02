@@ -14,7 +14,8 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class Truck {
-    String _id;
+    String _id = null;
+    String code = null;
     double capacity;
     int nowIdx;
     double nowLoad;
@@ -45,8 +46,9 @@ public class Truck {
     private static final Double MAX_FUEL = 25.0;
     private static final Double GLP_WEIGHT = 0.5;
 
-    public Truck(String _id, double capacity, double tareWeight, int nowIdx, LocalDateTime startingDate) {
+    public Truck(String _id, String code, double capacity, double tareWeight, int nowIdx, LocalDateTime startingDate) {
         this._id = _id;
+        this.code = code;
         this.startingDate = startingDate;
         this.capacity = capacity;
         this.nowIdx = nowIdx;

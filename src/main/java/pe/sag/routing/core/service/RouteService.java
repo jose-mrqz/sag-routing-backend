@@ -35,7 +35,7 @@ public class RouteService {
     }
 
     public List<Route> getActiveRoutes(LocalDateTime actualDate, boolean monitoring) {
-        return routeRepository.findByStartDateBeforeAndFinishDateAfterAndMonitoring(actualDate, actualDate, monitoring);
+        return routeRepository.findByStartDateBeforeAndFinishDateAfterAndMonitoringAndCancelled(actualDate, actualDate, monitoring, false);
     }
 
     public List<Route> findByMonitoring(boolean monitoring){

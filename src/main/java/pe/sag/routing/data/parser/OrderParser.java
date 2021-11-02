@@ -11,6 +11,7 @@ public class OrderParser {
     public static OrderDto toDto(Order order) {
         OrderDto orderDto = BaseParser.parse(order, OrderDto.class);
         orderDto.setStatus(order.getStatus().toString());
+        orderDto.setDemandGLP(order.getTotalDemand());
         return orderDto;
     }
 }

@@ -8,7 +8,7 @@ public class RouteParser {
         RouteDto routeDto = new RouteDto();
         routeDto.setStartDate(route.getStartDate());
         routeDto.setEndDate(route.getFinishDate());
-        routeDto.setTruckCode("ACM1PT4RD0");
+        routeDto.setTruckCode(route.getTruckCode());
         routeDto.setOrders(route.getOrders());
         routeDto.setNodes(route.getNodes());
         return routeDto;

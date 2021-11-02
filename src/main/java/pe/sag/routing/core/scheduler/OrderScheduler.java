@@ -37,11 +37,19 @@ public class OrderScheduler {
                     o.setStatus(status);
                     orderRepository.save(o);
                 }
+                timerRecord.remove(id);
                 timer.cancel();
             }
         };
         long wait = Duration.between(LocalDateTime.now(), now).toMillis();
         timer.schedule(task, wait, Long.MAX_VALUE);
         timerRecord.put(id, timer);
+    }
+
+    public void cancelStatusChange(String id) {
+        if (timerRecord.containsKey(id)) {
+            Timer timer = timerRecord.get(id);
+            timer.cancel();
+        }
     }
 }
