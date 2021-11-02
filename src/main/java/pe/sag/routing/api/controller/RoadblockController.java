@@ -54,7 +54,7 @@ public class RoadblockController {
                 .body(response);
     }
 
-    @GetMapping(path = "/simulation")
+    @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getAllSimulation(@RequestBody SimulationRequest request) {
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if(listSimulationInfo.size()==0){
