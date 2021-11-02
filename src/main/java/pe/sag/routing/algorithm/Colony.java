@@ -1,6 +1,7 @@
 package pe.sag.routing.algorithm;
 
 import lombok.*;
+import pe.sag.routing.core.model.Roadblock;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -27,10 +28,12 @@ public class Colony extends Graph {
 
     public List<Route> solutionRoutes = null;
     public List<Pair<String,LocalDateTime>> solutionOrders = null;
+    public List<Roadblock> roadblocks = null;
     public double bestSolutionQuality;
 
-    public Colony(List<Order> orders, List<Truck> trucks, List<Depot> depots) {
+    public Colony(List<Order> orders, List<Truck> trucks, List<Depot> depots, List<Roadblock> roadblocks) {
         super(trucks, orders, depots);
+        this.roadblocks = roadblocks;
         this.rand = new Random();
         this.threshold = 0.5;
         this.pheromoneMatrix = new Double[nNode][nNode];

@@ -3,6 +3,7 @@ package pe.sag.routing.algorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pe.sag.routing.core.model.Roadblock;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,15 +17,16 @@ public class Planner {
     private List<pe.sag.routing.core.model.Truck> modelTrucks;
     private List<pe.sag.routing.core.model.Order> modelOrders;
     private List<pe.sag.routing.core.model.Depot> modelDepots = null;
+    private List<Roadblock> roadblocks = new ArrayList<>();
     List<Route> solutionRoutes;
     List<Pair<String,LocalDateTime>> solutionOrders;
 
     public Planner(List<pe.sag.routing.core.model.Truck> modelTrucks,
                    List<pe.sag.routing.core.model.Order> modelOrders,
-                   List<pe.sag.routing.core.model.Depot> modelDepots) {
+                   List<Roadblock> roadblocks) {
         this.modelTrucks = modelTrucks;
         this.modelOrders = modelOrders;
-        this.modelDepots = modelDepots;
+        this.roadblocks = roadblocks;
     }
 
     public Planner(List<pe.sag.routing.core.model.Truck> modelTrucks,
@@ -51,7 +53,7 @@ public class Planner {
             depots.add(new Depot(modelDepots.get(1), 2));
         }
 
-        Colony colony = new Colony(orders, trucks, depots);
+        Colony colony = new Colony(orders, trucks, depots, roadblocks);
         colony.run();
 
         solutionRoutes = colony.solutionRoutes;
