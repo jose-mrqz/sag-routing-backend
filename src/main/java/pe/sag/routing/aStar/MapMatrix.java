@@ -27,7 +27,7 @@ public class MapMatrix {
 
         this.sizeX = sizeX+1;
         this.sizeY = sizeY+1;
-        matrix = new int[sizeX][sizeY];
+        matrix = new int[this.sizeX][this.sizeY];
         initializedMatrix();
 
         startNode = null;
