@@ -3,6 +3,7 @@ package pe.sag.routing.algorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.core.model.Roadblock;
 
 import java.time.LocalDateTime;
@@ -61,10 +62,13 @@ public class Planner {
         solutionRoutes = colony.solutionRoutes;
         solutionOrders = colony.solutionOrders;
 
-        if (solutionRoutes != null) {
-            for (Route route : solutionRoutes) {
-                route.generatePath();
-            }
-        }
+        AStar aStar = new AStar();
+        solutionRoutes = aStar.run(solutionRoutes, orders, roadblocks);
+
+//        if (solutionRoutes != null) {
+//            for (Route route : solutionRoutes) {
+//                route.generatePath();
+//            }
+//        }
     }
 }

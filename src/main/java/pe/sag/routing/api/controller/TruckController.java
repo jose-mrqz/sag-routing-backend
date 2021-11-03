@@ -11,6 +11,7 @@ import pe.sag.routing.core.model.TruckModel;
 import pe.sag.routing.core.service.TruckModelService;
 import pe.sag.routing.core.service.TruckService;
 import pe.sag.routing.shared.dto.TruckDto;
+import pe.sag.routing.shared.util.enums.TruckStatus;
 
 @RestController
 @RequestMapping("/truck")
@@ -30,7 +31,7 @@ public class TruckController {
         if (lastNumber == -1) lastNumber = 1;
         else lastNumber++;
         String code = request.getCode() + lastNumber;
-        TruckDto truckDto = new TruckDto(code, truckModel, true, true);
+        TruckDto truckDto = new TruckDto(code, truckModel, true, true, TruckStatus.DISPONIBLE.toString());
         Truck truck1 = truckService.register(truckDto, true);
         Truck truck2 = truckService.register(truckDto, false);
         RestResponse response;

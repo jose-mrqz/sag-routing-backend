@@ -18,10 +18,12 @@ import java.util.stream.Collectors;
 public class TruckService {
     private final TruckRepository truckRepository;
     private final TruckScheduler truckScheduler;
+    private final RouteService routeService;
 
-    public TruckService(TruckRepository truckRepository, TruckScheduler truckScheduler) {
+    public TruckService(TruckRepository truckRepository, TruckScheduler truckScheduler, RouteService routeService) {
         this.truckRepository = truckRepository;
         this.truckScheduler = truckScheduler;
+        this.routeService = routeService;
     }
 
     public Truck register(TruckDto truckRequest, boolean monitoring) {
@@ -46,7 +48,13 @@ public class TruckService {
     }
 
     public List<TruckDto> list() {
-        return truckRepository.findByMonitoring(true).stream().map(TruckParser::toDto).collect(Collectors.toList());
+        List<Truck> trucks = truckRepository.findByMonitoring(true);
+        for (int i = 0; i < trucks.size(); i++) {
+            Truck t = trucks.get(i);
+            if (t.getStatus().equals(TruckStatus.DISPONIBLE.toString()) && routeService.getCurrentByTruckId(t.get_id(), true) != null)
+                t.setStatus(TruckStatus.RUTA.toString());
+        }
+        return trucks.stream().map(TruckParser::toDto).collect(Collectors.toList());
     }
 
     public Truck findById(String id) {
