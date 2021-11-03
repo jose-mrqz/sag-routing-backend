@@ -114,8 +114,17 @@ public class AStar {
 
                 //Actualizar fecha salida
                 assert false;
-                departureDate = departureDate.plusSeconds(solutionList.timeSec/60);
-
+                LocalDateTime arrivalDate = departureDate.plusSeconds(solutionList.timeSec);
+                if(j < nodes.size()-2){
+                    NodeInfo node = route.getNodesInfo().get(j);
+                    if(node instanceof OrderInfo && node.getArrivalTime() == ((OrderInfo)node).getDeliveryDate()){
+                        ((OrderInfo)node).setDeliveryDate(arrivalDate);
+                    }
+                    route.getNodesInfo().get(j).setArrivalTime(arrivalDate);
+                }
+                else{
+                    route.setFinishDate(arrivalDate);
+                }
                 //Imprimir camino
                 solutionList.printList();
                 //Añadir camino
