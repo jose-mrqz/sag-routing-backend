@@ -56,7 +56,7 @@ public class RoadblockController {
     @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getAllSimulation(@RequestBody SimulationRequest request) {
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
-        if(listSimulationInfo.size()==0){
+        if (listSimulationInfo.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
             return ResponseEntity
                     .status(response.getStatus())

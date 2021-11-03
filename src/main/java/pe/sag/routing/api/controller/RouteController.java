@@ -169,7 +169,7 @@ public class RouteController {
                 if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
                 List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
 
-                List<Roadblock> roadblocks = roadblockService.findActive();
+                List<Roadblock> roadblocks = roadblockService.findSimulation();
                 for (int i = 0; i < availableTrucks.size(); i++) {
                     Truck truck = availableTrucks.get(i);
                     Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
@@ -210,7 +210,8 @@ public class RouteController {
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
-        List<Roadblock> roadblocks = roadblockService.findActive();
+        roadblockService.deleteByMonitoring(false);
+        List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if(listSimulationInfo.size()==0){
             RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");

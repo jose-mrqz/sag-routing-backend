@@ -9,6 +9,9 @@ import java.util.List;
 
 @Repository
 public interface RoadblockRepository extends MongoRepository<Roadblock, String> {
-     List<Roadblock> findByStartDateBeforeAndEndDateAfter(LocalDateTime startDate, LocalDateTime endDate);
+     List<Roadblock> findByStartDateBeforeAndEndDateAfterAndMonitoring(LocalDateTime startDate, LocalDateTime endDate, boolean monitoring);
      List<Roadblock> findByEndDateAfter(LocalDateTime endDate);
+    List<Roadblock> findAllByMonitoring(boolean monitoring);
+    void deleteAllByMonitoring(boolean b);
+    List<Roadblock> findByStartDateBeforeAndEndDateAfter(LocalDateTime startDate, LocalDateTime endDate);
 }

@@ -8,9 +8,12 @@ import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationInputRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
+import pe.sag.routing.core.model.Roadblock;
 import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.service.OrderService;
+import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.data.parser.OrderParser;
+import pe.sag.routing.data.parser.RoadblockParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
@@ -24,11 +27,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/order")
 public class OrderController {
     private final OrderService orderService;
+    private final RoadblockService roadblockService;
     private final SimulationInfoRepository simulationInfoRepository;
     private final RouteController routeController;
 
-    public OrderController(OrderService orderService, SimulationInfoRepository simulationInfoRepository, RouteController routeController) {
+    public OrderController(OrderService orderService, RoadblockService roadblockService, SimulationInfoRepository simulationInfoRepository, RouteController routeController) {
         this.orderService = orderService;
+        this.roadblockService = roadblockService;
         this.simulationInfoRepository = simulationInfoRepository;
         this.routeController = routeController;
     }
@@ -76,6 +81,11 @@ public class OrderController {
     @PostMapping(path = "/historic")
     public ResponseEntity<?> insertHistoricOrders(@RequestBody SimulationInputRequest request) throws IllegalAccessException {
         orderService.deleteByMonitoring(false);
+        roadblockService.deleteByMonitoring(false);
+
+        List<Roadblock> roadblocks = request.getRoadblocks().stream().map(RoadblockParser::fromDto).collect(Collectors.toList());
+        roadblocks.forEach(r -> r.setMonitoring(false));
+        roadblockService.saveMany(roadblocks);
 
         //fijar fecha muy menor
         LocalDateTime startDateReal = LocalDateTime.of(2100,1,1,1,0,0);

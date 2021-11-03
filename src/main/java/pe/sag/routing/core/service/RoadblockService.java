@@ -24,15 +24,19 @@ public class RoadblockService {
     }
 
     public List<Roadblock> findByDateTime(LocalDateTime now) {
-        return roadblockRepository.findByStartDateBeforeAndEndDateAfter(now, now);
+        return roadblockRepository.findByStartDateBeforeAndEndDateAfterAndMonitoring(now, now, true);
     }
 
     public List<Roadblock> findActive() {
         return findByDateTime(LocalDateTime.now());
     }
 
+    public List<Roadblock> findSimulation() {
+        return roadblockRepository.findAllByMonitoring(false);
+    }
+
     public List<Roadblock> findByRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return roadblockRepository.findByStartDateBeforeAndEndDateAfter(startDate, endDate);
+        return roadblockRepository.findByStartDateBeforeAndEndDateAfterAndMonitoring(startDate, endDate, true);
     }
 
     public List<Roadblock> findByDateAfter(LocalDateTime endDate) {
@@ -40,6 +44,10 @@ public class RoadblockService {
     }
 
     public List<Roadblock> saveMany(List<Roadblock> roadblocks) {
+        return roadblockRepository.saveAll(roadblocks);
+    }
+
+    public List<Roadblock> saveManySimulation(List<Roadblock> roadblocks) {
         return roadblockRepository.saveAll(roadblocks);
     }
 
@@ -70,5 +78,9 @@ public class RoadblockService {
         transformedRoadblock.setEndDate(transformDate(simulationInfo,speed,roadblock.getEndDate()));
 
         return transformedRoadblock;
+    }
+
+    public void deleteByMonitoring(boolean b) {
+        roadblockRepository.deleteAllByMonitoring(b);
     }
 }
