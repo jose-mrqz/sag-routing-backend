@@ -64,6 +64,7 @@ public class ListStructure {
     ///////METODO QUE ELIMINA EL NODO QUE LE MANDES/////////////////////////////
     public NodeList delete( NodeList nodin ){
         NodeList aux = first;
+        if (nodin == null || first == null) return null;
         if( ( nodin.cordX == first.cordX ) &&  ( nodin.cordY == first.cordY ) ){
             return deleteFirst();
         }
