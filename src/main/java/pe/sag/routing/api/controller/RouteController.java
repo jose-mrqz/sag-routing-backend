@@ -185,7 +185,7 @@ public class RouteController {
                     Collections.shuffle(availableTrucks);
                     Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
                     planner.run();
-                    if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
+                    if (planner.getSolutionRoutes() == null || planner.getSolutionRoutes().isEmpty()) break; //colapso no se pueden planificar rutas
                     List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
                     List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
 
@@ -251,18 +251,23 @@ public class RouteController {
                 }
                 if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
             }
-            for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
-                Route r = new Route(sr);
-                r.setMonitoring(false);
-                r = routeService.transformRoute(r,simulationInfo);
-                routeService.save(r);
+
+            if (solutionRoutes != null) {
+                for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
+                    Route r = new Route(sr);
+                    r.setMonitoring(false);
+                    r = routeService.transformRoute(r,simulationInfo);
+                    routeService.save(r);
+                }
+            }
+
+            if (solutionRoutes == null || solutionRoutes.size() == 0) {
+                Thread thread = new Thread(new SimulationScheduler(routeService, truckService, orderService,
+                        roadblockService, startDateReal, simulationInfo));
+                simulationThread = thread;
+                thread.start();
             }
         }
-
-        Thread thread = new Thread(new SimulationScheduler(routeService, truckService, orderService,
-                roadblockService, startDateReal, simulationInfo));
-        simulationThread = thread;
-        thread.start();
 
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo de Simulacion realizado correctamente.");
         return ResponseEntity.status(response.getStatus()).body(response);
