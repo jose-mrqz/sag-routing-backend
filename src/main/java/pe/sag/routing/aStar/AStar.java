@@ -105,12 +105,12 @@ public class AStar {
                 ListStructure solutionList = map.getSolutionList(roadblocks, departureDate, limitDate);
 
                 //Revisar si fecha de llegada de camino no se pasa de fecha limite (solamente si no es planta)
-                if(!nodeGoal.isDepot() && !solutionList.limitDateOK){
+                /*if(!nodeGoal.isDepot() && !solutionList.limitDateOK){
                     System.out.println("Se excede en Ruta: "+route.getTruckId()+", Nodo 1: "+nodeStart.cordX+","+nodeStart.cordY+
                             ", Nodo 2: "+nodeGoal.cordX+","+nodeGoal.cordY);
                     limitDateExcedida = true;
                     break;
-                }
+                }*/
 
                 //Actualizar fecha salida
                 assert false;
@@ -126,7 +126,7 @@ public class AStar {
                     route.setFinishDate(arrivalDate);
                 }
                 //Imprimir camino
-                solutionList.printList();
+                //solutionList.printList();
                 //Añadir camino
                 solutionLists.add(solutionList);
             }
@@ -155,15 +155,15 @@ public class AStar {
         }
 
         //Imprimir mapa completo
-        map.printMap();
+        //map.printMap();
 
         //Retornar datos
-        if(!limitDateExcedida){
+        /*if(!limitDateExcedida){
             System.out.println("\n La fecha limite no fue excedida para ningun pedido");
         }
         else {
             System.out.println("\n La fecha limite fue excedida para algun pedido");
-        }
+        }*/
 
         return routes;
     }
