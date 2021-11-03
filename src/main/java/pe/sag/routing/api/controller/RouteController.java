@@ -152,6 +152,7 @@ public class RouteController {
         private final OrderService orderService;
         private final LocalDateTime startDateReal;
         private final SimulationInfo simulationInfo;
+        private RoadblockService roadblockService;
 
         public SimulationScheduler(RouteService routeService, TruckService truckService, OrderService orderService, LocalDateTime startDateReal, SimulationInfo simulationInfo) {
             this.routeService = routeService;
@@ -168,6 +169,7 @@ public class RouteController {
                 if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
                 List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
 
+                List<Roadblock> roadblocks = roadblockService.findActive();
                 for (int i = 0; i < availableTrucks.size(); i++) {
                     Truck truck = availableTrucks.get(i);
                     Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
@@ -177,7 +179,7 @@ public class RouteController {
 
                 if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
                     Collections.shuffle(availableTrucks);
-                    Planner planner = new Planner(availableTrucks, pendingOrders);
+                    Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
                     planner.run();
                     if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
                     List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
