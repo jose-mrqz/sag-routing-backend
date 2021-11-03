@@ -210,7 +210,6 @@ public class RouteController {
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
-        roadblockService.deleteByMonitoring(false);
         List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if(listSimulationInfo.size()==0){

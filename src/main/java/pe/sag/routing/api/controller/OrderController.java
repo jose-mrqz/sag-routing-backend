@@ -84,7 +84,10 @@ public class OrderController {
         roadblockService.deleteByMonitoring(false);
 
         List<Roadblock> roadblocks = request.getRoadblocks().stream().map(RoadblockParser::fromDto).collect(Collectors.toList());
-        roadblocks.forEach(r -> r.setMonitoring(false));
+        for (int i = 0; i < roadblocks.size(); i++) {
+            Roadblock r = roadblocks.get(i);
+            r.setMonitoring(false);
+        }
         roadblockService.saveMany(roadblocks);
 
         //fijar fecha muy menor
