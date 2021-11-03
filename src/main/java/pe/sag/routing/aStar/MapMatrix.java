@@ -25,9 +25,9 @@ public class MapMatrix {
         closeList = new ListStructure();
         solutionList = new ListStructure ();
 
-        this.sizeX = sizeX;
-        this.sizeY = sizeY;
-        matrix = new int[sizeX+1][sizeY+1];
+        this.sizeX = sizeX+1;
+        this.sizeY = sizeY+1;
+        matrix = new int[sizeX][sizeY];
         initializedMatrix();
 
         startNode = null;
