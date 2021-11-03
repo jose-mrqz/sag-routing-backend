@@ -4,8 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import pe.sag.routing.core.model.Roadblock;
+import pe.sag.routing.core.model.SimulationInfo;
+
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -30,4 +34,11 @@ public class OrderDto {
     private String status;
     @NotBlank
     private boolean monitoring;
+
+    public boolean inRoadblocks(List<Roadblock> roadblocks){
+        for (Roadblock r : roadblocks) {
+            if(r.getX() == x && r.getY() == y) return true;
+        }
+        return false;
+    }
 }

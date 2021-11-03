@@ -77,7 +77,7 @@ public class MapMatrix {
             extra2 = extra2.father;
         }
         solution.calcularDistanceTime();
-        solution.delete(goalNode);
+        if(solution.first != null) solution.delete(goalNode);
 
         return solution;
     }///////////////////////////////////////////////////////////////////////////

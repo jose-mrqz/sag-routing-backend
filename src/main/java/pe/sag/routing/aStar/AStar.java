@@ -61,6 +61,8 @@ public class AStar {
             map.setRoadblocks(rb.getX(), rb.getY());
         }
         //System.out.println("");
+        //Imprimir mapa completo
+        //map.printMap();
 
         //Recorrido de rutas y asignacion de nodos
         boolean limitDateExcedida = false;

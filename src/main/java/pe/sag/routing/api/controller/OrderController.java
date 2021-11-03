@@ -84,8 +84,7 @@ public class OrderController {
         roadblockService.deleteByMonitoring(false);
 
         List<Roadblock> roadblocks = request.getRoadblocks().stream().map(RoadblockParser::fromDto).collect(Collectors.toList());
-        for (int i = 0; i < roadblocks.size(); i++) {
-            Roadblock r = roadblocks.get(i);
+        for (Roadblock r : roadblocks) {
             r.setMonitoring(false);
         }
         roadblockService.saveMany(roadblocks);
@@ -102,7 +101,16 @@ public class OrderController {
                     .registrationDate(r.getDate())
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
-            ordersDto.add(orderDto);
+            if(!orderDto.inRoadblocks(roadblocks)){
+                ordersDto.add(orderDto);
+            }
+        }
+
+        if(ordersDto.size()==0){
+            RestResponse response = new RestResponse(HttpStatus.OK, "Todos los pedidos se encuentran bloqueados.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
         }
 
         List<Order> ordersRegistered = orderService.registerAll(ordersDto,false);
