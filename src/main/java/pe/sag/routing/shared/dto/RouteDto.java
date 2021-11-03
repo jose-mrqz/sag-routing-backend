@@ -11,6 +11,7 @@ import pe.sag.routing.core.model.SimulationInfo;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.time.temporal.ChronoUnit.*;
@@ -87,6 +88,7 @@ public class RouteDto {
                     .build();
             this.route.add(newNode);
         }
+        Collections.reverse(this.route);
         int index = 0;
         for (RouteDto.Order order : this.orders) {
             for (; index < this.route.size(); index++) {
