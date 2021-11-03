@@ -21,4 +21,6 @@ public class TruckDto {
     private boolean available;
     @NotBlank
     private boolean monitoring;
+    @NotBlank
+    private String status;
 }

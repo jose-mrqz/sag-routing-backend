@@ -100,7 +100,7 @@ public class OrderService {
     }
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
-        return orderRepository.findFirst300ByStatusAndMonitoringOrderByRegistrationDateAsc(status, isMonitoring);
+        return orderRepository.findFirst200ByStatusAndMonitoringOrderByRegistrationDateAsc(status, isMonitoring);
     }
 
     public Order cancelOrder(String id, double amount) {

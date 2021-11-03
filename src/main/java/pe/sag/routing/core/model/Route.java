@@ -62,6 +62,7 @@ public class Route {
                         orderInfo.getDeliveredGlp()));
             } else {
                 DepotInfo depotInfo = (DepotInfo)ni;
+                depots.add(new Depot(depotInfo.getId(), depotInfo.getX(), depotInfo.getY(), depotInfo.getRefilledGlp()));
             }
         }
     }

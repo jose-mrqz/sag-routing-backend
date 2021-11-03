@@ -87,13 +87,14 @@ public class RouteController {
             List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
             if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
             List<Truck> availableTrucks = truckService.findByAvailableAndMonitoringAndStatus(true, true, TruckStatus.DISPONIBLE);
-            List<Depot> depots = depotService.list().stream().map(DepotParser::fromDto).collect(Collectors.toList());
+            List<Depot> depots = depotService.getAll();
 
+            LocalDateTime now = LocalDateTime.now();
             for (int i = 0; i < availableTrucks.size(); i++) {
                 Truck truck = availableTrucks.get(i);
                 Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
                 if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
-                else truck.setLastRouteEndTime(LocalDateTime.now());
+                else truck.setLastRouteEndTime(now);
             }
 
             //mejorar con formato de error: colapso logistico
@@ -130,7 +131,7 @@ public class RouteController {
                             break;
                         }
                     }
-                    if (scheduled) { orderService.updateStatus(o, OrderStatus.PROGRAMADO); }
+                    if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                 }
                 for (Pair<String,LocalDateTime> delivery : solutionOrders) {
                     orderService.scheduleStatusChange(delivery.getX(), OrderStatus.ENTREGADO, delivery.getY());

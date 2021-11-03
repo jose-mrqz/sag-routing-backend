@@ -60,7 +60,7 @@ public class BreakdownController {
                 if (traveledNodes >= currentRoute.getNodes().size()) traveledNodes = currentRoute.getNodes().size()-1;
                 Breakdown breakdown = Breakdown.builder()
                         .x(currentRoute.getNodes().get(traveledNodes).getX())
-                        .y(currentRoute.getNodes().get(traveledNodes).getX())
+                        .y(currentRoute.getNodes().get(traveledNodes).getY())
                         .routeId(currentRoute.get_id())
                         .truckCode(truck.getCode())
                         .startDate(now)
