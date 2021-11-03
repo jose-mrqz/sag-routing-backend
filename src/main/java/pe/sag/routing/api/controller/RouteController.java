@@ -208,6 +208,7 @@ public class RouteController {
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
+        List<Roadblock> roadblocks = roadblockService.findActive();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if(listSimulationInfo.size()==0){
             RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
@@ -228,7 +229,7 @@ public class RouteController {
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Collections.shuffle(availableTrucks);
-            Planner planner = new Planner(availableTrucks, pendingOrders);
+            Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
             List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
