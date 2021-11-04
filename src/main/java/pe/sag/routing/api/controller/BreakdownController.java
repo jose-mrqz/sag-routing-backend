@@ -77,9 +77,9 @@ public class BreakdownController {
                         orderService.cancelOrder(order.get_id(), order.getDeliveredGlp());
                         nCancelled++;
                     }
-                    response = new RestResponse(HttpStatus.OK, "Se registro la averia correctamente, se cancelaron: " + nCancelled + " pedidos.");
+                    response = new RestResponse(HttpStatus.OK, "Se registro la averia correctamente, se cancelaron: " + nCancelled + " pedidos de la ruta actual.");
                 } else {
-                    response = new RestResponse(HttpStatus.OK, "Se registro la averia correctamente, pedidos de la ruta completados.");
+                    response = new RestResponse(HttpStatus.OK, "Se registro la averia correctamente, pedidos de la ruta completados de la ruta actual.");
                 }
             }
         }

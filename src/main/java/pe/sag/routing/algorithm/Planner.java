@@ -62,8 +62,10 @@ public class Planner {
         solutionRoutes = colony.solutionRoutes;
         solutionOrders = colony.solutionOrders;
 
-        AStar aStar = new AStar();
-        solutionRoutes = aStar.run(solutionRoutes, orders, roadblocks);
+        if (solutionRoutes != null && solutionRoutes.size() != 0) {
+            AStar aStar = new AStar();
+            solutionRoutes = aStar.run(solutionRoutes, orders, roadblocks);
+        }
 
 //        if (solutionRoutes != null) {
 //            for (Route route : solutionRoutes) {
