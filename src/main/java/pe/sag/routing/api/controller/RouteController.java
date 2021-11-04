@@ -261,7 +261,7 @@ public class RouteController {
                 }
             }
 
-            if (solutionRoutes == null || solutionRoutes.size() == 0) {
+            if (solutionRoutes != null && solutionRoutes.size() != 0) {
                 Thread thread = new Thread(new SimulationScheduler(routeService, truckService, orderService,
                         roadblockService, startDateReal, simulationInfo));
                 simulationThread = thread;
