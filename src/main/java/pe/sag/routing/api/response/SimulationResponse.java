@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pe.sag.routing.shared.dto.RouteDto;
+import pe.sag.routing.shared.util.SimulationData;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -16,4 +17,5 @@ import java.util.ArrayList;
 public class SimulationResponse {
     private List<RouteDto> routesReal;
     private ArrayList<RouteDto> routesTransformed;
+    private SimulationData info;
 }

@@ -15,6 +15,7 @@ import pe.sag.routing.data.parser.DepotParser;
 import pe.sag.routing.data.parser.RouteParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.RouteDto;
+import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 import pe.sag.routing.shared.util.enums.TruckStatus;
 
@@ -36,6 +37,7 @@ public class RouteController {
     private final RoadblockService roadblockService;
 
     private static Thread simulationThread = null;
+    private static SimulationData simulationData = null;
 
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
@@ -75,7 +77,7 @@ public class RouteController {
             }
         }
 
-        SimulationResponse simulationResponse = new SimulationResponse(routesDto, routesTransformedDto);
+        SimulationResponse simulationResponse = new SimulationResponse(routesDto, routesTransformedDto, simulationData);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         return ResponseEntity
                 .status(response.getStatus())
@@ -168,9 +170,15 @@ public class RouteController {
 
         @Override
         public void run() {
+            SimulationData simulationData = RouteController.simulationData;
             while(true) {
                 List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
-                if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
+                if (pendingOrders.size() == 0) {
+                    simulationData.setNScheduled(simulationData.getNOrders());
+                    simulationData.setMessage("Simulacion terminada con exito.");
+                    simulationData.setFinished(true);
+                    break; //no hay mas pedidos que procesar
+                }
                 List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
 
                 List<Roadblock> roadblocks = this.roadblockService.findSimulation();
@@ -197,7 +205,10 @@ public class RouteController {
                                 break;
                             }
                         }
-                        if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
+                        if (scheduled) {
+                            simulationData.setNScheduled(simulationData.getNScheduled() + 1);
+                            orderService.updateStatus(o, OrderStatus.PROGRAMADO);
+                        }
                     }
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
@@ -212,6 +223,12 @@ public class RouteController {
 
     @PostMapping(path = "/simulationAlgorithm")
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
+        simulationData = SimulationData.builder()
+                .nOrders(0)
+                .nScheduled(0)
+                .message("Simulacion iniciada.")
+                .finished(false)
+                .build();
         if (simulationThread != null && simulationThread.isAlive()) simulationThread.interrupt();
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
@@ -227,6 +244,8 @@ public class RouteController {
 
         List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
         List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
+
+        simulationData.setNOrders(pendingOrders.size());
 
         for (Truck truck : availableTrucks) {
             Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
@@ -249,7 +268,10 @@ public class RouteController {
                         break;
                     }
                 }
-                if (scheduled) orderService.updateStatus(o, OrderStatus.PROGRAMADO);
+                if (scheduled) {
+                    orderService.updateStatus(o, OrderStatus.PROGRAMADO);
+                    simulationData.setNScheduled(simulationData.getNScheduled() + 1);
+                }
             }
 
             if (solutionRoutes != null) {
