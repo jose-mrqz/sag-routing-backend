@@ -77,7 +77,7 @@ public class RouteController {
             }
         }
 
-        SimulationResponse simulationResponse = new SimulationResponse(routesDto, routesTransformedDto, simulationData);
+        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         return ResponseEntity
                 .status(response.getStatus())
