@@ -31,6 +31,17 @@ public class Order extends Node {
         this.totalDemand = demand;
     }
 
+    public Order(Order order) {
+        super(order.x, order.y, order.idx);
+        this._id = order._id;
+        this.twOpen = order.twOpen;
+        this.twClose = order.twClose;
+        this.deliveryTime = order.deliveryTime;
+        this.demand = order.demand;
+        this.totalDemand = order.totalDemand;
+        this.visited = order.visited;
+    }
+
     public void handleVisit(LocalDateTime now, double glp) {
         if (glp >= demand) {
             demand = 0.0;

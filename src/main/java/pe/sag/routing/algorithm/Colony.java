@@ -27,7 +27,8 @@ public class Colony extends Graph {
     private Random rand;
 
     public List<Route> solutionRoutes = null;
-    public List<Pair<String,LocalDateTime>> solutionOrders = null;
+    public List<Order> solutionOrders = null;
+    public List<Depot> solutionDepots = null;
     public List<Roadblock> roadblocks = null;
     public double bestSolutionQuality;
 
@@ -113,10 +114,11 @@ public class Colony extends Graph {
     private void saveBestSolution() {
         solutionRoutes = new ArrayList<>();
         solutionOrders = new ArrayList<>();
+        solutionDepots = List.of(new Depot((Depot)nodes[1]), new Depot((Depot)nodes[2]));
         for (Node node : nodes) {
             if (node instanceof Order) {
                 Order order = (Order)node;
-                solutionOrders.add(new Pair<>(order._id, order.deliveryTime));
+                solutionOrders.add(new Order(order));
             }
         }
         for (Truck t : trucks) {
