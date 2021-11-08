@@ -117,7 +117,6 @@ public class AStar {
                 }
 
                 //Actualizar fecha salida
-                assert false;
                 arrivalDate = departureDate.plusSeconds(solutionList.timeSec);
                 if(j < nodes.size()-2){
                     NodeInfo node = route.getNodesInfo().get(j);
