@@ -29,28 +29,27 @@ public class TruckService {
     public Truck register(TruckDto truckRequest, boolean monitoring) {
         Truck truck = TruckParser.fromDto(truckRequest);
         truck.setMonitoring(monitoring);
-        truck.setAvailable(true);
+        truck.setStatus(TruckStatus.DISPONIBLE.toString());
         return truckRepository.save(truck);
     }
 
-    public Truck updateAvailable(Truck truck, boolean available) {
-        truck.setAvailable(available);
-        return truckRepository.save(truck);
+    public void updateStatus(Truck truck, String status) {
+        truck.setStatus(status);
+        truckRepository.save(truck);
     }
 
     public void updateAvailablesSimulation() {
         List<Truck> trucks = truckRepository.findByMonitoring(false);
         for(Truck t : trucks){
-            if(!t.isAvailable()){
-                updateAvailable(t,true);
+            if(!t.getStatus().equals(TruckStatus.DISPONIBLE.toString())){
+                updateStatus(t,TruckStatus.DISPONIBLE.toString());
             }
         }
     }
 
     public List<TruckDto> list() {
         List<Truck> trucks = truckRepository.findByMonitoring(true);
-        for (int i = 0; i < trucks.size(); i++) {
-            Truck t = trucks.get(i);
+        for (Truck t : trucks) {
             if (t.getStatus().equals(TruckStatus.DISPONIBLE.toString()) && routeService.getCurrentByTruckId(t.get_id(), true) != null)
                 t.setStatus(TruckStatus.RUTA.toString());
         }
@@ -62,10 +61,6 @@ public class TruckService {
         return ot.orElse(null);
     }
 
-    public List<Truck> findByAvailableAndMonitoring(boolean available, boolean monitoring) {
-        return truckRepository.findByAvailableAndMonitoringOrderByModelDesc(available, monitoring);
-    }
-
     public void scheduleStatusChange(Truck truck, boolean b, LocalDateTime endTime) {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
@@ -74,7 +69,7 @@ public class TruckService {
                 Optional<Truck> truckOptional = truckRepository.findById(truck.get_id());
                 if (truckOptional.isPresent()) {
                     Truck t = truckOptional.get();
-                    t.setAvailable(b);
+                    //t.setAvailable(b);
                     truckRepository.save(t);
                 }
                 timer.cancel();
@@ -109,7 +104,7 @@ public class TruckService {
         truckScheduler.scheduleStatusChange(truck.get_id(), TruckStatus.DISPONIBLE, now.plusMinutes(60).plusHours(48));
     }
 
-    public List<Truck> findByAvailableAndMonitoringAndStatus(boolean available, boolean monitoring, TruckStatus status) {
-        return truckRepository.findByAvailableAndMonitoringAndStatus(available, monitoring, status.toString());
+    public List<Truck> findByMonitoringAndStatus(boolean monitoring, TruckStatus status) {
+        return truckRepository.findByMonitoringAndStatusOrderByModelDesc(monitoring, status.toString());
     }
 }

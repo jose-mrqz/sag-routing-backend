@@ -77,7 +77,7 @@ public class RouteController {
             }
         }
 
-        SimulationResponse simulationResponse = new SimulationResponse(routesDto, routesTransformedDto, simulationData);
+        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         return ResponseEntity
                 .status(response.getStatus())
@@ -90,7 +90,7 @@ public class RouteController {
             List<Roadblock> roadblocks = roadblockService.findActive();
             List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
             if (pendingOrders.size() == 0) break; //no hay mas pedidos que procesar
-            List<Truck> availableTrucks = truckService.findByAvailableAndMonitoringAndStatus(true, true, TruckStatus.DISPONIBLE);
+            List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(true, TruckStatus.DISPONIBLE);
             List<Depot> depots = depotService.getAll();
 
             LocalDateTime now = LocalDateTime.now();
@@ -179,7 +179,7 @@ public class RouteController {
                     simulationData.setFinished(true);
                     break; //no hay mas pedidos que procesar
                 }
-                List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
+                List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
 
                 List<Roadblock> roadblocks = this.roadblockService.findSimulation();
                 for (int i = 0; i < availableTrucks.size(); i++) {
@@ -230,6 +230,7 @@ public class RouteController {
                 .finished(false)
                 .build();
         if (simulationThread != null && simulationThread.isAlive()) simulationThread.interrupt();
+
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
         List<Roadblock> roadblocks = roadblockService.findSimulation();
@@ -242,7 +243,7 @@ public class RouteController {
         }
         SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
-        List<Truck> availableTrucks = truckService.findByAvailableAndMonitoring(true, false);
+        List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
         List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
 
         simulationData.setNOrders(pendingOrders.size());
@@ -289,6 +290,11 @@ public class RouteController {
                 simulationThread = thread;
                 thread.start();
             }
+        }
+        //Error: no hay pedidos o camiones
+        else{
+            RestResponse response = new RestResponse(HttpStatus.I_AM_A_TEAPOT, "Error: no hay pedidos o camiones.");
+            return ResponseEntity.status(response.getStatus()).body(response);
         }
 
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo de Simulacion realizado correctamente.");

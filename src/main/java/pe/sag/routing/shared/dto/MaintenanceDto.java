@@ -4,21 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import pe.sag.routing.core.model.TruckModel;
 
 import javax.validation.constraints.NotBlank;
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TruckDto {
+public class MaintenanceDto {
     @NotBlank
-    private String code;
+    private String truckCode;
     @NotBlank
-    private TruckModel model;
-    @NotBlank
-    private boolean monitoring;
-    @NotBlank
-    private String status;
+    private LocalDateTime startDate;
 }

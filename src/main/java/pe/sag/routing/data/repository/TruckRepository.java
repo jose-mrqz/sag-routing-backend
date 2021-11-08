@@ -9,9 +9,8 @@ import java.util.Optional;
 
 public interface TruckRepository extends MongoRepository<Truck,String> {
     Optional<Truck> findTopByModelOrderByCodeDesc(TruckModel model);
-    List<Truck> findByAvailableAndMonitoringOrderByModelDesc(boolean available, boolean monitoring);
     List<Truck> findByMonitoring(boolean monitoring);
     Optional<Truck> findByCode(String code);
     Optional<Truck> findByCodeAndMonitoring(String code, boolean monitoring);
-    List<Truck> findByAvailableAndMonitoringAndStatus(boolean available, boolean monitoring, String status);
+    List<Truck> findByMonitoringAndStatusOrderByModelDesc(boolean monitoring, String status);
 }

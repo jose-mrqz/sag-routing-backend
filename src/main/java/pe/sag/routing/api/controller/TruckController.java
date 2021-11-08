@@ -1,6 +1,5 @@
 package pe.sag.routing.api.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,7 +30,7 @@ public class TruckController {
         if (lastNumber == -1) lastNumber = 1;
         else lastNumber++;
         String code = request.getCode() + lastNumber;
-        TruckDto truckDto = new TruckDto(code, truckModel, true, true, TruckStatus.DISPONIBLE.toString());
+        TruckDto truckDto = new TruckDto(code, truckModel, true, TruckStatus.DISPONIBLE.toString());
         Truck truck1 = truckService.register(truckDto, true);
         Truck truck2 = truckService.register(truckDto, false);
         RestResponse response;

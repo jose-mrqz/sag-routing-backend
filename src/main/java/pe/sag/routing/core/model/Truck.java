@@ -22,9 +22,12 @@ public class Truck {
     @Indexed(unique = true)
     private String code;
     private TruckModel model;
-    private boolean available = true;
     private LocalDateTime lastRouteEndTime = null;
     private boolean monitoring;
     private boolean active = true;
     private String status = TruckStatus.DISPONIBLE.toString();
+
+    public boolean isTruckAvailable(){
+        return status.equals(TruckStatus.DISPONIBLE.toString()) || status.equals(TruckStatus.RUTA.toString());
+    }
 }
