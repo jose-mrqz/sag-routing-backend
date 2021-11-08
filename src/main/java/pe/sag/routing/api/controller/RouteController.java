@@ -108,7 +108,7 @@ public class RouteController {
                 planner.run();
                 if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
                 List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
-                List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
+                List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionTimes();
 
                 for (pe.sag.routing.algorithm.Route route : solutionRoutes) {
                     for (pe.sag.routing.algorithm.NodeInfo ni : route.getNodesInfo()) {
@@ -195,7 +195,7 @@ public class RouteController {
                     planner.run();
                     if (planner.getSolutionRoutes() == null || planner.getSolutionRoutes().isEmpty()) break; //colapso no se pueden planificar rutas
                     List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
-                    List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
+                    List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionTimes();
 
                     for (Order o : pendingOrders) {
                         boolean scheduled = false;
@@ -259,7 +259,7 @@ public class RouteController {
             Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
-            List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionOrders();
+            List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionTimes();
 
             for(Order o : pendingOrders){
                 boolean scheduled = false;

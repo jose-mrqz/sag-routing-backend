@@ -31,6 +31,15 @@ public class Depot extends Node {
         id = null;
     }
 
+    public Depot(Depot d) {
+        this.x = d.x;
+        this.x = d.y;
+        this.isMain = d.isMain;
+        this.originalState = (HashMap<LocalDate, Double>) d.originalState.clone();
+        this.remainingGlp = (HashMap<LocalDate, Double>) d.remainingGlp.clone();
+        this.id = d.getId();
+    }
+
     public Depot(pe.sag.routing.core.model.Depot depot, int idx) {
         this.x = depot.getX();
         this.y = depot.getY();

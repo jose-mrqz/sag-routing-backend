@@ -28,9 +28,7 @@ public class Truck {
     LocalDateTime startDate;
     LocalDateTime finishDate;
 
-    private LocalDateTime startingDate;
-    private Node currentNode = null;
-    private Node destination = null;
+    LocalDateTime startingDate;
 
     ArrayList<LocalDateTime> departureRegistry;
     ArrayList<LocalDateTime> arrivalRegistry;
@@ -72,13 +70,6 @@ public class Truck {
 
     // a* stub
     private int calculateTravelTime(int[][] matrix, int i, int j) {
-        AStar aStar = new AStar();
-        LocalDateTime startDate = LocalDateTime.now();
-        Node nodeStart = currentNode;
-        Node nodeGoal = destination;
-        List<Roadblock> roadblocks = new ArrayList<>();
-//        List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
-//        return (int)(3600*solutionList.size()/speed);
         return (int)(3600*matrix[i][j]/speed);
     }
 
@@ -128,8 +119,6 @@ public class Truck {
     }
 
     public boolean evaluateNode(Node n, int[][] matrix, Node[] nodes) {
-        currentNode = nodes[nowIdx];
-        destination = n;
         if (n instanceof  Order) return evaluateOrder((Order)n, matrix);
         else return evaluateDepot((Depot)n, matrix);
     }
@@ -168,8 +157,6 @@ public class Truck {
     }
 
     public void addNode(Node n, int[][] matrix, Node[] nodes) {
-        currentNode = nodes[nowIdx];
-        destination = n;
         int travelTime = calculateTravelTime(matrix, nowIdx, n.idx);
 
         if (nowIdx == 0 && !tour.isEmpty()) {
