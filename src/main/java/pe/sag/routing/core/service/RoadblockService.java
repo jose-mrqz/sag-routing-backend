@@ -66,18 +66,10 @@ public class RoadblockService {
     }
 
     public Roadblock transformRoadblock(Roadblock roadblock, SimulationInfo simulationInfo, int speed){
-        Roadblock transformedRoadblock = Roadblock.builder()
-                .x(roadblock.getX())
-                .y(roadblock.getY())
-                .startDate(roadblock.getStartDate())
-                .endDate(roadblock.getEndDate())
-                .monitoring(true)
-                .build();
+        roadblock.setStartDate(transformDate(simulationInfo,speed,roadblock.getStartDate()));
+        roadblock.setEndDate(transformDate(simulationInfo,speed,roadblock.getEndDate()));
 
-        transformedRoadblock.setStartDate(transformDate(simulationInfo,speed,roadblock.getStartDate()));
-        transformedRoadblock.setEndDate(transformDate(simulationInfo,speed,roadblock.getEndDate()));
-
-        return transformedRoadblock;
+        return roadblock;
     }
 
     public void deleteByMonitoring(boolean b) {

@@ -62,7 +62,8 @@ public class RoadblockController {
                     .status(response.getStatus())
                     .body(response);
         }
-        List<Roadblock> roadblocks = roadblockService.findByDateAfter(listSimulationInfo.get(0).getStartDateTransformed());
+        List<Roadblock> roadblocks = roadblockService.findSimulation();
+        //List<Roadblock> roadblocks = roadblockService.findByDateAfter(listSimulationInfo.get(0).getStartDateTransformed());
         List<Roadblock> transformedRoadblocks = new ArrayList<>();
         for(Roadblock rb : roadblocks){
             Roadblock rbt = roadblockService.transformRoadblock(rb,listSimulationInfo.get(0), request.getSpeed());
