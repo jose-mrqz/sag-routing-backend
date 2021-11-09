@@ -19,7 +19,10 @@ public class Order extends Node {
     LocalDateTime twClose;
     LocalDateTime deliveryTime;
     boolean visited = false;
+    boolean shouldReset = true;
     int unloadTime = 10;
+
+    double resetDemand = 0.0;
 
     public Order(String _id, int x, int y, int idx, double demand,
                  LocalDateTime twOpen, LocalDateTime twClose) {
@@ -29,6 +32,7 @@ public class Order extends Node {
         this.twClose = twClose;
         this.demand = demand;
         this.totalDemand = demand;
+        this.resetDemand = this.totalDemand;
     }
 
     public Order(Order order) {
@@ -40,6 +44,7 @@ public class Order extends Node {
         this.demand = order.demand;
         this.totalDemand = order.totalDemand;
         this.visited = order.visited;
+        this.resetDemand = this.totalDemand;
     }
 
     public void handleVisit(LocalDateTime now, double glp) {
@@ -53,8 +58,10 @@ public class Order extends Node {
     }
 
     public void reset() {
-        visited = false;
-        demand = totalDemand;
-        deliveryTime = null;
+        if (shouldReset) {
+            visited = false;
+            demand = resetDemand;
+            deliveryTime = null;
+        }
     }
 }

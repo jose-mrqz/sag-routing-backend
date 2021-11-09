@@ -31,6 +31,7 @@ public class RouteDto {
         int indexRoute;
         LocalDateTime deliveryDate;
         LocalDateTime leftDate;
+        double delivered;
     }
 
     @Data
@@ -66,6 +67,7 @@ public class RouteDto {
                     .y(order.getY())
                     .deliveryDate(order.getDeliveryDate())
                     .leftDate(order.getDeliveryDate().plusSeconds(timeAttention))
+                    .delivered(order.getDeliveredGlp())
                     .build();
             this.orders.add(newOrder);
         }

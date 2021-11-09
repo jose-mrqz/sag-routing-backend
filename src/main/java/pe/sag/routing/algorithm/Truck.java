@@ -29,6 +29,7 @@ public class Truck {
     LocalDateTime finishDate;
 
     LocalDateTime startingDate;
+    boolean finished = false;
 
     ArrayList<LocalDateTime> departureRegistry;
     ArrayList<LocalDateTime> arrivalRegistry;
@@ -66,6 +67,7 @@ public class Truck {
         arrivalRegistry = new ArrayList<>();
         fuelConsumption = new ArrayList<>();
         glpRegistry = new ArrayList<>();
+        finished = false;
     }
 
     // a* stub
@@ -181,9 +183,11 @@ public class Truck {
         }
         else visitDepot((Depot)n);
 
+        if (!tour.isEmpty() && n.idx == 0) finished = true;
+        if (finishDate == null || nowTime.isAfter(finishDate)) finishDate = nowTime;
+
         tour.add(n);
         nowIdx = n.idx;
-        if (finishDate == null || nowTime.isAfter(finishDate)) finishDate = nowTime;
     }
 
     public void reset() {
@@ -200,5 +204,6 @@ public class Truck {
         totalFuelConsumption = 0.0;
         totalDelivered = 0.0;
         attendedCustomers = 0;
+        finished = false;
     }
 }

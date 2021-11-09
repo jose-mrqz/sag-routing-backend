@@ -210,6 +210,11 @@ public class RouteController {
                             orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                         }
                     }
+                    if (planner.getNOrders() != planner.getNScheduled()) {
+                        simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
+                        simulationData.setFinished(true);
+                        simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
+                    }
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
@@ -235,7 +240,7 @@ public class RouteController {
         truckService.updateAvailablesSimulation();
         List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
-        if(listSimulationInfo.size()==0){
+        if (listSimulationInfo.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
             return ResponseEntity
                     .status(response.getStatus())
@@ -282,6 +287,14 @@ public class RouteController {
                     r = routeService.transformRoute(r,simulationInfo);
                     routeService.save(r);
                 }
+            }
+
+            if (planner.getNOrders() != planner.getNScheduled()) {
+                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar.");
+                simulationData.setNScheduled(planner.getNScheduled());
+                simulationData.setFinished(true);
+                simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
+                return ResponseEntity.status(response.getStatus()).body(response);
             }
 
             if (solutionRoutes != null && solutionRoutes.size() != 0) {
