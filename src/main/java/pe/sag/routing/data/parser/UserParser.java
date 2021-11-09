@@ -13,7 +13,7 @@ public class UserParser {
                 .code(userDto.getCode())
                 .firstName(userDto.getFirstName())
                 .lastName(userDto.getLastName())
-                .email(userDto.getEmail())
+                .username(userDto.getUsername())
                 .password(userDto.getPassword())
                 .roles(userDto.getRoles().stream().map(Role::valueOf).collect(Collectors.toList()))
                 .active(true)

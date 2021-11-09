@@ -6,7 +6,7 @@ import pe.sag.routing.core.model.User;
 import java.util.Optional;
 
 public interface UserRepository extends MongoRepository<User,String> {
-    Optional<User> findByEmail(String email);
     Optional<User> findByCode(String code);
     Optional<User> findFirstByOrderByCodeDesc();
+    int deleteByCode(String code);
 }

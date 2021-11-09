@@ -88,9 +88,8 @@ public class TruckService {
         } else return -1;
     }
 
-    public Truck findByCode(String code) {
-        Optional<Truck> truckOptional = truckRepository.findByCode(code);
-        return truckOptional.orElse(null);
+    public List<Truck> findByCode(String code) {
+        return truckRepository.findByCode(code);
     }
 
     public Truck findByCodeAndMonitoring(String code, boolean monitoring) {
@@ -106,5 +105,15 @@ public class TruckService {
 
     public List<Truck> findByMonitoringAndStatus(boolean monitoring, TruckStatus status) {
         return truckRepository.findByMonitoringAndStatusOrderByModelDesc(monitoring, status.toString());
+    }
+
+    public int deleteByCode(String code) {
+        List<Truck> trucks = findByCode(code);
+        for(Truck t : trucks){
+            if(!t.getStatus().equals(TruckStatus.DISPONIBLE.toString())){
+                return -1;
+            }
+        }
+        return truckRepository.deleteByCode(code);
     }
 }
