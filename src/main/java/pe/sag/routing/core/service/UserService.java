@@ -11,6 +11,7 @@ import pe.sag.routing.data.repository.UserRepository;
 import pe.sag.routing.shared.dto.UserDto;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -49,9 +50,9 @@ public class UserService {
                 .code("US00")
                 .firstName("admin")
                 .lastName("test")
-                .email("test@test.com")
+                .username("admin_test")
                 .password("test")
-                .roles(List.of(Role.ADMIN, Role.MANAGER))
+                .roles(List.of(Role.ADMINISTRADOR, Role.PLANIFICADOR, Role.GERENTE))
                 .active(true)
                 .build();
         return userRepository.save(admin);
@@ -62,11 +63,25 @@ public class UserService {
         return lastUser.orElse(null);
     }
 
-    public User findByEmail(String email) throws IllegalAccessException {
-        return userRepository.findByEmail(email).orElseThrow(IllegalAccessException::new);
-    }
-
     public User findByCode(String code) throws IllegalAccessException {
         return userRepository.findByCode(code).orElseThrow(IllegalAccessException::new);
+    }
+
+    public User edit(User user, UserDto request) {
+        user.setUsername(request.getUsername());
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        if(request.getPassword() != null) user.setPassword(request.getPassword());
+        if(request.getRoles() != null) user.setRoles(request.getRoles().stream().map(Role::valueOf).collect(Collectors.toList()));
+        return userRepository.save(user);
+    }
+
+    public int deleteByCode(String code) {
+        return userRepository.deleteByCode(code);
+    }
+
+    public List<String> listRoles() {
+        List<Role> roles = List.of(Role.ADMINISTRADOR, Role.PLANIFICADOR, Role.GERENTE);
+        return roles.stream().map(Role::toString).collect(Collectors.toList());
     }
 }

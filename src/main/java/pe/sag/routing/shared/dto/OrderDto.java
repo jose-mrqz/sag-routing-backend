@@ -19,20 +19,15 @@ public class OrderDto {
     private int code;
     @NotBlank
     private double demandGLP;
-    @NotBlank
     private double totalDemand;
     @NotBlank
     private int x;
     @NotBlank
     private int y;
-    @NotBlank
     private LocalDateTime registrationDate;
-    @NotBlank
     private LocalDateTime deadlineDate;
     private LocalDateTime deliveryDate;
-    @NotBlank
     private String status;
-    @NotBlank
     private boolean monitoring;
 
     public boolean inRoadblocks(List<Roadblock> roadblocks){

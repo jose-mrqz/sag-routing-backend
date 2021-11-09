@@ -27,4 +27,5 @@ public class SimulationInputRequest {
     private List<SimulationOrder> orders;
     private List<RoadblockDto> roadblocks;
     private int speed;
+    private boolean colapse;
 }

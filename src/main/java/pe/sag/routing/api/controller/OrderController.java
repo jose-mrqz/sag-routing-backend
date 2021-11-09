@@ -10,14 +10,18 @@ import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Roadblock;
 import pe.sag.routing.core.model.SimulationInfo;
+import pe.sag.routing.core.model.User;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.parser.RoadblockParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
+import pe.sag.routing.shared.dto.UserDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
+import pe.sag.routing.shared.util.enums.TruckStatus;
 
+import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -154,7 +158,7 @@ public class OrderController {
     }
 
     @GetMapping("/{code}")
-    protected ResponseEntity<?> getByCode(@PathVariable String code) throws IllegalAccessException {
+    protected ResponseEntity<?> getByCode(@PathVariable int code) throws IllegalAccessException {
         Order order = orderService.findByCode(code);
         RestResponse response = new RestResponse(HttpStatus.OK, OrderParser.toDto(order));
         return ResponseEntity
@@ -167,6 +171,70 @@ public class OrderController {
         List<Order> orders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, true);
         List<OrderDto> ordersDto = orders.stream().map(OrderParser::toDto).collect(Collectors.toList());
         RestResponse response = new RestResponse(HttpStatus.OK, ordersDto);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/edit")
+    protected ResponseEntity<?> edit(@RequestBody NewOrderRequest request) {
+        RestResponse response;
+        if(request.getCode()<=0){
+            response = new RestResponse(HttpStatus.OK, "Error al editar pedido: no se ha ingresado codigo de pedido.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        Order order = orderService.findByCode(request.getCode());
+        if(order == null){
+            response = new RestResponse(HttpStatus.OK, "Error al editar pedido: pedido no encontrado.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        if(!order.getStatus().equals(OrderStatus.PENDIENTE)){
+            response = new RestResponse(HttpStatus.OK, "Error al editar pedido: ya ha sido programado o atendido.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        Order orderEdited = orderService.edit(order, request);
+        if (orderEdited != null) response = new RestResponse(HttpStatus.OK, "Pedido editado correctamente.", orderEdited);
+        else response = new RestResponse(HttpStatus.OK, "Error al editar pedido.");
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/delete")
+    protected ResponseEntity<?> delete(@RequestBody NewOrderRequest request) {
+        RestResponse response;
+        if(request.getCode()<=0){
+            response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido: no se ha ingresado codigo de pedido.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        Order order = orderService.findByCode(request.getCode());
+        if(order == null){
+            response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido: pedido no encontrado.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        if(!order.getStatus().equals(OrderStatus.PENDIENTE)){
+            response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido: ya ha sido programado o atendido.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        int count = orderService.deleteByCode(order.getCode());
+        if (count == 1) response = new RestResponse(HttpStatus.OK, "Pedido eliminado correctamente.");
+        else response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

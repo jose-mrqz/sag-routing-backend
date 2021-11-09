@@ -2,13 +2,18 @@ package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.core.model.Order;
+import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.core.scheduler.OrderScheduler;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
+import pe.sag.routing.shared.util.enums.Role;
+import pe.sag.routing.shared.util.enums.TruckStatus;
 
+import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -72,8 +77,8 @@ public class OrderService {
         return orderRepository.findByStatusAndMonitoringOrderByRegistrationDateAsc(OrderStatus.PENDIENTE,monitoring);
     }
 
-    public Order findByCode(String code) throws IllegalAccessException {
-        return orderRepository.findByCode(code).orElseThrow(IllegalAccessException::new);
+    public Order findByCode(int code) {
+        return orderRepository.findByCode(code).orElse(null);
     }
 
     public Order findFirstByOrderByCodeDesc() throws IllegalAccessException {
@@ -113,5 +118,17 @@ public class OrderService {
             order.setDeliveryDate(null);
             return orderRepository.save(order);
         } else return null;
+    }
+
+    public Order edit(Order order, NewOrderRequest request) {
+        order.setX(request.getX());
+        order.setY(request.getY());
+        order.setDemandGLP(request.getDemandGLP());
+        order.setDeadlineDate(order.getRegistrationDate().plusHours(request.getSlack()));
+        return orderRepository.save(order);
+    }
+
+    public int deleteByCode(int code) {
+        return orderRepository.deleteByCode(code);
     }
 }

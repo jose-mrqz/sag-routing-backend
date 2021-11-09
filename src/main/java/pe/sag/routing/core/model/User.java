@@ -23,7 +23,7 @@ public class User {
     private String code;
     private String firstName;
     private String lastName;
-    private String email;
+    private String username;
     private String password;
     private List<Role> roles;
     private boolean active = true;

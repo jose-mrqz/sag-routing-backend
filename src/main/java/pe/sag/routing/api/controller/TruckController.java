@@ -48,5 +48,24 @@ public class TruckController {
                 .status(response.getStatus())
                 .body(response);
     }
+
+    @PostMapping(path = "/delete")
+    protected ResponseEntity<?> delete(@RequestBody NewTruckRequest request) {
+        RestResponse response;
+        if(request.getCode() == null){
+            response = new RestResponse(HttpStatus.OK, "Error por no ingresar codigo de camion.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        int count = truckService.deleteByCode(request.getCode());
+        if (count == 2) response = new RestResponse(HttpStatus.OK, "Camion eliminado correctamente.");
+        else if (count == -1) response = new RestResponse(HttpStatus.OK, "Error al eliminar camion: esta actualmente en recorrido.");
+        else response = new RestResponse(HttpStatus.OK, "Error al eliminar camion.");
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
 }
 

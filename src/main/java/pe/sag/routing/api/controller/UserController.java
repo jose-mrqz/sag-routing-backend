@@ -20,7 +20,6 @@ public class UserController {
 
     @PostMapping
     protected ResponseEntity<?> register(@Valid @RequestBody UserDto request) {
-        System.out.println(request);
         User user = userService.registerUser(request);
         RestResponse response = RestResponse.builder()
                 .status(HttpStatus.OK)
@@ -39,18 +38,47 @@ public class UserController {
                 .body(userService.createAdmin());
     }
 
-    @GetMapping
-    public ResponseEntity<?> list() {
-        RestResponse response = new RestResponse(HttpStatus.OK, userService.list());
+    @PostMapping(path = "/edit")
+    protected ResponseEntity<?> edit(@Valid @RequestBody UserDto request) throws IllegalAccessException {
+        RestResponse response;
+        if(request.getCode() == null){
+            response = new RestResponse(HttpStatus.OK, "Error por no ingresar codigo de usuario.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        User user = userService.findByCode(request.getCode());
+        User userEdited = userService.edit(user, request);
+
+        if (userEdited != null) response = new RestResponse(HttpStatus.OK, "Usuario editado correctamente.", userEdited);
+        else response = new RestResponse(HttpStatus.OK, "Error al editar usuario.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
     }
 
-    @GetMapping("/{email}")
-    protected ResponseEntity<?> getByEmail(@PathVariable String email) throws IllegalAccessException {
-        User user = userService.findByEmail(email);
-        RestResponse response = new RestResponse(HttpStatus.OK, UserParser.toDto(user));
+    @PostMapping(path = "/delete")
+    protected ResponseEntity<?> delete(@Valid @RequestBody UserDto request) throws IllegalAccessException {
+        RestResponse response;
+        if(request.getCode() == null){
+            response = new RestResponse(HttpStatus.OK, "Error por no ingresar codigo de usuario.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        int count = userService.deleteByCode(request.getCode());
+        if (count == 1) response = new RestResponse(HttpStatus.OK, "Usuario eliminado correctamente.");
+        else response = new RestResponse(HttpStatus.OK, "Error al eliminar usuario.");
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> list() {
+        RestResponse response = new RestResponse(HttpStatus.OK, userService.list());
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -60,6 +88,14 @@ public class UserController {
     protected ResponseEntity<?> getByCode(@PathVariable String code) throws IllegalAccessException {
         User user = userService.findByCode(code);
         RestResponse response = new RestResponse(HttpStatus.OK, UserParser.toDto(user));
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @GetMapping("/roles")
+    public ResponseEntity<?> listRoles() {
+        RestResponse response = new RestResponse(HttpStatus.OK, userService.listRoles());
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
