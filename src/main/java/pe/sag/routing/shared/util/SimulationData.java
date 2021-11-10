@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -14,4 +16,5 @@ public class SimulationData {
     private int nScheduled;
     private String message;
     private boolean finished;
+    private LocalDateTime lastRouteEndTime = null;
 }

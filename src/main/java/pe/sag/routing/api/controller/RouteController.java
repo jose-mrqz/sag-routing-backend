@@ -77,6 +77,11 @@ public class RouteController {
             }
         }
 
+        LocalDateTime last = LocalDateTime.MIN;
+        for (RouteDto route : routesTransformedDto) {
+            if (route.getEndDate().isAfter(last)) last = route.getEndDate();
+        }
+        simulationData.setLastRouteEndTime(last);
         SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         return ResponseEntity
