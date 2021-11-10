@@ -95,7 +95,10 @@ public class Planner {
                     Route route = validatedRoutes.get(i);
                     int pathLength = route.getPath().size();
                     List<Pair<Integer, Integer>> path = route.getPath();
-                    if (path.size() <= 1) continue;
+                    if (path.size() <= 1) {
+                        System.out.println("reee");
+                        continue;
+                    }
                     Pair<Integer, Integer> lastNode = route.getPath().get(pathLength-1);
                     if ((lastNode.x != 12 && lastNode.y != 8) || pathLength <= 1 ||
                             Math.abs(path.get(pathLength-1).getY() - path.get(pathLength-2).getY()) > 1 ||
