@@ -96,7 +96,6 @@ public class Planner {
                         continue;
                     }
                     Pair<Integer, Integer> lastNode = route.getPath().get(pathLength-1);
-                    System.out.println(lastNode.x + " " + lastNode.y);
                     System.out.println(route.getPath().get(0).x + " " + route.getPath().get(0).y);
                     if ((lastNode.x != 12 && lastNode.y != 8) || pathLength <= 1 ||
                             Math.abs(path.get(pathLength-1).getY() - path.get(pathLength-2).getY()) > 1 ||
