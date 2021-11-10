@@ -3,6 +3,7 @@ package pe.sag.routing.algorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.slf4j.ILoggerFactory;
 import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.core.model.Roadblock;
 
@@ -83,19 +84,19 @@ public class Planner {
                 AStar aStar = new AStar();
                 // route validation
                 List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
-                for (Route r : validatedRoutes) {
-                    List<Pair<Integer,Integer>> path =  r.getPath();
-                    int l = path.size();
-                    if (l > 1)
-                        System.out.println(path.get(l-1).x + " " + path.get(l-1).y + " || " + path.get(l-2).x + " " + path.get(l-2).y) ;
-                }
 
                 List<Route> toDelete = new ArrayList<>();
                 for (int i = 0; i < validatedRoutes.size(); i++) {
                     Route route = validatedRoutes.get(i);
                     int pathLength = route.getPath().size();
                     List<Pair<Integer, Integer>> path = route.getPath();
+                    if (path.size() <= 1) {
+                        System.out.println(route.getTruckCode());
+                        System.out.println("reee");
+                        continue;
+                    }
                     Pair<Integer, Integer> lastNode = route.getPath().get(pathLength-1);
+                    System.out.println(route.getPath().get(0).x + " " + route.getPath().get(0).y);
                     if ((lastNode.x != 12 && lastNode.y != 8) || pathLength <= 1 ||
                             Math.abs(path.get(pathLength-1).getY() - path.get(pathLength-2).getY()) > 1 ||
                             Math.abs(path.get(pathLength-1).getX() - path.get(pathLength-2).getX()) > 1) { //redo route
