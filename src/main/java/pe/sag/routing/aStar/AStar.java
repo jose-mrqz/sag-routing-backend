@@ -156,6 +156,7 @@ public class AStar {
             nodeStart = new NodeList(nodes.get(0));
             Pair<Integer, Integer> pair = new Pair<>(nodeStart.cordX,nodeStart.cordY);
             if(!shorten) pairListCompleted.add(0,pair);
+            Collections.reverse(pairListCompleted);
             route.setPath(pairListCompleted);
         }
 

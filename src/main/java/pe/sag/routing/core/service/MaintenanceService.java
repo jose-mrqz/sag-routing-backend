@@ -30,6 +30,10 @@ public class MaintenanceService {
         return maintenanceRepository.save(maintenance);
     }
 
+    public Maintenance edit(Maintenance maintenance) {
+        return maintenanceRepository.save(maintenance);
+    }
+
     public List<MaintenanceDto> list() {
         return maintenanceRepository.findAll().stream().map(MaintenanceParser::toDto).collect(Collectors.toList());
     }
@@ -47,5 +51,9 @@ public class MaintenanceService {
         return maintenanceRepository.saveAll(maintenances);
     }
 
-
+    public Maintenance closestMaintenance(String truckCode){
+        List<Maintenance> maintenances = maintenanceRepository.findAllByTruckCodeOrderByStardDateAsc(truckCode);
+        if(maintenances.size()==0) return null;
+        return maintenances.get(0);
+    }
 }
