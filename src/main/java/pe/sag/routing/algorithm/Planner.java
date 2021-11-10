@@ -84,20 +84,6 @@ public class Planner {
                 // route validation
                 List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
 
-                for (Route route : validatedRoutes) {
-                    int pathlength = route.getPath().size();
-                    List<Pair<Integer,Integer>> path = route.getPath();
-                    if (pathlength == 1) System.out.println("gaaa");
-                    else {
-                        if (path.get(pathlength-1).getX() == 12  && path.get(pathlength-1).getY() == 8) {
-                            if (Math.abs(path.get(pathlength-1).getX() - path.get(pathlength-2).getX()) > 1)
-                                System.out.println("te pille");
-                            if (Math.abs(path.get(pathlength-1).getY() - path.get(pathlength-2).getY()) > 1)
-                                System.out.println("te cogi");
-                        }
-                    }
-                }
-
                 List<Route> toDelete = new ArrayList();
                 for (int i = 0; i < validatedRoutes.size(); i++) {
                     Route route = validatedRoutes.get(i);
@@ -110,7 +96,7 @@ public class Planner {
                         // reset order and depot consumption
                         System.out.println("redo");
                         for (Route solRoute : solutionRoutes) {
-                            if (solRoute.getTruckId().equals(route.getTruckId())) {
+                            if (solRoute.getTruckId().compareTo(route.getTruckId()) == 0) {
                                 for (NodeInfo ni : solRoute.getNodesInfo()) {
                                     if (ni instanceof OrderInfo)
                                         revertOrder(orders, ((OrderInfo) ni).getId(), ((OrderInfo) ni).getDeliveredGlp());
@@ -134,7 +120,7 @@ public class Planner {
                 for (int i = 0; i < trucks.size(); i++) {
                     Truck truck = trucks.get(i);
                     for (Route route : validatedRoutes) {
-                        if (route.truckId.equals(truck.get_id())) {
+                        if (route.truckId.compareTo(truck.get_id()) == 0) {
                             truck.reset();
                             truck.nowTime = route.getFinishDate();
                             truck.startDate = route.getFinishDate();
@@ -170,7 +156,7 @@ public class Planner {
     private void revertDepot(List<Depot> depots, String id, Double refilledGlp, LocalDateTime arrivalTime) {
         for (int i = 0; i < depots.size(); i++) {
             Depot depot = depots.get(i);
-            if (depot.id.equals(id)) {
+            if (depot.id.compareTo(id) == 0) {
                 double capacity = depot.getAvailableGLp(arrivalTime.toLocalDate());
                 depot.remainingGlp.put(arrivalTime.toLocalDate(), capacity + refilledGlp);
             }
@@ -180,7 +166,7 @@ public class Planner {
     private void revertOrder(List<Order> orders, String id, double glp) {
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
-            if (order._id.equals(id)) {
+            if (order._id.compareTo(id) == 0) {
                 order.deliveryTime = null;
                 order.visited = false;
                 order.demand -= glp;
