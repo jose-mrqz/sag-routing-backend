@@ -18,6 +18,7 @@ import pe.sag.routing.data.parser.RoadblockParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.dto.UserDto;
+import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 import pe.sag.routing.shared.util.enums.TruckStatus;
 
@@ -113,6 +114,7 @@ public class OrderController {
             }
         }
 
+        RouteController.simulationData = new SimulationData();
         RouteController.simulationData.setNOrders(inserted);
 
         if(ordersDto.size()==0){
