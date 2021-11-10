@@ -37,7 +37,7 @@ public class RouteController {
     private final RoadblockService roadblockService;
 
     private static Thread simulationThread = null;
-    private static SimulationData simulationData = null;
+    public static SimulationData simulationData = null;
 
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
@@ -211,10 +211,10 @@ public class RouteController {
                         }
                     }
                     if (planner.getNOrders() != planner.getNScheduled()) {
-                        simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
                         simulationData.setFinished(true);
                         simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
                     }
+                    simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
@@ -250,8 +250,6 @@ public class RouteController {
 
         List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
         List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
-
-        simulationData.setNOrders(pendingOrders.size());
 
         for (Truck truck : availableTrucks) {
             Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
@@ -293,16 +291,14 @@ public class RouteController {
                 RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar.");
                 simulationData.setNScheduled(planner.getNScheduled());
                 simulationData.setFinished(true);
-                simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
+                simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().get_id());
                 return ResponseEntity.status(response.getStatus()).body(response);
             }
 
-            if (solutionRoutes != null && solutionRoutes.size() != 0) {
-                Thread thread = new Thread(new SimulationScheduler(routeService, truckService, orderService,
-                        roadblockService, startDateReal, simulationInfo));
-                simulationThread = thread;
-                thread.start();
-            }
+            Thread thread = new Thread(new SimulationScheduler(routeService, truckService, orderService,
+                    roadblockService, startDateReal, simulationInfo));
+            simulationThread = thread;
+            thread.start();
         }
         //Error: no hay pedidos o camiones
         else{
