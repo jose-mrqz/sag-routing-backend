@@ -18,6 +18,7 @@ import pe.sag.routing.data.parser.RoadblockParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.dto.UserDto;
+import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 import pe.sag.routing.shared.util.enums.TruckStatus;
 
@@ -93,9 +94,11 @@ public class OrderController {
         }
         roadblockService.saveMany(roadblocks);
 
+
         //fijar fecha muy menor
         LocalDateTime startDateReal = LocalDateTime.of(2100,1,1,1,0,0);
         ArrayList<OrderDto> ordersDto = new ArrayList<>();
+        int inserted = 0;
         for(SimulationInputRequest.SimulationOrder r : request.getOrders()){
             OrderDto orderDto = OrderDto.builder()
                     .x(r.getX())
@@ -107,8 +110,12 @@ public class OrderController {
                     .build();
             if(!orderDto.inRoadblocks(roadblocks)){
                 ordersDto.add(orderDto);
+                inserted++;
             }
         }
+
+        RouteController.simulationData = new SimulationData();
+        RouteController.simulationData.setNOrders(inserted);
 
         if(ordersDto.size()==0){
             RestResponse response = new RestResponse(HttpStatus.OK, "Todos los pedidos se encuentran bloqueados.");

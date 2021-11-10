@@ -37,7 +37,7 @@ public class RouteController {
     private final RoadblockService roadblockService;
 
     private static Thread simulationThread = null;
-    private static SimulationData simulationData = null;
+    public static SimulationData simulationData = null;
 
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
@@ -210,6 +210,11 @@ public class RouteController {
                             orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                         }
                     }
+                    if (planner.getNOrders() != planner.getNScheduled()) {
+                        simulationData.setFinished(true);
+                        simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
+                    }
+                    simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
@@ -235,7 +240,7 @@ public class RouteController {
         truckService.updateAvailablesSimulation();
         List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
-        if(listSimulationInfo.size()==0){
+        if (listSimulationInfo.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
             return ResponseEntity
                     .status(response.getStatus())
@@ -245,8 +250,6 @@ public class RouteController {
 
         List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
         List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
-
-        simulationData.setNOrders(pendingOrders.size());
 
         for (Truck truck : availableTrucks) {
             Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
@@ -284,12 +287,18 @@ public class RouteController {
                 }
             }
 
-            if (solutionRoutes != null && solutionRoutes.size() != 0) {
-                Thread thread = new Thread(new SimulationScheduler(routeService, truckService, orderService,
-                        roadblockService, startDateReal, simulationInfo));
-                simulationThread = thread;
-                thread.start();
+            if (planner.getNOrders() != planner.getNScheduled()) {
+                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar.");
+                simulationData.setNScheduled(planner.getNScheduled());
+                simulationData.setFinished(true);
+                simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().get_id());
+                return ResponseEntity.status(response.getStatus()).body(response);
             }
+
+            Thread thread = new Thread(new SimulationScheduler(routeService, truckService, orderService,
+                    roadblockService, startDateReal, simulationInfo));
+            simulationThread = thread;
+            thread.start();
         }
         //Error: no hay pedidos o camiones
         else{
