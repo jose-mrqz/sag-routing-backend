@@ -107,6 +107,7 @@ public class Planner {
                             Math.abs(path.get(pathLength-1).getY() - path.get(pathLength-2).getY()) > 1 ||
                             Math.abs(path.get(pathLength-1).getX() - path.get(pathLength-2).getX()) > 1) { //redo route
                         // reset order and depot consumption
+                        System.out.println("redo");
                         for (NodeInfo ni : route.getNodesInfo()) {
                             if (ni instanceof OrderInfo)
                                 revertOrder(orders, ((OrderInfo) ni).getId(), ((OrderInfo) ni).getDeliveredGlp());
