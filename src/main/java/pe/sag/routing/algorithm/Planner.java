@@ -83,6 +83,12 @@ public class Planner {
                 AStar aStar = new AStar();
                 // route validation
                 List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
+                for (Route r : validatedRoutes) {
+                    List<Pair<Integer,Integer>> path =  r.getPath();
+                    int l = path.size();
+                    if (l > 1)
+                        System.out.println(path.get(l-1).x + " " + path.get(l-1).y + " || " + path.get(l-2).x + " " + path.get(l-2).y) ;
+                }
 
                 List<Route> toDelete = new ArrayList<>();
                 for (int i = 0; i < validatedRoutes.size(); i++) {
