@@ -113,13 +113,20 @@ public class RouteDto {
     }
 
     public RouteDto transformRouteSpeed(SimulationInfo simulationInfo, int speed){
+        List<RouteDto.Order> orders = new ArrayList<>();
+        for(RouteDto.Order o : getOrders()){
+            RouteDto.Order newOrder = new RouteDto.Order(o.getX(), o.getY(), o.getIndexRoute(),
+                    o.getDeliveryDate(), o.getLeftDate(), o.getDelivered());
+            orders.add(newOrder);
+        }
+
         RouteDto transformedRoute = RouteDto.builder()
                 .startDate(getStartDate())
                 .endDate(getEndDate())
                 .timeAttention(getTimeAttention())
                 .velocity(getVelocity())
                 .truckCode(getTruckCode())
-                .orders(getOrders())
+                .orders(orders)
                 .route(getRoute())
                 .build();
 
