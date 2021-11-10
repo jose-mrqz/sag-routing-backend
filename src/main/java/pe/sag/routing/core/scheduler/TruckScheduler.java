@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import pe.sag.routing.core.model.Maintenance;
 import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.core.service.MaintenanceService;
+import pe.sag.routing.data.repository.MaintenanceRepository;
 import pe.sag.routing.data.repository.TruckRepository;
 import pe.sag.routing.shared.util.enums.TruckStatus;
 
@@ -19,12 +20,12 @@ import java.util.TimerTask;
 @Data
 public class TruckScheduler {
     public final TruckRepository truckRepository;
-    public final MaintenanceService maintenanceService;
+    public final MaintenanceRepository maintenanceRepository;
     private static HashMap<String, Timer> timerRecord = new HashMap<>();
 
-    public TruckScheduler(TruckRepository truckRepository, MaintenanceService maintenanceService) {
+    public TruckScheduler(TruckRepository truckRepository, MaintenanceRepository maintenanceRepository) {
         this.truckRepository = truckRepository;
-        this.maintenanceService = maintenanceService;
+        this.maintenanceRepository = maintenanceRepository;
     }
 
     public void scheduleStatusChange(String id, TruckStatus status, LocalDateTime now) {
@@ -36,17 +37,17 @@ public class TruckScheduler {
                 if (truckOptional.isPresent()) {
                     Truck t = truckOptional.get();
                     if(t.getStatus().equals(TruckStatus.MANTENIMIENTO.toString()) && status.equals(TruckStatus.DISPONIBLE)){
-                        Maintenance maintenance = maintenanceService.closestMaintenance(t.getCode());
+                        Maintenance maintenance = maintenanceRepository.findAllByTruckCodeOrderByStartDateAsc(t.getCode()).get(0);
                         maintenance.setFinished(true);
-                        maintenanceService.edit(maintenance);
+                        maintenanceRepository.save(maintenance);
 
                         t.setStatus(status.toString());
                         truckRepository.save(t);
                     }
                     else if(t.getStatus().equals(TruckStatus.AVERIADO.toString()) && status.equals(TruckStatus.MANTENIMIENTO)){
-                        Maintenance maintenance = maintenanceService.closestMaintenance(t.getCode());
+                        Maintenance maintenance = maintenanceRepository.findAllByTruckCodeOrderByStartDateAsc(t.getCode()).get(0);
                         maintenance.setFinished(true);
-                        maintenanceService.edit(maintenance);
+                        maintenanceRepository.save(maintenance);
                         //revisar el hashmap y cancelar el timer de regreso a DISPONIBLE
                     }
                     else{

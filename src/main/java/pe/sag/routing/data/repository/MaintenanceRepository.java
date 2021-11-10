@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface MaintenanceRepository extends MongoRepository<Maintenance, String> {
-    List<Maintenance> findAllByTruckCodeOrderByStardDateAsc(String truckCode);
+    List<Maintenance> findAllByTruckCodeOrderByStartDateAsc(String truckCode);
 }
