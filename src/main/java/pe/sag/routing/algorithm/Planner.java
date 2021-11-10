@@ -84,7 +84,7 @@ public class Planner {
                 // route validation
                 List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
 
-                List<Route> toDelete = new ArrayList();
+                List<Route> toDelete = new ArrayList<>();
                 for (int i = 0; i < validatedRoutes.size(); i++) {
                     Route route = validatedRoutes.get(i);
                     int pathLength = route.getPath().size();
@@ -142,7 +142,10 @@ public class Planner {
                 }
 
                 this.solutionRoutes.addAll(validatedRoutes.stream()
-                        .filter(r -> (r.getPath().get(r.getPath().size()-1).x == 12 && r.getPath().get(r.getPath().size()-1).y == 8))
+                        .filter(r -> (r.getPath().size() > 1 &&
+                                r.getPath().get(r.getPath().size()-1).x == 12 && r.getPath().get(r.getPath().size()-1).y == 8) &&
+                                Math.abs(r.getPath().get(r.getPath().size()-1).x - r.getPath().get(r.getPath().size()-2).x) <= 1 &&
+                                Math.abs(r.getPath().get(r.getPath().size()-1).y - r.getPath().get(r.getPath().size()-2).y) <= 1)
                         .collect(Collectors.toList()));
                 this.solutionOrders = orders;
             } else {
