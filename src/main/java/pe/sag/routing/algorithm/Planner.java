@@ -54,7 +54,6 @@ public class Planner {
         for (pe.sag.routing.core.model.Truck tm : modelTrucks) {
             trucks.add(new Truck(tm.get_id(), tm.getCode(), tm.getModel().getCapacity(),
                     tm.getModel().getTareWeight(), 0, tm.getLastRouteEndTime()));
-            break;
         }
         modelOrders = modelOrders.stream().sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDeadlineDate).
                 thenComparing(pe.sag.routing.core.model.Order::getRegistrationDate)).collect(Collectors.toList());
