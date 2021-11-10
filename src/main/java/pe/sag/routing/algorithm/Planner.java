@@ -84,6 +84,20 @@ public class Planner {
                 // route validation
                 List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
 
+                for (Route route : validatedRoutes) {
+                    int pathlength = route.getPath().size();
+                    List<Pair<Integer,Integer>> path = route.getPath();
+                    if (pathlength == 1) System.out.println("gaaa");
+                    else {
+                        if (path.get(pathlength-1).getX() == 12  && path.get(pathlength-1).getY() == 8) {
+                            if (Math.abs(path.get(pathlength-1).getX() - path.get(pathlength-2).getX()) > 1)
+                                System.out.println("te pille");
+                            if (Math.abs(path.get(pathlength-1).getY() - path.get(pathlength-2).getY()) > 1)
+                                System.out.println("te cogi");
+                        }
+                    }
+                }
+
                 for (int i = 0; i < validatedRoutes.size(); i++) {
                     Route route = validatedRoutes.get(i);
                     int pathLength = route.getPath().size();
