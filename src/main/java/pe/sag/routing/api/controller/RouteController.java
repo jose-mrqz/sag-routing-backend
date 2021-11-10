@@ -196,6 +196,7 @@ public class RouteController {
                     planner.run();
                     if (planner.getSolutionRoutes() == null || planner.getSolutionRoutes().isEmpty()) {
                         RouteController.simulationData.setFinished(true);
+                        RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
                         RouteController.simulationData.setMessage("No se pueden planificar mas pedidos.");
                         break; //colapso no se pueden planificar rutas
                     }
@@ -205,7 +206,7 @@ public class RouteController {
                     for (Order o : pendingOrders) {
                         boolean scheduled = false;
                         for (Pair<String, LocalDateTime> delivery : solutionOrders) {
-                            if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                            if (delivery.getX().compareTo(o.get_id()) == 0 && delivery.getY() != null) {
                                 scheduled = true;
                                 break;
                             }
@@ -219,7 +220,7 @@ public class RouteController {
 
                     if (planner.getNOrders() != planner.getNScheduled()) {
                         RouteController.simulationData.setFinished(true);
-                        RouteController.simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
+                        RouteController.simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().getIdx());
                         break;
                     }
                     RouteController.simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
@@ -291,7 +292,7 @@ public class RouteController {
             }
 
             if (planner.getNOrders() != planner.getNScheduled()) {
-                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar.");
+                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
                 simulationData.setFinished(true);
                 simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed());
                 return ResponseEntity.status(response.getStatus()).body(response);
