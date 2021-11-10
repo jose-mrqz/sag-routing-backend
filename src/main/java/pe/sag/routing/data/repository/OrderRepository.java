@@ -13,7 +13,7 @@ public interface OrderRepository extends MongoRepository<Order,String> {
     List<Order> findByStatusAndMonitoringOrderByRegistrationDateAsc(OrderStatus status, boolean monitoring);
     Optional<Order> findFirstByOrderByCodeDesc();
     List<Order> findByMonitoringOrderByCodeAsc(boolean monitoring);
-    List<Order> findFirst200ByStatusAndMonitoringOrderByDeadlineDateAscRegistrationDateAsc(OrderStatus status, boolean monitoring);
+    List<Order> findFirst500ByStatusAndMonitoringOrderByDeadlineDateAscRegistrationDateAsc(OrderStatus status, boolean monitoring);
     void deleteByMonitoring(boolean monitoring);
     int deleteByCode(int code);
 }
