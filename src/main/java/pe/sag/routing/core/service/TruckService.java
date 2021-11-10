@@ -96,6 +96,7 @@ public class TruckService {
         Optional<Truck> truckOptional = truckRepository.findByCodeAndMonitoring(code, monitoring);
         return truckOptional.orElse(null);
     }
+
     public void registerBreakdown(Truck truck, LocalDateTime now) {
         truck.setStatus(TruckStatus.AVERIADO.toString());
         truckRepository.save(truck);

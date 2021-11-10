@@ -20,6 +20,6 @@ public class Maintenance {
     private String truckCode;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
-    private boolean preventive = true;
+    private boolean preventive = true;//quitarlo
     private boolean finished;
 }

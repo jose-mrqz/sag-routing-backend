@@ -71,6 +71,7 @@ public class AStar {
             LocalDateTime departureDate, limitDate;
             ArrayList<ListStructure> solutionLists = new ArrayList<>();
             NodeList nodeStart, nodeGoal;
+            boolean shorten = false;
 
             //Agregar planta principal tanto al inicio como al fin de la ruta (nodes)
             ArrayList<NodeInfo> nodes = new ArrayList<>();
@@ -113,6 +114,7 @@ public class AStar {
                 if(!nodeGoal.isDepot() && !solutionList.limitDateOK){
                     //truncar ruta de camion
                     route.setFinishDate(arrivalDate);
+                    shorten = true;
                     break;
                 }
 
@@ -153,7 +155,7 @@ public class AStar {
             Collections.reverse(pairListCompleted);
             nodeStart = new NodeList(nodes.get(0));
             Pair<Integer, Integer> pair = new Pair<>(nodeStart.cordX,nodeStart.cordY);
-            pairListCompleted.add(0,pair);
+            if(!shorten) pairListCompleted.add(0,pair);
             route.setPath(pairListCompleted);
         }
 

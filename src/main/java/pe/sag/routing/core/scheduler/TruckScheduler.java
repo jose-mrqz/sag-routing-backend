@@ -30,9 +30,15 @@ public class TruckScheduler {
             public void run() {
                 Optional<Truck> truckOptional = truckRepository.findById(id);
                 if (truckOptional.isPresent()) {
+                    //if para validar y dentro, revisar el hashmap y cancelar el timer de regreso a DISPONIBLE
                     Truck t = truckOptional.get();
-                    t.setStatus(status.toString());
-                    truckRepository.save(t);
+                    /*if(t.getStatus().equals(TruckStatus.AVERIADO.toString()) && status.equals(TruckStatus.MANTENIMIENTO)){
+
+                    }
+                    else{*/
+                        t.setStatus(status.toString());
+                        truckRepository.save(t);
+                    //}
                 }
                 timer.cancel();
             }
