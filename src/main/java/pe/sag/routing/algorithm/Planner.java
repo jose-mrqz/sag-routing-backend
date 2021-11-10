@@ -125,9 +125,9 @@ public class Planner {
 
                 for (int i = 0; i < trucks.size(); i++) {
                     Truck truck = trucks.get(i);
+                    truck.reset();
                     for (Route route : validatedRoutes) {
                         if (route.truckId.compareTo(truck.get_id()) == 0) {
-                            truck.reset();
                             truck.nowTime = route.getFinishDate();
                             truck.startDate = route.getFinishDate();
                             truck.startingDate = route.getFinishDate();
