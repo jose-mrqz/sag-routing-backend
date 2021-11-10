@@ -98,6 +98,7 @@ public class Planner {
                     }
                 }
 
+                List<Route> toDelete = new ArrayList();
                 for (int i = 0; i < validatedRoutes.size(); i++) {
                     Route route = validatedRoutes.get(i);
                     int pathLength = route.getPath().size();
@@ -108,13 +109,22 @@ public class Planner {
                             Math.abs(path.get(pathLength-1).getX() - path.get(pathLength-2).getX()) > 1) { //redo route
                         // reset order and depot consumption
                         System.out.println("redo");
-                        for (NodeInfo ni : route.getNodesInfo()) {
-                            if (ni instanceof OrderInfo)
-                                revertOrder(orders, ((OrderInfo) ni).getId(), ((OrderInfo) ni).getDeliveredGlp());
-                            else
-                                revertDepot(depots, ((DepotInfo) ni).getId(), ((DepotInfo) ni).getRefilledGlp(), ni.getArrivalTime());
+                        for (Route solRoute : solutionRoutes) {
+                            if (solRoute.getTruckId().equals(route.getTruckId())) {
+                                for (NodeInfo ni : solRoute.getNodesInfo()) {
+                                    if (ni instanceof OrderInfo)
+                                        revertOrder(orders, ((OrderInfo) ni).getId(), ((OrderInfo) ni).getDeliveredGlp());
+                                    else
+                                        revertDepot(depots, ((DepotInfo) ni).getId(), ((DepotInfo) ni).getRefilledGlp(), ni.getArrivalTime());
+                                }
+                            }
+                            toDelete.add(route);
+                            break;
                         }
                     }
+                }
+                for (Route r : toDelete) {
+                    validatedRoutes.remove(r);
                 }
                 for (int i = 0; i < depots.size(); i++) {
                     Depot depot = depots.get(i);
