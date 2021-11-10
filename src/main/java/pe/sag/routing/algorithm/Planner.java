@@ -110,7 +110,13 @@ public class Planner {
                     }
                 }
                 for (Route r : toDelete) {
-                    validatedRoutes.remove(r);
+                    for (int i = 0; i < validatedRoutes.size(); i++) {
+                        Route v = validatedRoutes.get(i);
+                        if (r.getTruckId().compareTo(v.getTruckId()) == 0){
+                            validatedRoutes.remove(i);
+                            break;
+                        }
+                    }
                 }
                 for (int i = 0; i < depots.size(); i++) {
                     Depot depot = depots.get(i);
