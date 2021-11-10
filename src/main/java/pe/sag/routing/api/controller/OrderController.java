@@ -94,7 +94,6 @@ public class OrderController {
         }
         roadblockService.saveMany(roadblocks);
 
-
         //fijar fecha muy menor
         LocalDateTime startDateReal = LocalDateTime.of(2100,1,1,1,0,0);
         ArrayList<OrderDto> ordersDto = new ArrayList<>();
@@ -114,10 +113,14 @@ public class OrderController {
             }
         }
 
-        RouteController.simulationData = new SimulationData();
-        RouteController.simulationData.setNOrders(inserted);
+        RouteController.simulationData = SimulationData.builder()
+                .nOrders(inserted)
+                .nScheduled(0)
+                .message("Simulacion iniciada con " + inserted +  " pedidos.")
+                .finished(false)
+                .build();
 
-        if(ordersDto.size()==0){
+        if (ordersDto.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.OK, "Todos los pedidos se encuentran bloqueados.");
             return ResponseEntity
                     .status(response.getStatus())

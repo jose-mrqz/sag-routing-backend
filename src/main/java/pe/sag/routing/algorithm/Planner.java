@@ -50,7 +50,6 @@ public class Planner {
         List<Truck> trucks = new ArrayList<>();
         List<Order> orders = new ArrayList<>();
         List<Depot> depots = null;
-        nOrders = this.modelOrders.size();
 
         for (pe.sag.routing.core.model.Truck tm : modelTrucks) {
             trucks.add(new Truck(tm.get_id(), tm.getCode(), tm.getModel().getCapacity(),

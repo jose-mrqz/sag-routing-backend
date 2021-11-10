@@ -15,4 +15,5 @@ public interface RouteRepository extends MongoRepository<Route,String> {
     List<Route> findByMonitoring(boolean monitoring);
     void deleteByMonitoring(boolean monitoring);
     List<Route> findByStartDateBeforeAndFinishDateAfterAndMonitoringAndCancelled(LocalDateTime actualDate, LocalDateTime actualDate1, boolean monitoring, boolean cancelled);
+    List<Route> findByTruckIdAndStartDateAfterAndCancelled(LocalDateTime now, boolean cancelled);
 }

@@ -90,7 +90,7 @@ public class RouteDto {
                     .build();
             this.route.add(newNode);
         }
-        Collections.reverse(this.route);
+//        Collections.reverse(this.route);
         int index = 0;
         for (RouteDto.Order order : this.orders) {
             for (; index < this.route.size(); index++) {

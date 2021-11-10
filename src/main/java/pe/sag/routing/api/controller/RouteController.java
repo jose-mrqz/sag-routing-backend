@@ -174,9 +174,9 @@ public class RouteController {
             while(true) {
                 List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
                 if (pendingOrders.size() == 0) {
-                    simulationData.setNScheduled(simulationData.getNOrders());
-                    simulationData.setMessage("Simulacion terminada con exito.");
-                    simulationData.setFinished(true);
+                    RouteController.simulationData.setNScheduled(simulationData.getNOrders());
+                    RouteController.simulationData.setMessage("Simulacion terminada con exito.");
+                    RouteController.simulationData.setFinished(true);
                     break; //no hay mas pedidos que procesar
                 }
                 List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
@@ -192,8 +192,13 @@ public class RouteController {
                 if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
                     Collections.shuffle(availableTrucks);
                     Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
+                    planner.setNOrders(pendingOrders.size());
                     planner.run();
-                    if (planner.getSolutionRoutes() == null || planner.getSolutionRoutes().isEmpty()) break; //colapso no se pueden planificar rutas
+                    if (planner.getSolutionRoutes() == null || planner.getSolutionRoutes().isEmpty()) {
+                        RouteController.simulationData.setFinished(true);
+                        RouteController.simulationData.setMessage("No se pueden planificar mas pedidos.");
+                        break; //colapso no se pueden planificar rutas
+                    }
                     List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
                     List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionTimes();
 
@@ -206,15 +211,18 @@ public class RouteController {
                             }
                         }
                         if (scheduled) {
-                            simulationData.setNScheduled(simulationData.getNScheduled() + 1);
                             orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                         }
                     }
+
+                    RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
+
                     if (planner.getNOrders() != planner.getNScheduled()) {
-                        simulationData.setFinished(true);
-                        simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
+                        RouteController.simulationData.setFinished(true);
+                        RouteController.simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().getIdx());
+                        break;
                     }
-                    simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
+                    RouteController.simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
@@ -228,12 +236,6 @@ public class RouteController {
 
     @PostMapping(path = "/simulationAlgorithm")
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
-        simulationData = SimulationData.builder()
-                .nOrders(0)
-                .nScheduled(0)
-                .message("Simulacion iniciada.")
-                .finished(false)
-                .build();
         if (simulationThread != null && simulationThread.isAlive()) simulationThread.interrupt();
 
         routeService.deleteByMonitoring(false);
@@ -260,6 +262,7 @@ public class RouteController {
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Collections.shuffle(availableTrucks);
             Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
+            planner.setNOrders(pendingOrders.size());
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
             List<Pair<String, LocalDateTime>> solutionOrders = planner.getSolutionTimes();
@@ -274,24 +277,23 @@ public class RouteController {
                 }
                 if (scheduled) {
                     orderService.updateStatus(o, OrderStatus.PROGRAMADO);
-                    simulationData.setNScheduled(simulationData.getNScheduled() + 1);
                 }
             }
+            RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
 
             if (solutionRoutes != null) {
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
                     r.setMonitoring(false);
-                    r = routeService.transformRoute(r,simulationInfo);
+                    r = routeService.transformRoute(r, simulationInfo);
                     routeService.save(r);
                 }
             }
 
             if (planner.getNOrders() != planner.getNScheduled()) {
                 RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar.");
-                simulationData.setNScheduled(planner.getNScheduled());
                 simulationData.setFinished(true);
-                simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed().get_id());
+                simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed());
                 return ResponseEntity.status(response.getStatus()).body(response);
             }
 
@@ -300,8 +302,7 @@ public class RouteController {
             simulationThread = thread;
             thread.start();
         }
-        //Error: no hay pedidos o camiones
-        else{
+        else {
             RestResponse response = new RestResponse(HttpStatus.I_AM_A_TEAPOT, "Error: no hay pedidos o camiones.");
             return ResponseEntity.status(response.getStatus()).body(response);
         }
