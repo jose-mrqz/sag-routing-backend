@@ -293,7 +293,7 @@ public class RouteController {
             if (planner.getNOrders() != planner.getNScheduled()) {
                 RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar.");
                 simulationData.setFinished(true);
-                simulationData.setMessage("Primer pedidos sin planificar: " + planner.getFirstFailed());
+                simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed());
                 return ResponseEntity.status(response.getStatus()).body(response);
             }
 
