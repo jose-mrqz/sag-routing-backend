@@ -101,8 +101,11 @@ public class Planner {
                 for (int i = 0; i < validatedRoutes.size(); i++) {
                     Route route = validatedRoutes.get(i);
                     int pathLength = route.getPath().size();
+                    List<Pair<Integer, Integer>> path = route.getPath();
                     Pair<Integer, Integer> lastNode = route.getPath().get(pathLength-1);
-                    if (lastNode.x != 12 && lastNode.y != 8) { //redo route
+                    if ((lastNode.x != 12 && lastNode.y != 8) || pathLength <= 1 ||
+                            Math.abs(path.get(pathLength-1).getY() - path.get(pathLength-2).getY()) > 1 ||
+                            Math.abs(path.get(pathLength-1).getX() - path.get(pathLength-2).getX()) > 1) { //redo route
                         // reset order and depot consumption
                         for (NodeInfo ni : route.getNodesInfo()) {
                             if (ni instanceof OrderInfo)
