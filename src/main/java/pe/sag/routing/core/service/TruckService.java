@@ -50,7 +50,7 @@ public class TruckService {
     public List<TruckDto> list() {
         List<Truck> trucks = truckRepository.findByMonitoring(true);
         for (Truck t : trucks) {
-            if (t.getStatus().equals(TruckStatus.DISPONIBLE.toString()) && routeService.getCurrentByTruckId(t.get_id(), true) != null)
+            if (t.getStatus().compareTo(TruckStatus.DISPONIBLE.toString()) == 0 && routeService.getCurrentByTruckId(t.get_id(), true) != null)
                 t.setStatus(TruckStatus.RUTA.toString());
         }
         return trucks.stream().map(TruckParser::toDto).collect(Collectors.toList());
