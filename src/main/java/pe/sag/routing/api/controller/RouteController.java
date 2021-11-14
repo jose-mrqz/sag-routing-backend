@@ -95,7 +95,17 @@ public class RouteController {
         List<Route> activeRoutes = routeService.findByDateAndMonitoring(actualDate, false);
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>(routesDto);
+        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
+
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        if (listSimulationInfo.size() != 0) {
+            SimulationInfo simulationInfo = listSimulationInfo.get(0);
+
+            for(RouteDto r : routesDto) {
+                RouteDto rt = r.transformRouteSpeed(simulationInfo, request.getSpeed());
+                routesTransformedDto.add(rt);
+            }
+        }
 
         LocalDateTime last = LocalDateTime.MIN;
         for (RouteDto route : routesTransformedDto) {
