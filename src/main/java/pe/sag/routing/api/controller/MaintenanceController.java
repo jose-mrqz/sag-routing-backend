@@ -37,7 +37,7 @@ public class MaintenanceController {
             Maintenance maintenance = Maintenance.builder()
                     .truckCode(m.getTruckCode())
                     .startDate(m.getStartDate())
-                    .endDate(m.getStartDate().plusMinutes(1))//plusDays(1))
+                    .endDate(m.getStartDate().plusDays(1))
                     .preventive(true)
                     .finished(false)
                     .build();
