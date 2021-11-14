@@ -89,50 +89,6 @@ public class RouteController {
                 .body(response);
     }
 
-    @PostMapping(path = "/simulation/active")
-    protected ResponseEntity<?> getActiveSimulationActive(@RequestBody SimulationRequest request) {
-        LocalDateTime actualDate = request.getTime() != null ? request.getTime() : LocalDateTime.now();
-        List<Route> activeRoutes = routeService.findByMonitoring(false);
-        activeRoutes.sort(Comparator.comparing(Route::getStartDate));
-        List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
-
-        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
-        if (listSimulationInfo.size() != 0) {
-            SimulationInfo simulationInfo = listSimulationInfo.get(0);
-
-            for(RouteDto r : routesDto) {
-                RouteDto rt = r.transformRouteSpeed(simulationInfo, request.getSpeed());
-                routesTransformedDto.add(rt);
-            }
-        }
-
-        ArrayList<RouteDto> toDelete = new ArrayList<>();
-        ArrayList<RouteDto> toDeleteTransformed = new ArrayList<>();
-        for (int i = 0; i < routesDto.size(); i++) {
-            if (actualDate.isAfter(actualDate) && actualDate.isBefore(actualDate)) continue;
-            toDelete.add(routesDto.get(i));
-            toDeleteTransformed.add(routesTransformedDto.get(i));
-        }
-        routesDto.removeAll(toDelete);
-        routesTransformedDto.removeAll(toDeleteTransformed);
-
-        LocalDateTime last = LocalDateTime.MIN;
-        for (RouteDto route : routesTransformedDto) {
-            if (route.getEndDate().isAfter(last)) last = route.getEndDate();
-        }
-        if (RouteController.simulationData == null) {
-            RouteController.simulationData = new SimulationData();
-        }
-        RouteController.simulationData.setLastRouteEndTime(last);
-
-        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
-        RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
-    }
-
     @PostMapping
     public ResponseEntity<?> scheduleRoutes() {
         while (true) {
