@@ -3,7 +3,6 @@ package pe.sag.routing.algorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.slf4j.ILoggerFactory;
 import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.core.model.Roadblock;
 
@@ -91,7 +90,6 @@ public class Planner {
                     List<Pair<Integer, Integer>> path = route.getPath();
                     if (path.size() <= 1) {
                         System.out.println(route.getTruckCode());
-                        System.out.println("reee");
                         continue;
                     }
                     Pair<Integer, Integer> lastNode = route.getPath().get(pathLength-1);

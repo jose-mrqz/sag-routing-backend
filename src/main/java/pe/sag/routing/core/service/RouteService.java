@@ -83,5 +83,9 @@ public class RouteService {
 
         return route;
     }
+
+    public List<Route> findByDateAndMonitoring(LocalDateTime actualDate, boolean monitoring) {
+        return routeRepository.findByStartDateBeforeAndFinishDateAfterAndMonitoringAndCancelled(actualDate, actualDate, monitoring, false);
+    }
 }
 
