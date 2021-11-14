@@ -89,37 +89,6 @@ public class RouteController {
                 .body(response);
     }
 
-    @PostMapping(path = "/simulation/active")
-    protected ResponseEntity<?> getActiveSimulationActive(@RequestBody SimulationRequest request) {
-        LocalDateTime actualDate = request.getTime() != null ? request.getTime() : LocalDateTime.now();
-        List<Route> activeRoutes = routeService.findByDateAndMonitoring(actualDate, false);
-        activeRoutes.sort(Comparator.comparing(Route::getStartDate));
-        List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
-
-        //sacar simulation info de bd
-        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
-        if (listSimulationInfo.size() != 0) {
-            SimulationInfo simulationInfo = listSimulationInfo.get(0);
-
-            for(RouteDto r : routesDto) {
-                RouteDto rt = r.transformRouteSpeed(simulationInfo, request.getSpeed());
-                routesTransformedDto.add(rt);
-            }
-        }
-
-        LocalDateTime last = LocalDateTime.MIN;
-        for (RouteDto route : routesTransformedDto) {
-            if (route.getEndDate().isAfter(last)) last = route.getEndDate();
-        }
-        simulationData.setLastRouteEndTime(last);
-        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
-        RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
-    }
-
     @PostMapping
     public ResponseEntity<?> scheduleRoutes() {
         while (true) {
