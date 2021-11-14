@@ -16,36 +16,3 @@ public class SimulationResponse {
     private List<RouteDto> routesReal;
     private List<RouteDto> routesTransformed;
 }
-
-//    @Data
-//    @AllArgsConstructor
-//    @NoArgsConstructor
-//    private static class TruckRoutes {
-//        String truckCode;
-//        List<RouteDto> routes;
-//    }
-
-//    private List<TruckRoutes> group(List<RouteDto> routeList) {
-//        HashMap<String, List<RouteDto>> routes = new HashMap<String, List<RouteDto>>();
-//        List<RouteDto> ptr;
-//        for (RouteDto route : routeList) {
-//            ptr = routes.getOrDefault(route.getTruckCode(), null);
-//            if (ptr == null) {
-//                routes.put(route.getTruckCode(), new ArrayList());
-//            }
-//            ptr = routes.get(route.getTruckCode());
-//            ptr.add(route);
-//            routes.put(route.getTruckCode(), ptr);
-//        }
-//        for (String key : routes.keySet()) {
-//            ptr = routes.get(key);
-//            ptr = ptr.stream().sorted(Comparator.comparing(RouteDto::getEndDate)).collect(Collectors.toList());
-//            routes.put(key, ptr);
-//        }
-//        List<TruckRoutes> truckRoutes = new ArrayList<>();
-//        for (String key : routes.keySet()) {
-//            TruckRoutes tr = new TruckRoutes(key, routes.get(key));
-//            truckRoutes.add(tr);
-//        }
-//        return truckRoutes;
-//    }

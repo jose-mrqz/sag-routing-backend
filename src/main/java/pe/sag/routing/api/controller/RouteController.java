@@ -226,6 +226,7 @@ public class RouteController {
                     if (planner.getNOrders() != planner.getNScheduled()) {
                         RouteController.simulationData.setFinished(true);
                         RouteController.simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().getIdx());
+                        RouteController.simulationData.setOrder(planner.getFirstFailed());
                         break;
                     }
                     RouteController.simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
