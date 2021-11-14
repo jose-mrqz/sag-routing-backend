@@ -95,24 +95,16 @@ public class RouteController {
         List<Route> activeRoutes = routeService.findByDateAndMonitoring(actualDate, false);
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
-
-        //sacar simulation info de bd
-        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
-        if (listSimulationInfo.size() != 0) {
-            SimulationInfo simulationInfo = listSimulationInfo.get(0);
-
-            for(RouteDto r : routesDto) {
-                RouteDto rt = r.transformRouteSpeed(simulationInfo, request.getSpeed());
-                routesTransformedDto.add(rt);
-            }
-        }
+        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>(routesDto);
 
         LocalDateTime last = LocalDateTime.MIN;
         for (RouteDto route : routesTransformedDto) {
             if (route.getEndDate().isAfter(last)) last = route.getEndDate();
         }
-        simulationData.setLastRouteEndTime(last);
+        if (RouteController.simulationData == null) {
+            RouteController.simulationData = new SimulationData();
+        }
+        RouteController.simulationData.setLastRouteEndTime(last);
         SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         return ResponseEntity
