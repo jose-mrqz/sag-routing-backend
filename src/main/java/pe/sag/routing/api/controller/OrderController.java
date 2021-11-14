@@ -3,6 +3,7 @@ package pe.sag.routing.api.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.sag.routing.api.request.ListOrderRequest;
 import pe.sag.routing.api.request.ManyOrdersRequest;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationInputRequest;
@@ -158,9 +159,9 @@ public class OrderController {
                 .body(response);
     }
 
-    @GetMapping
-    public ResponseEntity<?> list() {
-        List<OrderDto> orderDtos = orderService.list();
+    @PostMapping(path = "/list")
+    public ResponseEntity<?> list(@RequestBody ListOrderRequest request) {
+        List<OrderDto> orderDtos = orderService.list(request.getFilter(), request.getDate());
         RestResponse response = new RestResponse(HttpStatus.OK, orderDtos);
         return ResponseEntity
                 .status(response.getStatus())

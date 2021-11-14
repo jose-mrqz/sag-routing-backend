@@ -2,6 +2,7 @@ package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.scheduler.OrderScheduler;
@@ -11,6 +12,7 @@ import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,8 +67,37 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public List<OrderDto> list() {
-        return orderRepository.findByMonitoringOrderByCodeAsc(true).stream().map(OrderParser::toDto).collect(Collectors.toList());
+    public List<OrderDto> list(String filter, LocalDateTime date) {
+        LocalDateTime filterDate = LocalDateTime.now();
+        LocalDateTime filterDatePlus1 = LocalDateTime.now();
+        if(date != null){
+            filterDate = LocalDateTime.of(date.toLocalDate(), LocalTime.MIDNIGHT);
+            filterDatePlus1 = LocalDateTime.of(date.toLocalDate(), LocalTime.MIDNIGHT).plusDays(1);
+        }
+
+        if(filter == null && date == null){
+            return orderRepository.findByMonitoringOrderByCodeAsc(true).stream().map(OrderParser::toDto).collect(Collectors.toList());
+        }
+        else if(filter == null && date != null){
+            return orderRepository.findByMonitoringAndRegistrationDateBetweenOrderByCodeAsc(true,
+                    filterDate, filterDatePlus1).stream().map(OrderParser::toDto).collect(Collectors.toList());
+
+        }
+        else {
+            OrderStatus status;
+            if (filter.equals("pendiente")) {
+                status = OrderStatus.PENDIENTE;
+            } else {
+                status = OrderStatus.ENTREGADO;
+            }
+            if (date == null) {
+                return orderRepository.findByStatusAndMonitoringOrderByCodeAsc(status,true).
+                        stream().map(OrderParser::toDto).collect(Collectors.toList());
+            } else {
+                return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetweenOrderByCodeAsc(status,
+                        true, filterDate, filterDatePlus1).stream().map(OrderParser::toDto).collect(Collectors.toList());
+            }
+        }
     }
 
     public List<Order> listPendingsMonitoring(boolean monitoring) {
