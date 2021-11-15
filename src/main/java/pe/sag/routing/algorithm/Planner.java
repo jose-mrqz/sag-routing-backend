@@ -81,7 +81,12 @@ public class Planner {
             if (solutionRoutes != null && solutionRoutes.size() != 0) {
                 AStar aStar = new AStar();
                 // route validation
-                List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
+//                List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
+                List<Route> validatedRoutes = colony.solutionRoutes;
+                for (int i = 0; i < validatedRoutes.size(); i++) {
+                    Route r = validatedRoutes.get(i);
+                    r.generatePath();
+                }
 
                 List<Route> toDelete = new ArrayList<>();
                 for (int i = 0; i < validatedRoutes.size(); i++) {
