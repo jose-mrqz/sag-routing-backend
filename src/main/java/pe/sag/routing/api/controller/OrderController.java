@@ -1,5 +1,7 @@
 package pe.sag.routing.api.controller;
 
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,8 +25,10 @@ import pe.sag.routing.shared.util.enums.OrderStatus;
 import pe.sag.routing.shared.util.enums.TruckStatus;
 
 import javax.validation.Valid;
+import java.io.FileInputStream;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -245,6 +249,30 @@ public class OrderController {
         int count = orderService.deleteByCode(order.getCode());
         if (count == 1) response = new RestResponse(HttpStatus.OK, "Pedido eliminado correctamente.");
         else response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido.");
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/reportOrders")
+    public ResponseEntity<?> reportOrdersIntoDate() throws  Exception, JRException {
+
+        List<OrderDto> orderDtos = orderService.list();
+
+
+        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orderDtos);
+        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/ReportePedidos.jrxml"));
+
+        HashMap<String,Object> map = new HashMap<>();
+        //map.put("fechaInicio", dateIni);
+        map.put("fechaInicio", "00-00-0000");
+        //map.put("fechaFinal", dateEnd);
+        map.put("fechaFinal", "00-00-0000");
+
+        JasperPrint report = JasperFillManager.fillReport(compileReport, map, beanCollectionDataSource);
+        JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
+
+        RestResponse response = new RestResponse(HttpStatus.OK, "Reporte generado correctamente.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
