@@ -81,12 +81,7 @@ public class Planner {
             if (solutionRoutes != null && solutionRoutes.size() != 0) {
                 AStar aStar = new AStar();
                 // route validation
-//                List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
-                List<Route> validatedRoutes = colony.solutionRoutes;
-                for (int i = 0; i < validatedRoutes.size(); i++) {
-                    Route r = validatedRoutes.get(i);
-                    r.generatePath();
-                }
+                List<Route> validatedRoutes = aStar.run(solutionRoutes, orders, roadblocks) ;
 
                 List<Route> toDelete = new ArrayList<>();
                 for (int i = 0; i < validatedRoutes.size(); i++) {
@@ -103,7 +98,6 @@ public class Planner {
                             Math.abs(path.get(pathLength-1).getY() - path.get(pathLength-2).getY()) > 1 ||
                             Math.abs(path.get(pathLength-1).getX() - path.get(pathLength-2).getX()) > 1) { //redo route
                         // reset order and depot consumption
-                        System.out.println("redo");
                         for (Route solRoute : solutionRoutes) {
                             if (solRoute.getTruckId().compareTo(route.getTruckId()) == 0) {
                                 for (NodeInfo ni : solRoute.getNodesInfo()) {
