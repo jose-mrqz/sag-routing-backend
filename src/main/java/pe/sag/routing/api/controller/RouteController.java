@@ -38,6 +38,7 @@ public class RouteController {
 
     private static Thread simulationThread = null;
     public static SimulationData simulationData = null;
+    public static SimulationInfo simulationInfo = null;
 
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
@@ -226,7 +227,12 @@ public class RouteController {
                     if (planner.getNOrders() != planner.getNScheduled()) {
                         RouteController.simulationData.setFinished(true);
                         RouteController.simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().getIdx());
-                        RouteController.simulationData.setOrder(planner.getFirstFailed());
+
+                        pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
+                        order.setTwOpen(routeService.transformDate(RouteController.simulationInfo, order.getTwOpen()));
+                        order.setTwClose(routeService.transformDate(RouteController.simulationInfo, order.getTwClose()));
+
+                        RouteController.simulationData.setOrder(order);
                         break;
                     }
                     RouteController.simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
@@ -256,6 +262,7 @@ public class RouteController {
                     .body(response);
         }
         SimulationInfo simulationInfo = listSimulationInfo.get(0);
+        RouteController.simulationInfo = simulationInfo;
 
         List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
         List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
@@ -301,7 +308,12 @@ public class RouteController {
                 RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
                 simulationData.setFinished(true);
                 simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().get_id());
-                RouteController.simulationData.setOrder(planner.getFirstFailed());
+
+                pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
+                order.setTwOpen(routeService.transformDate(RouteController.simulationInfo, order.getTwOpen()));
+                order.setTwClose(routeService.transformDate(RouteController.simulationInfo, order.getTwClose()));
+
+                RouteController.simulationData.setOrder(order);
                 return ResponseEntity.status(response.getStatus()).body(response);
             }
 

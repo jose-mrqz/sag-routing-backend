@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import pe.sag.routing.algorithm.Order;
+import pe.sag.routing.core.model.SimulationInfo;
 
 import java.time.LocalDateTime;
 
