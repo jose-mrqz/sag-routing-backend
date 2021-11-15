@@ -2,6 +2,7 @@ package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.scheduler.OrderScheduler;
@@ -11,6 +12,7 @@ import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,8 +67,30 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public List<OrderDto> list() {
-        return orderRepository.findByMonitoringOrderByCodeAsc(true).stream().map(OrderParser::toDto).collect(Collectors.toList());
+    public List<OrderDto> list(String filter, LocalDateTime startDate, LocalDateTime endDate) {
+        if(startDate == null){
+            startDate = LocalDateTime.of(2000,1,1,0,0,0);
+        }
+        if(endDate == null){
+            endDate = LocalDateTime.of(2100,1,1,0,0,0);
+        }
+
+        if(filter.equals("todos")){
+            return orderRepository.findByMonitoringAndRegistrationDateBetweenOrderByCodeAsc(true,
+                    startDate, endDate).stream().map(OrderParser::toDto).collect(Collectors.toList());
+        }
+        else {
+            OrderStatus status;
+            if (filter.equals("pendiente")) {
+                status = OrderStatus.PENDIENTE;
+            } else if (filter.equals("programado")) {
+                status = OrderStatus.PROGRAMADO;
+            } else {
+                status = OrderStatus.ENTREGADO;
+            }
+            return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetweenOrderByCodeAsc(status,
+                true, startDate, endDate).stream().map(OrderParser::toDto).collect(Collectors.toList());
+        }
     }
 
     public List<Order> listPendingsMonitoring(boolean monitoring) {

@@ -11,10 +11,7 @@ import pe.sag.routing.shared.util.enums.TruckStatus;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 @Component
 @Data
@@ -28,7 +25,7 @@ public class TruckScheduler {
         this.maintenanceRepository = maintenanceRepository;
     }
 
-    public void scheduleStatusChange(String id, TruckStatus status, LocalDateTime now) {
+    public void scheduleStatusChange(String id, TruckStatus status, LocalDateTime now, String idMaintenance) {
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             @Override
@@ -36,23 +33,39 @@ public class TruckScheduler {
                 Optional<Truck> truckOptional = truckRepository.findById(id);
                 if (truckOptional.isPresent()) {
                     Truck t = truckOptional.get();
-                    if(t.getStatus().equals(TruckStatus.MANTENIMIENTO.toString()) && status.equals(TruckStatus.DISPONIBLE)){
-                        Maintenance maintenance = maintenanceRepository.findAllByTruckCodeOrderByStartDateAsc(t.getCode()).get(0);
-                        maintenance.setFinished(true);
-                        maintenanceRepository.save(maintenance);
-
+                    if(idMaintenance.equals("")){
                         t.setStatus(status.toString());
                         truckRepository.save(t);
-                    }
-                    else if(t.getStatus().equals(TruckStatus.AVERIADO.toString()) && status.equals(TruckStatus.MANTENIMIENTO)){
-                        Maintenance maintenance = maintenanceRepository.findAllByTruckCodeOrderByStartDateAsc(t.getCode()).get(0);
-                        maintenance.setFinished(true);
-                        maintenanceRepository.save(maintenance);
-                        //revisar el hashmap y cancelar el timer de regreso a DISPONIBLE
                     }
                     else{
-                        t.setStatus(status.toString());
-                        truckRepository.save(t);
+                        Maintenance maintenance = maintenanceRepository.findBy_id(idMaintenance);
+                        //Antes: MANTENIMIENTO, Despues: DISPONIBLE -> flujo principal
+                        if(t.getStatus().equals(TruckStatus.MANTENIMIENTO.toString()) && status.equals(TruckStatus.DISPONIBLE)){
+                            if(!maintenance.isFinished()){
+                                maintenance.setFinished(true);
+                                maintenanceRepository.save(maintenance);
+
+                                t.setStatus(status.toString());
+                                truckRepository.save(t);
+                            }
+                        }
+                        //Antes: AVERIADO, Despues: MANTENIMIENTO -> camion averiado cuando le toca mantenimiento preventivo
+                        else if( t.getStatus().equals(TruckStatus.AVERIADO.toString()) && status.equals(TruckStatus.MANTENIMIENTO) ){
+                            maintenance.setFinished(true);
+                            maintenanceRepository.save(maintenance);
+                        }
+                        //Antes: MANTENIMIENTO, Despues: MANTENIMIENTO -> camion en mantenimiento cuando
+                        //le toca mantenimiento preventivo
+                        else if(t.getStatus().equals(TruckStatus.MANTENIMIENTO.toString()) && status.equals(TruckStatus.MANTENIMIENTO) ){
+                            maintenance.setFinished(true);
+                            maintenanceRepository.save(maintenance);
+                        }
+                        else{
+                            if(!maintenance.isFinished()){
+                                t.setStatus(status.toString());
+                                truckRepository.save(t);
+                            }
+                        }
                     }
                 }
                 timer.cancel();

@@ -5,6 +5,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.sag.routing.api.request.ListOrderRequest;
 import pe.sag.routing.api.request.ManyOrdersRequest;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationInputRequest;
@@ -162,9 +163,15 @@ public class OrderController {
                 .body(response);
     }
 
-    @GetMapping
-    public ResponseEntity<?> list() {
-        List<OrderDto> orderDtos = orderService.list();
+    @PostMapping(path = "/list")
+    public ResponseEntity<?> list(@RequestBody ListOrderRequest request) {
+        if(request.getFilter() == null){
+            RestResponse response = new RestResponse(HttpStatus.OK, "Se debe ingresar el tipo de filtro.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        List<OrderDto> orderDtos = orderService.list(request.getFilter(), request.getStartDate(), request.getEndDate());
         RestResponse response = new RestResponse(HttpStatus.OK, orderDtos);
         return ResponseEntity
                 .status(response.getStatus())

@@ -40,18 +40,19 @@ public class MaintenanceService {
     }
 
     public List<Maintenance> registerMany(List<Maintenance> maintenances) {
-        for(Maintenance m : maintenances){
+        List<Maintenance> maintenancesRegistered = maintenanceRepository.saveAll(maintenances);
+        for(Maintenance m : maintenancesRegistered){
             Optional<Truck> truck = truckRepository.findByCodeAndMonitoring(m.getTruckCode(), true);
             if(truck.isPresent()){
-                truckScheduler.scheduleStatusChange(truck.get().get_id(), TruckStatus.MANTENIMIENTO, m.getStartDate());
-                truckScheduler.scheduleStatusChange(truck.get().get_id(), TruckStatus.DISPONIBLE, m.getEndDate());
+                truckScheduler.scheduleStatusChange(truck.get().get_id(), TruckStatus.MANTENIMIENTO, m.getStartDate(),m.get_id());
+                truckScheduler.scheduleStatusChange(truck.get().get_id(), TruckStatus.DISPONIBLE, m.getEndDate(),m.get_id());
             }
         }
-        return maintenanceRepository.saveAll(maintenances);
+        return maintenancesRegistered;
     }
 
     public Maintenance closestMaintenance(String truckCode){
-        List<Maintenance> maintenances = maintenanceRepository.findAllByTruckCodeOrderByStartDateAsc(truckCode);
+        List<Maintenance> maintenances = maintenanceRepository.findAllByTruckCodeAndFinishedOrderByStartDateAsc(truckCode, false);
         if(maintenances.size()==0) return null;
         return maintenances.get(0);
     }

@@ -4,6 +4,7 @@ import pe.sag.routing.core.model.Roadblock;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class MapMatrix {
@@ -90,6 +91,20 @@ public class MapMatrix {
         int contCiclos = 0;
         LocalDateTime fechaMin1 = LocalDateTime.of(startDate.toLocalDate(),startDate.toLocalTime());
         LocalDateTime fechaMin2 = LocalDateTime.of(startDate.toLocalDate(),startDate.toLocalTime());
+
+        ///////inicializar bloqueos
+        fechaMin1 = LocalDateTime.of(fechaMin2.toLocalDate(),fechaMin2.toLocalTime());
+        fechaMin2 = fechaMin2.plusMinutes(TIME_PER_CICLE);
+        //Reiniciar mapa
+        initializedMatrix();
+        //Obtener bloqueos dentro de rango [timeMin1;timeMin2]
+        ArrayList<Roadblock> initialRoadblocks = asignRoadblocks(roadblocks,fechaMin1,fechaMin2);
+        //Pintar bloqueos en mapa
+        for(Roadblock rb : initialRoadblocks) {
+            setRoadblocks(rb.getX(), rb.getY());
+        }
+        //System.out.println(contCiclos);
+        //imprimeMatriz();
 
         while( !inOpenList( goalNode )){
             NodeList extra = actual;
@@ -250,7 +265,42 @@ public class MapMatrix {
     //////METODO QUE CALCULA LA DISTANCIA MANHATTAN/////////////////////////////
     public int distancia(NodeList a, NodeList b){
         int distance = Math.abs(b.cordX-a.cordX) + Math.abs(b.cordY-a.cordY);
-        return distance*10;
+
+        int xMenor, xMayor, yMenor, yMayor;
+
+        //minimo de bloqueos por columna (x fijo) entre a y b
+        List<Integer> cantsBloqueosX = new ArrayList<>();
+        if(a.cordX<b.cordX){ xMenor = a.cordX; xMayor = b.cordX; }
+        else{ xMenor = b.cordX; xMayor = a.cordX; }
+        for(int i = xMenor; i<=xMayor; i++){
+            if(a.cordY<b.cordY){ yMenor = a.cordY; yMayor = b.cordY; }
+            else{ yMenor = b.cordY; yMayor = a.cordY; }
+
+            int cantBloqueos = 0;
+            for(int j = yMenor; j<=yMayor; j++){
+                if(matrix[i][j] == 1) cantBloqueos++;
+            }
+            cantsBloqueosX.add(cantBloqueos);
+        }
+        Collections.sort(cantsBloqueosX);
+
+        //minimo de bloqueos por columna (x fijo) entre a y b
+        List<Integer> cantsBloqueosY = new ArrayList<>();
+        if(a.cordY<b.cordY){ yMenor = a.cordY; yMayor = b.cordY; }
+        else{ yMenor = b.cordY; yMayor = a.cordY; }
+        for(int j = yMenor; j<=yMayor; j++){
+            if(a.cordX<b.cordX){ xMenor = a.cordX; xMayor = b.cordX; }
+            else{ xMenor = b.cordX; xMayor = a.cordX; }
+
+            int cantBloqueos = 0;
+            for(int i = xMenor; i<=xMayor; i++){
+                if(matrix[i][j] == 1) cantBloqueos++;
+            }
+            cantsBloqueosY.add(cantBloqueos);
+        }
+        Collections.sort(cantsBloqueosY);
+
+        return distance*10 + cantsBloqueosX.get(0)*10 + cantsBloqueosY.get(0)*10;
     }
 
     ///////METODO QUE VERIFICA SI UN NODO ESTA EN LA LISTA DE CERRADOS//////////

@@ -100,8 +100,8 @@ public class TruckService {
     public void registerBreakdown(Truck truck, LocalDateTime now) {
         truck.setStatus(TruckStatus.AVERIADO.toString());
         truckRepository.save(truck);
-        truckScheduler.scheduleStatusChange(truck.get_id(), TruckStatus.MANTENIMIENTO, now.plusMinutes(60));
-        truckScheduler.scheduleStatusChange(truck.get_id(), TruckStatus.DISPONIBLE, now.plusMinutes(60).plusHours(48));
+        truckScheduler.scheduleStatusChange(truck.get_id(), TruckStatus.MANTENIMIENTO, now.plusMinutes(60),"");
+        truckScheduler.scheduleStatusChange(truck.get_id(), TruckStatus.DISPONIBLE, now.plusMinutes(60).plusHours(48),"");
     }
 
     public List<Truck> findByMonitoringAndStatus(boolean monitoring, TruckStatus status) {
