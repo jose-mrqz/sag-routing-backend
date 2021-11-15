@@ -109,7 +109,6 @@ public class RouteController {
 
             //mejorar con formato de error: colapso logistico
             if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-                Collections.shuffle(availableTrucks);
                 Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, depots);
                 planner.run();
                 if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
@@ -136,7 +135,7 @@ public class RouteController {
                     boolean scheduled = false;
                     for (Pair<String, LocalDateTime> delivery : solutionOrders) {
                         //if(delivery.getY() == null) //muere
-                        if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                        if (delivery.getX().compareTo(o.get_id()) == 0 && delivery.getY() != null) {
                             scheduled = true;
                             break;
                         }

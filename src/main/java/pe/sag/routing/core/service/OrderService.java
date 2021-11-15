@@ -2,7 +2,6 @@ package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.scheduler.OrderScheduler;
@@ -12,7 +11,6 @@ import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -125,7 +123,7 @@ public class OrderService {
     }
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
-        return orderRepository.findFirst1000ByStatusAndMonitoringOrderByDeadlineDateAscRegistrationDateAsc(status, isMonitoring);
+        return orderRepository.findFirst200ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
     }
 
     public Order cancelOrder(String id, double amount) {

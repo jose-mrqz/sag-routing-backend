@@ -29,7 +29,7 @@ public class Truck {
     LocalDateTime finishDate;
 
     LocalDateTime startingDate;
-    boolean finished = false;
+    boolean finished;
 
     ArrayList<LocalDateTime> departureRegistry;
     ArrayList<LocalDateTime> arrivalRegistry;
@@ -70,7 +70,6 @@ public class Truck {
         finished = false;
     }
 
-    // a* stub
     private int calculateTravelTime(int[][] matrix, int i, int j) {
         return (int)(3600*matrix[i][j]/speed);
     }
