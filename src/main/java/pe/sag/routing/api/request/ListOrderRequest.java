@@ -11,5 +11,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class ListOrderRequest {
     private String filter;
-    private LocalDateTime date;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
 }

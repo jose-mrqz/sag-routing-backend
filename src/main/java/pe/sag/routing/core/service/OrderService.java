@@ -67,36 +67,29 @@ public class OrderService {
         orderRepository.save(order);
     }
 
-    public List<OrderDto> list(String filter, LocalDateTime date) {
-        LocalDateTime filterDate = LocalDateTime.now();
-        LocalDateTime filterDatePlus1 = LocalDateTime.now();
-        if(date != null){
-            filterDate = LocalDateTime.of(date.toLocalDate(), LocalTime.MIDNIGHT);
-            filterDatePlus1 = LocalDateTime.of(date.toLocalDate(), LocalTime.MIDNIGHT).plusDays(1);
+    public List<OrderDto> list(String filter, LocalDateTime startDate, LocalDateTime endDate) {
+        if(startDate == null){
+            startDate = LocalDateTime.of(2000,1,1,0,0,0);
+        }
+        if(endDate == null){
+            endDate = LocalDateTime.of(2100,1,1,0,0,0);
         }
 
-        if(filter == null && date == null){
-            return orderRepository.findByMonitoringOrderByCodeAsc(true).stream().map(OrderParser::toDto).collect(Collectors.toList());
-        }
-        else if(filter == null && date != null){
+        if(filter.equals("todos")){
             return orderRepository.findByMonitoringAndRegistrationDateBetweenOrderByCodeAsc(true,
-                    filterDate, filterDatePlus1).stream().map(OrderParser::toDto).collect(Collectors.toList());
-
+                    startDate, endDate).stream().map(OrderParser::toDto).collect(Collectors.toList());
         }
         else {
             OrderStatus status;
             if (filter.equals("pendiente")) {
                 status = OrderStatus.PENDIENTE;
+            } else if (filter.equals("programado")) {
+                status = OrderStatus.PROGRAMADO;
             } else {
                 status = OrderStatus.ENTREGADO;
             }
-            if (date == null) {
-                return orderRepository.findByStatusAndMonitoringOrderByCodeAsc(status,true).
-                        stream().map(OrderParser::toDto).collect(Collectors.toList());
-            } else {
-                return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetweenOrderByCodeAsc(status,
-                        true, filterDate, filterDatePlus1).stream().map(OrderParser::toDto).collect(Collectors.toList());
-            }
+            return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetweenOrderByCodeAsc(status,
+                true, startDate, endDate).stream().map(OrderParser::toDto).collect(Collectors.toList());
         }
     }
 

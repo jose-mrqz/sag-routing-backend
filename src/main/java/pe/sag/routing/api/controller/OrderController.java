@@ -161,7 +161,13 @@ public class OrderController {
 
     @PostMapping(path = "/list")
     public ResponseEntity<?> list(@RequestBody ListOrderRequest request) {
-        List<OrderDto> orderDtos = orderService.list(request.getFilter(), request.getDate());
+        if(request.getFilter() == null){
+            RestResponse response = new RestResponse(HttpStatus.OK, "Se debe ingresar el tipo de filtro.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        List<OrderDto> orderDtos = orderService.list(request.getFilter(), request.getStartDate(), request.getEndDate());
         RestResponse response = new RestResponse(HttpStatus.OK, orderDtos);
         return ResponseEntity
                 .status(response.getStatus())
