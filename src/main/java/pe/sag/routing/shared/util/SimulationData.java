@@ -23,6 +23,7 @@ public class SimulationData {
         private int y;
         private String _id;
         private LocalDateTime registrationDate;
+        private LocalDateTime registrationDateTransformed;
         private LocalDateTime deadlineDate;
         private double demand;
     }
@@ -34,12 +35,13 @@ public class SimulationData {
     private Order lastOrder;
     private LocalDateTime lastRouteEndTime = null;
 
-    public void setOrder(pe.sag.routing.algorithm.Order order) {
+    public void setOrder(pe.sag.routing.algorithm.Order order, LocalDateTime transformedDate) {
         this.lastOrder = Order.builder()
                 .x(order.getX())
                 .y(order.getY())
                 ._id(order.get_id())
                 .registrationDate(order.getTwOpen())
+                .registrationDateTransformed(transformedDate)
                 .deadlineDate(order.getTwClose())
                 .demand(order.getTotalDemand())
                 .build();

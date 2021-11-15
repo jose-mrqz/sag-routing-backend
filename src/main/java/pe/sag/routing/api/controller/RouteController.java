@@ -229,10 +229,9 @@ public class RouteController {
                         RouteController.simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().getIdx());
 
                         pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
-                        order.setTwOpen(routeService.transformDate(RouteController.simulationInfo, order.getTwOpen()));
-                        order.setTwClose(routeService.transformDate(RouteController.simulationInfo, order.getTwClose()));
+                        LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
 
-                        RouteController.simulationData.setOrder(order);
+                        RouteController.simulationData.setOrder(order, transformed);
                         break;
                     }
                     RouteController.simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
@@ -310,10 +309,9 @@ public class RouteController {
                 simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().get_id());
 
                 pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
-                order.setTwOpen(routeService.transformDate(RouteController.simulationInfo, order.getTwOpen()));
-                order.setTwClose(routeService.transformDate(RouteController.simulationInfo, order.getTwClose()));
+                LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
 
-                RouteController.simulationData.setOrder(order);
+                RouteController.simulationData.setOrder(order, transformed);
                 return ResponseEntity.status(response.getStatus()).body(response);
             }
 
