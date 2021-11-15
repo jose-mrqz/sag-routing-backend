@@ -90,8 +90,10 @@ public class RoadblockController {
     protected ResponseEntity<?> astar1() {
         AStar aStar = new AStar();
         LocalDateTime startDate = LocalDateTime.now();
-        Node nodeStart = new Node(14,23,1);
-        Node nodeGoal = new Node(12,8,2);
+        Node nodeStart = new Node(12,8,1);
+        Node nodeGoal = new Node(20,20,2);
+        //Node nodeStart = new Node(20,20,1);
+        //Node nodeGoal = new Node(12,8,2);
         List<Roadblock> roadblocks = roadblockService.findAll();
         List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
 
