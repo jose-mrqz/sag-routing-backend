@@ -266,13 +266,13 @@ public class MapMatrix {
     public int distancia(NodeList a, NodeList b){
         int distance = Math.abs(b.cordX-a.cordX) + Math.abs(b.cordY-a.cordY);
 
+        int xMenor, xMayor, yMenor, yMayor;
+
         //minimo de bloqueos por columna (x fijo) entre a y b
-        List<Integer> cantsBloqueos = new ArrayList<>();
-        int xMenor, xMayor;
+        List<Integer> cantsBloqueosX = new ArrayList<>();
         if(a.cordX<b.cordX){ xMenor = a.cordX; xMayor = b.cordX; }
         else{ xMenor = b.cordX; xMayor = a.cordX; }
         for(int i = xMenor; i<=xMayor; i++){
-            int yMenor, yMayor;
             if(a.cordY<b.cordY){ yMenor = a.cordY; yMayor = b.cordY; }
             else{ yMenor = b.cordY; yMayor = a.cordY; }
 
@@ -280,11 +280,27 @@ public class MapMatrix {
             for(int j = yMenor; j<=yMayor; j++){
                 if(matrix[i][j] == 1) cantBloqueos++;
             }
-            cantsBloqueos.add(cantBloqueos);
+            cantsBloqueosX.add(cantBloqueos);
         }
-        Collections.sort(cantsBloqueos);
+        Collections.sort(cantsBloqueosX);
 
-        return distance*10 + cantsBloqueos.get(0)*10;
+        //minimo de bloqueos por columna (x fijo) entre a y b
+        List<Integer> cantsBloqueosY = new ArrayList<>();
+        if(a.cordY<b.cordY){ yMenor = a.cordY; yMayor = b.cordY; }
+        else{ yMenor = b.cordY; yMayor = a.cordY; }
+        for(int j = yMenor; j<=yMayor; j++){
+            if(a.cordX<b.cordX){ xMenor = a.cordX; xMayor = b.cordX; }
+            else{ xMenor = b.cordX; xMayor = a.cordX; }
+
+            int cantBloqueos = 0;
+            for(int i = xMenor; i<=xMayor; i++){
+                if(matrix[i][j] == 1) cantBloqueos++;
+            }
+            cantsBloqueosY.add(cantBloqueos);
+        }
+        Collections.sort(cantsBloqueosY);
+
+        return distance*10 + cantsBloqueosX.get(0)*10 + cantsBloqueosY.get(0)*10;
     }
 
     ///////METODO QUE VERIFICA SI UN NODO ESTA EN LA LISTA DE CERRADOS//////////
