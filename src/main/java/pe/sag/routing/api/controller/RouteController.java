@@ -200,7 +200,6 @@ public class RouteController {
                 }
 
                 if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-                    Collections.shuffle(availableTrucks);
                     Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
                     planner.setNOrders(pendingOrders.size());
                     planner.run();
@@ -277,7 +276,6 @@ public class RouteController {
         }
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-            Collections.shuffle(availableTrucks);
             Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
             planner.setNOrders(pendingOrders.size());
             planner.run();
