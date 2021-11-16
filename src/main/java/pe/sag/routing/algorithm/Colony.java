@@ -118,12 +118,12 @@ public class Colony extends Graph {
                 totalGLP += t.totalDelivered;
                 totalConsumption += t.totalFuelConsumption;
             }
-            double quality = (totalGLP + (attendedCustomers * 100)) / totalConsumption;
+            double quality = (totalGLP + (attendedCustomers * 10)) / totalConsumption;
             if (quality > bestSolution) {
                 if (validateRoutes()) {
                     bestSolution = quality;
                     saveBestSolution();
-                    if (i >= 800 && bestSolution > 1) {
+                    if (i >= 800 && bestSolution > 10) {
                         resetStep();
                         break;
                     }
