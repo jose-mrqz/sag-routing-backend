@@ -95,8 +95,8 @@ public class Colony extends Graph {
     private boolean validateRoutes() {
         AStar astar = new AStar();
         List<Route> routes = parseRoutes();
-        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
-//        List<Route> validatedRoutes = parseRoutes();
+//        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+        List<Route> validatedRoutes = parseRoutes();
         for (Route r : validatedRoutes) {
             r.generatePath();
             if (r.getPath().size() <= 1) return false;
@@ -126,7 +126,7 @@ public class Colony extends Graph {
                 if (((Order)nodes[k]).visited) visited++;
             }
             updatePheroMatrix(visited);
-            double quality = visited;
+            double quality = visited + 1/totalConsumption;
             if (quality > bestSolution) {
                 if (validateRoutes()) {
                     bestSolution = quality;
