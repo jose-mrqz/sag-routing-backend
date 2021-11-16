@@ -121,6 +121,10 @@ public class Colony extends Graph {
                 if (validateRoutes()) {
                     bestSolution = quality;
                     saveBestSolution();
+                    if (i >= 1000 && bestSolution > 1) {
+                        resetStep();
+                        break;
+                    }
                 }
             }
             updateThreshold();
