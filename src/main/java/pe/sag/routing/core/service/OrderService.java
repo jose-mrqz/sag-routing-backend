@@ -151,4 +151,19 @@ public class OrderService {
     public int deleteByCode(int code) {
         return orderRepository.deleteByCode(code);
     }
+
+    public void registerDeliveryDate(List<Order> orders, List<pe.sag.routing.algorithm.Order> ordersAlgorithm){
+        List<pe.sag.routing.algorithm.Order> ordersAlgorithmLeft = new ArrayList<>(ordersAlgorithm);
+        for(Order o : orders){
+            for(pe.sag.routing.algorithm.Order oa : ordersAlgorithmLeft){
+                if( oa.get_id().compareTo(o.get_id()) == 0 ){
+                    o.setDeliveryDate(oa.getDeliveryTime());
+                    ordersAlgorithmLeft.remove(oa);
+                    break;
+                }
+            }
+        }
+
+        orderRepository.saveAll(orders);
+    }
 }

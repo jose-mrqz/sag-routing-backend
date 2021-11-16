@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pe.sag.routing.api.request.LoginRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.User;
 import pe.sag.routing.core.service.UserService;
@@ -20,12 +21,21 @@ public class UserController {
 
     @PostMapping
     protected ResponseEntity<?> register(@Valid @RequestBody UserDto request) {
-        User user = userService.registerUser(request);
-        RestResponse response = RestResponse.builder()
-                .status(HttpStatus.OK)
-                .message("Usuario registrado correctamente.")
-                .payload(request)
-                .build();
+        RestResponse response;
+        if(userService.usernameIsUnique(request.getUsername())){
+            User user = userService.registerUser(request);
+            response = RestResponse.builder()
+                    .status(HttpStatus.OK)
+                    .message("Usuario registrado correctamente.")
+                    .payload(user)
+                    .build();
+        }
+        else{
+            response = RestResponse.builder()
+                    .status(HttpStatus.OK)
+                    .message("Username ingresado ya existe.")
+                    .build();
+        }
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -96,6 +106,21 @@ public class UserController {
     @GetMapping("/roles")
     public ResponseEntity<?> listRoles() {
         RestResponse response = new RestResponse(HttpStatus.OK, userService.listRoles());
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/login")
+    protected ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
+        User user = userService.findByUsername(request.getUsername());
+
+        RestResponse response;
+        if(user == null) response = new RestResponse(HttpStatus.OK, "Usuario con username ingresado no existe.");
+        else if(user.getPassword().compareTo(request.getPassword()) == 0){
+            response = new RestResponse(HttpStatus.OK, "Ingreso permitido.");
+        }
+        else response = new RestResponse(HttpStatus.OK, "Contraseña incorrecta.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

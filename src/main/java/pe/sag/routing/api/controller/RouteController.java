@@ -146,6 +146,9 @@ public class RouteController {
                 for (Pair<String,LocalDateTime> delivery : solutionOrders) {
                     orderService.scheduleStatusChange(delivery.getX(), OrderStatus.ENTREGADO, delivery.getY());
                 }
+
+                orderService.registerDeliveryDate(pendingOrders,planner.getSolutionOrders());
+
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
                     routeService.save(r);

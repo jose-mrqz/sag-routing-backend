@@ -26,10 +26,15 @@ public class TruckController {
     @PostMapping
     public ResponseEntity<?> register(@RequestBody NewTruckRequest request) {
         TruckModel truckModel = truckModelService.getByCode(request.getCode());
+
         int lastNumber = truckService.getLastCodeByModel(truckModel);
         if (lastNumber == -1) lastNumber = 1;
         else lastNumber++;
-        String code = request.getCode() + lastNumber;
+        String code;
+        if (lastNumber < 10) code = request.getCode() + "0" + lastNumber;
+        else code = request.getCode() + lastNumber;
+        //String code = request.getCode() + lastNumber;
+
         TruckDto truckDto = new TruckDto(code, truckModel, true, TruckStatus.DISPONIBLE.toString());
         Truck truck1 = truckService.register(truckDto, true);
         Truck truck2 = truckService.register(truckDto, false);

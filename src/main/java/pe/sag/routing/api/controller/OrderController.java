@@ -108,6 +108,7 @@ public class OrderController {
                     .registrationDate(r.getDate())
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
+            //Revisar si nodo de pedido se encuentra bloqueado
             if(!orderDto.inRoadblocks(roadblocks)){
                 ordersDto.add(orderDto);
                 inserted++;

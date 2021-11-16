@@ -84,4 +84,19 @@ public class UserService {
         List<Role> roles = List.of(Role.ADMINISTRADOR, Role.PLANIFICADOR, Role.GERENTE);
         return roles.stream().map(Role::toString).collect(Collectors.toList());
     }
+
+    public User findByUsername(String username){
+        Optional<User> user = userRepository.findByUsername(username);
+        return user.orElse(null);
+    }
+
+    public boolean usernameIsUnique(String username){
+        List<User> users = userRepository.findAll();
+        for(User u : users){
+            if(u.getUsername().compareTo(username) == 0){
+                return false;
+            }
+        }
+        return true;
+    }
 }

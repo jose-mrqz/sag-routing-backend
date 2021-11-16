@@ -30,9 +30,12 @@ public class OrderDto {
     private String status;
     private boolean monitoring;
 
-    public boolean inRoadblocks(List<Roadblock> roadblocks){
+    public boolean inRoadblocks(List<Roadblock> roadblocks) {
         for (Roadblock r : roadblocks) {
-            if(r.getX() == x && r.getY() == y) return true;
+            if (r.getX() == x && r.getY() == y) {
+                if (!(deadlineDate.isBefore(r.getStartDate()) || registrationDate.isAfter(r.getEndDate())))
+                    return true;
+            }
         }
         return false;
     }
