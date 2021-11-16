@@ -80,7 +80,8 @@ public class Truck {
 
     private boolean okTime(Order o, int travelTime) {
         LocalDateTime arrivalTime = nowTime.plusSeconds(travelTime);
-        return !arrivalTime.isAfter(o.twClose.plusMinutes(o.unloadTime));
+        return (nowTime.isAfter(o.twOpen) || nowTime.isEqual(o.twOpen)) &&
+                (arrivalTime.isBefore(o.twClose.minusMinutes(o.unloadTime)) || arrivalTime.isEqual(o.twClose.minusMinutes(o.unloadTime)));
     }
 
     private boolean okCapacity(Node n, int travelTime) {

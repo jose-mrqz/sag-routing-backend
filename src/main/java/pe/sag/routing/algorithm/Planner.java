@@ -76,10 +76,15 @@ public class Planner {
             Colony colony = new Colony(orders, trucks, depots, roadblocks);
             colony.run();
 
-            orders = colony.solutionOrders;
+            solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
+            orders = colony.solutionOrders.stream().filter(o -> !o.visited).collect(Collectors.toList());
+            for (int i = 0; i < orders.size(); i++) {
+                Order order = orders.get(i);
+                order.setIdx(i);
+            }
             depots = colony.solutionDepots;
 
-            List<Route> solutionRoutes = colony.solutionRoutes;
+            List<Route> solutionRoutes = colony.getSolutionRoutes();
 
             if (solutionRoutes != null && solutionRoutes.size() != 0) {
                 for (int i = 0; i < depots.size(); i++) {
@@ -100,6 +105,8 @@ public class Planner {
                         }
                     }
                 }
+
+                this.solutionRoutes.addAll(colony.getSolutionRoutes());
 
                 for (int i = 0; i < orders.size(); i++) {
                     Order order = orders.get(i);
