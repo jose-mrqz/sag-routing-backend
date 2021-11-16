@@ -126,15 +126,16 @@ public class Colony extends Graph {
                 if (((Order)nodes[k]).visited) visited++;
             }
             updatePheroMatrix(visited);
-            double quality = visited + 1/totalConsumption + 1/totalGLP;
+//            double quality = visited + 1/totalConsumption + 1/totalGLP;
+            double quality = visited;
             if (quality > bestSolution) {
                 if (validateRoutes()) {
                     bestSolution = quality;
                     saveBestSolution();
-                    if (i >= 800 && bestSolution > 300) {
-                        resetStep();
-                        break;
-                    }
+//                    if (i >= 800 && bestSolution > 300) {
+//                        resetStep();
+//                        break;
+//                    }
                 }
             }
             updateThreshold();
