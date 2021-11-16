@@ -97,6 +97,8 @@ public class Colony extends Graph {
         for (Route r : validatedRoutes) {
             if (r.getPath().size() <= 1) return false;
             Pair<Integer, Integer> lastNode = r.getPath().get(r.getPath().size()-1);
+            Pair<Integer, Integer> firstNode = r.getPath().get(0);
+            if (firstNode.getX() != 12 || firstNode.getY() != 80) return false;
             if (lastNode.getX() != 12 || lastNode.getY() != 8) return false;
         }
         solutionRoutes = validatedRoutes;
