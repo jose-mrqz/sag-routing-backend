@@ -8,10 +8,7 @@ import pe.sag.routing.core.model.Roadblock;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Data
@@ -50,12 +47,14 @@ public class Planner {
         List<Order> orders = new ArrayList<>();
         List<Depot> depots = null;
 
+        modelTrucks = modelTrucks.stream()
+                .sorted(Comparator.comparing(x -> x.getModel().getCapacity()))
+                .collect(Collectors.toList());
+        Collections.reverse(modelTrucks);
         for (pe.sag.routing.core.model.Truck tm : modelTrucks) {
             trucks.add(new Truck(tm.get_id(), tm.getCode(), tm.getModel().getCapacity(),
                     tm.getModel().getTareWeight(), 0, tm.getLastRouteEndTime()));
         }
-        modelOrders = modelOrders.stream().sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDeadlineDate).
-                thenComparing(pe.sag.routing.core.model.Order::getRegistrationDate)).collect(Collectors.toList());
 
         int k = 0;
         for (pe.sag.routing.core.model.Order om : modelOrders) {
@@ -89,11 +88,11 @@ public class Planner {
                     int pathLength = route.getPath().size();
                     List<Pair<Integer, Integer>> path = route.getPath();
                     if (path.size() <= 1) {
-                        System.out.println(route.getTruckCode());
+//                        System.out.println(route.getTruckCode());
                         continue;
                     }
                     Pair<Integer, Integer> lastNode = route.getPath().get(pathLength-1);
-                    System.out.println(route.getPath().get(0).x + " " + route.getPath().get(0).y);
+//                    System.out.println(route.getPath().get(0).x + " " + route.getPath().get(0).y);
                     if ((lastNode.x != 12 && lastNode.y != 8) || pathLength <= 1 ||
                             Math.abs(path.get(pathLength-1).getY() - path.get(pathLength-2).getY()) > 1 ||
                             Math.abs(path.get(pathLength-1).getX() - path.get(pathLength-2).getX()) > 1) { //redo route
