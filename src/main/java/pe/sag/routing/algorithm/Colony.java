@@ -52,9 +52,11 @@ public class Colony extends Graph {
                 ethaMatrix[i][j] = Q / (distanceMatrix[i][j]+1);
                 if (nodes[j] instanceof Order)
                     ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours();
+                else ethaMatrix[i][j] += 2;
                 ethaMatrix[j][i] = Q / (distanceMatrix[j][i]+1);
                 if (nodes[i] instanceof Order)
                     ethaMatrix[j][i] += Q / Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours();
+                else ethaMatrix[j][i] += 2;
             }
         }
     }
@@ -69,7 +71,7 @@ public class Colony extends Graph {
         this.threshold *= DECAY_RATE;
     }
 
-    public void updatePheroMatrix() {
+    public void updatePheroMatrix(int visited) {
         for (int i = 0; i < nTruck; i++) {
             int tourDistance = calculateTourDistance(trucks[i].tour, 0);
             for (int j = 0; j < trucks[i].tour.size(); j++) {
@@ -77,7 +79,7 @@ public class Colony extends Graph {
                     int currIdx = trucks[i].tour.get(j).idx;
                     int nextIdx = trucks[i].tour.get(j+1).idx;
                     pheromoneMatrix[currIdx][nextIdx] =
-                            EVAP_RATE * pheromoneMatrix[currIdx][nextIdx] + Q / tourDistance;
+                            EVAP_RATE * pheromoneMatrix[currIdx][nextIdx] + Q / tourDistance + visited/(nNode-2);
                 }
             }
         }
@@ -92,9 +94,9 @@ public class Colony extends Graph {
 
     private boolean validateRoutes() {
         AStar astar = new AStar();
-//        List<Route> routes = parseRoutes();
-//        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
-        List<Route> validatedRoutes = parseRoutes();
+        List<Route> routes = parseRoutes();
+        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+//        List<Route> validatedRoutes = parseRoutes();
         for (Route r : validatedRoutes) {
             r.generatePath();
             if (r.getPath().size() <= 1) return false;
@@ -111,7 +113,6 @@ public class Colony extends Graph {
         double bestSolution = Double.MIN_VALUE;
         for(int i = 0; i < ITERATOR; i++) {
             solve();
-            updatePheroMatrix();
             int attendedCustomers = 0;
             double totalGLP = 0.0;
             double totalConsumption = 0.0;
@@ -120,15 +121,20 @@ public class Colony extends Graph {
                 totalGLP += t.totalDelivered;
                 totalConsumption += t.totalFuelConsumption;
             }
-            double quality = (totalGLP + attendedCustomers) / totalConsumption;
+            int visited = 0;
+            for (int k = 3; k < nodes.length; k++) {
+                if (((Order)nodes[k]).visited) visited++;
+            }
+            updatePheroMatrix(visited);
+            double quality = visited;
             if (quality > bestSolution) {
                 if (validateRoutes()) {
                     bestSolution = quality;
                     saveBestSolution();
-                    if (i >= 800 && bestSolution > 10) {
-                        resetStep();
-                        break;
-                    }
+//                    if (i >= 800 && bestSolution > 10) {
+//                        resetStep();
+//                        break;
+//                    }
                 }
             }
             updateThreshold();
@@ -212,7 +218,7 @@ public class Colony extends Graph {
             if (trucks[truckIdx].tour.isEmpty()) // add main depot as starting point
                 trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes);
             ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
-            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
+            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
                 onlyDepot = true;
                 for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
                     if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
