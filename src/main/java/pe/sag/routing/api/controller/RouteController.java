@@ -289,7 +289,7 @@ public class RouteController {
             for(Order o : pendingOrders){
                 boolean scheduled = false;
                 for (Pair<String, LocalDateTime> delivery : solutionOrders) {
-                    if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                    if (delivery.getX().compareTo(o.get_id()) == 0 && delivery.getY() != null) {
                         scheduled = true;
                         break;
                     }
