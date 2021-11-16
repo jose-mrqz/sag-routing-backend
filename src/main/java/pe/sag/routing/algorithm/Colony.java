@@ -92,9 +92,11 @@ public class Colony extends Graph {
 
     private boolean validateRoutes() {
         AStar astar = new AStar();
-        List<Route> routes = parseRoutes();
-        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+//        List<Route> routes = parseRoutes();
+//        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+        List<Route> validatedRoutes = parseRoutes();
         for (Route r : validatedRoutes) {
+            r.generatePath();
             if (r.getPath().size() <= 1) return false;
             Pair<Integer, Integer> lastNode = r.getPath().get(r.getPath().size()-1);
             Pair<Integer, Integer> firstNode = r.getPath().get(0);
