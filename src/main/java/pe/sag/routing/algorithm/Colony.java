@@ -79,7 +79,7 @@ public class Colony extends Graph {
                     int currIdx = trucks[i].tour.get(j).idx;
                     int nextIdx = trucks[i].tour.get(j+1).idx;
                     pheromoneMatrix[currIdx][nextIdx] =
-                            EVAP_RATE * pheromoneMatrix[currIdx][nextIdx] + Q / tourDistance + visited/(nNode-2);
+                            EVAP_RATE * pheromoneMatrix[currIdx][nextIdx] + Q / tourDistance + (Q * visited);
                 }
             }
         }

@@ -123,7 +123,7 @@ public class OrderService {
     }
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
-        return orderRepository.findFirst300ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
+        return orderRepository.findFirst600ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
     }
 
     public Order cancelOrder(String id, double amount) {
