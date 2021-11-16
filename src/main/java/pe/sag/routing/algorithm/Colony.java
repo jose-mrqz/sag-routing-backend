@@ -52,11 +52,11 @@ public class Colony extends Graph {
                 ethaMatrix[i][j] = Q / (distanceMatrix[i][j]+1);
                 if (nodes[j] instanceof Order)
                     ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours();
-                else ethaMatrix[i][j] += 2;
+                else ethaMatrix[i][j] += 0.5;
                 ethaMatrix[j][i] = Q / (distanceMatrix[j][i]+1);
                 if (nodes[i] instanceof Order)
                     ethaMatrix[j][i] += Q / Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours();
-                else ethaMatrix[j][i] += 2;
+                else ethaMatrix[j][i] += 0.5;
             }
         }
     }
@@ -126,7 +126,7 @@ public class Colony extends Graph {
                 if (((Order)nodes[k]).visited) visited++;
             }
             updatePheroMatrix(visited);
-            double quality = visited + 1/totalConsumption;
+            double quality = visited + 1/totalConsumption + 1/totalGLP;
             if (quality > bestSolution) {
                 if (validateRoutes()) {
                     bestSolution = quality;
