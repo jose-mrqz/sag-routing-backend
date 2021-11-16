@@ -121,9 +121,15 @@ public class Planner {
             }
         }
 
+        HashMap<String, LocalDateTime> lazy = new HashMap<>();
         for (Order order : solutionOrders) {
-            solutionTimes.add(new Pair<>(order._id, order.deliveryTime));
-            if (order.getDeliveryTime() != null) nScheduled++;
+            if (order.getDeliveryTime() != null) {
+                if (lazy.getOrDefault(order._id, null) == null) {
+                    nScheduled++;
+                    lazy.put(order._id, order.deliveryTime);
+                }
+                solutionTimes.add(new Pair<>(order._id, order.deliveryTime));
+            }
             else if (firstFailed == null) {
                 firstFailed = new Order(order);
             }
