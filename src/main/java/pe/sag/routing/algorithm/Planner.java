@@ -78,6 +78,7 @@ public class Planner {
 
             if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0) {
                 System.out.println("null");
+                break;
             }
             solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
             orders = colony.solutionOrders.stream().filter(o -> !o.visited).collect(Collectors.toList());
