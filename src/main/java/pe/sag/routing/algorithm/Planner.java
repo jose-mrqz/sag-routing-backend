@@ -149,6 +149,9 @@ public class Planner {
                 firstFailed = new Order(order);
             }
         }
+        if (orders.size() > 0 && firstFailed == null) {
+            firstFailed = new Order(orders.get(0));
+        }
     }
 
     private void revertDepot(List<Depot> depots, String id, Double refilledGlp, LocalDateTime arrivalTime) {
