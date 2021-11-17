@@ -39,6 +39,7 @@ public class RouteController {
     private static Thread simulationThread = null;
     public static SimulationData simulationData = null;
     public static SimulationInfo simulationInfo = null;
+    public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
@@ -103,13 +104,14 @@ public class RouteController {
             for (int i = 0; i < availableTrucks.size(); i++) {
                 Truck truck = availableTrucks.get(i);
                 Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
-                if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
+                if (lastRoute != null) {
+                    truck.setLastRouteEndTime(lastRoute.getFinishDate());
+                }
                 else truck.setLastRouteEndTime(now);
             }
 
             //mejorar con formato de error: colapso logistico
             if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-                Collections.shuffle(availableTrucks);
                 Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, depots);
                 planner.run();
                 if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
@@ -136,7 +138,7 @@ public class RouteController {
                     boolean scheduled = false;
                     for (Pair<String, LocalDateTime> delivery : solutionOrders) {
                         //if(delivery.getY() == null) //muere
-                        if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                        if (delivery.getX().compareTo(o.get_id()) == 0 && delivery.getY() != null) {
                             scheduled = true;
                             break;
                         }
@@ -202,7 +204,6 @@ public class RouteController {
                 }
 
                 if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-                    Collections.shuffle(availableTrucks);
                     Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
                     planner.setNOrders(pendingOrders.size());
                     planner.run();
@@ -236,7 +237,7 @@ public class RouteController {
 
                         pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
                         LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
-
+                        transformed = routeService.transformDateSpeed(RouteController.simulationInfo, RouteController.simulationSpeed, transformed);
                         RouteController.simulationData.setOrder(order, transformed);
                         break;
                     }
@@ -279,7 +280,6 @@ public class RouteController {
         }
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-            Collections.shuffle(availableTrucks);
             Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
             planner.setNOrders(pendingOrders.size());
             planner.run();
@@ -316,6 +316,7 @@ public class RouteController {
 
                 pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
                 LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
+                transformed = routeService.transformDateSpeed(RouteController.simulationInfo, RouteController.simulationSpeed, transformed);
 
                 RouteController.simulationData.setOrder(order, transformed);
                 return ResponseEntity.status(response.getStatus()).body(response);

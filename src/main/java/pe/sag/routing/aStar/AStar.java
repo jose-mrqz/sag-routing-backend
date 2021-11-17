@@ -111,12 +111,12 @@ public class AStar {
                 ListStructure solutionList = map.getSolutionList(roadblocks, departureDate, limitDate);
 
                 //Revisar si fecha de llegada de camino se pasa de fecha limite (solamente si no es planta)
-                if(!nodeGoal.isDepot() && !solutionList.limitDateOK){
-                    //truncar ruta de camion
-                    route.setFinishDate(arrivalDate);
-                    shorten = true;
-                    break;
-                }
+//                if(!nodeGoal.isDepot() && !solutionList.limitDateOK){
+//                    //truncar ruta de camion
+//                    route.setFinishDate(arrivalDate);
+//                    shorten = true;
+//                    break;
+//                }
 
                 //Actualizar fecha salida
                 arrivalDate = departureDate.plusSeconds(solutionList.timeSec);
