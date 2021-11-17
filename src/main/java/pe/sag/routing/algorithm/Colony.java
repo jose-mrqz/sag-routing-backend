@@ -52,11 +52,11 @@ public class Colony extends Graph {
                 ethaMatrix[i][j] = Q / (distanceMatrix[i][j]+1);
                 if (nodes[j] instanceof Order)
                     ethaMatrix[i][j] += Q / (Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours()/10.0) + Q * (((Order) nodes[j]).totalDemand/5);
-                else ethaMatrix[i][j] += 0.75;
+                else ethaMatrix[i][j] += 0.85;
                 ethaMatrix[j][i] = Q / (distanceMatrix[j][i]+1);
                 if (nodes[i] instanceof Order)
                     ethaMatrix[j][i] += Q / (Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours()/10.0) + Q * (((Order) nodes[i]).totalDemand/5);
-                else ethaMatrix[j][i] += 0.75;
+                else ethaMatrix[j][i] += 0.85;
             }
         }
     }
@@ -93,13 +93,13 @@ public class Colony extends Graph {
     }
 
     private int validateRoutes() {
-        AStar astar = new AStar();
-        List<Route> routes = parseRoutes();
-        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+//        AStar astar = new AStar();
+//        List<Route> routes = parseRoutes();
+//        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
         int totalDistance = 0;
-//        List<Route> validatedRoutes = parseRoutes();
+        List<Route> validatedRoutes = parseRoutes();
         for (Route r : validatedRoutes) {
-//            r.generatePath();
+            r.generatePath();
             totalDistance += r.getPath().size();
             if (r.getPath().size() <= 1) return -1;
             Pair<Integer, Integer> lastNode = r.getPath().get(r.getPath().size()-1);
@@ -137,10 +137,10 @@ public class Colony extends Graph {
                     bestSolution = quality;
                     bestCost = total;
                     saveBestSolution();
-                    if (i >= 50 && bestSolution > 30) {
-                        resetStep();
-                        break;
-                    }
+//                    if (i >= 50 && bestSolution > 30) {
+//                        resetStep();
+//                        break;
+//                    }
                 }
             }
             updateThreshold();

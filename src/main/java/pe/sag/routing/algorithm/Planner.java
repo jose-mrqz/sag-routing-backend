@@ -104,6 +104,8 @@ public class Planner {
             depots = colony.solutionDepots;
 
             List<Route> solutionRoutes = colony.getSolutionRoutes();
+            AStar astar = new AStar();
+            solutionRoutes = astar.run(solutionRoutes, solutionOrders, roadblocks);
 
             if (solutionRoutes != null && solutionRoutes.size() != 0) {
                 for (int i = 0; i < depots.size(); i++) {
