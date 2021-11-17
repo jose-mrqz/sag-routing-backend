@@ -48,10 +48,24 @@ public class Planner {
         List<Depot> depots = null;
 
         modelTrucks = modelTrucks.stream()
-                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)
-                        .thenComparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime))
+                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity))
+//                        .thenComparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime))
                 .collect(Collectors.toList());
+
+        HashMap<String, List<pe.sag.routing.core.model.Truck>> truckCategory = new HashMap<>();
+        for (int i = 0; i < modelTrucks.size(); i++) {
+            pe.sag.routing.core.model.Truck t = modelTrucks.get(i);
+            List<pe.sag.routing.core.model.Truck> list = truckCategory.getOrDefault(t.getModel().get_id(), null);
+            if (list == null) {
+                list = new ArrayList<>();
+            }
+            list.add(t);
+            truckCategory.put(t.getModel().get_id(), list);
+        }
+
+
         Collections.reverse(modelTrucks);
+        Collections.shuffle(modelTrucks);
 
         for (pe.sag.routing.core.model.Truck tm : modelTrucks) {
             trucks.add(new Truck(tm.get_id(), tm.getCode(), tm.getModel().getCapacity(),

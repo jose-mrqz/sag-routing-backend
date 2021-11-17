@@ -51,11 +51,11 @@ public class Colony extends Graph {
                 pheromoneMatrix[j][i] = INIT_PHERO;
                 ethaMatrix[i][j] = Q / (distanceMatrix[i][j]+1);
                 if (nodes[j] instanceof Order)
-                    ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours();
+                    ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours()  + (((Order) nodes[j]).totalDemand/10);
                 else ethaMatrix[i][j] += 0.5;
                 ethaMatrix[j][i] = Q / (distanceMatrix[j][i]+1);
                 if (nodes[i] instanceof Order)
-                    ethaMatrix[j][i] += Q / Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours();
+                    ethaMatrix[j][i] += Q / Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours() + (((Order) nodes[i]).totalDemand/10);
                 else ethaMatrix[j][i] += 0.5;
             }
         }
@@ -221,7 +221,7 @@ public class Colony extends Graph {
             if (trucks[truckIdx].tour.isEmpty()) // add main depot as starting point
                 trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes);
             ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
-            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
+            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
                 onlyDepot = true;
                 for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
                     if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
