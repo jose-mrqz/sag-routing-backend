@@ -100,7 +100,6 @@ public class Colony extends Graph {
 //        List<Route> validatedRoutes = parseRoutes();
         for (Route r : validatedRoutes) {
             totalDistance += r.getPath().size();
-            r.generatePath();
             if (r.getPath().size() <= 1) return -1;
             Pair<Integer, Integer> lastNode = r.getPath().get(r.getPath().size()-1);
             Pair<Integer, Integer> firstNode = r.getPath().get(0);
