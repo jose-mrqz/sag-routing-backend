@@ -39,7 +39,7 @@ public class TruckController {
         Truck truck1 = truckService.register(truckDto, true);
         Truck truck2 = truckService.register(truckDto, false);
         RestResponse response;
-        if (truck1 == null && truck2 == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo camion.");
+        if (truck1 == null || truck2 == null) response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al agregar nuevo camion.");
         else response = new RestResponse(HttpStatus.OK, "Nuevo camion agregado correctamente.", truckDto);
         return ResponseEntity
                 .status(response.getStatus())
@@ -58,7 +58,7 @@ public class TruckController {
     protected ResponseEntity<?> delete(@RequestBody NewTruckRequest request) {
         RestResponse response;
         if(request.getCode() == null){
-            response = new RestResponse(HttpStatus.OK, "Error por no ingresar codigo de camion.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no ingresar codigo de camion.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -66,8 +66,8 @@ public class TruckController {
 
         int count = truckService.deleteByCode(request.getCode());
         if (count == 2) response = new RestResponse(HttpStatus.OK, "Camion eliminado correctamente.");
-        else if (count == -1) response = new RestResponse(HttpStatus.OK, "Error al eliminar camion: esta actualmente en recorrido.");
-        else response = new RestResponse(HttpStatus.OK, "Error al eliminar camion.");
+        else if (count == -1) response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar camion: esta actualmente en recorrido.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar camion.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

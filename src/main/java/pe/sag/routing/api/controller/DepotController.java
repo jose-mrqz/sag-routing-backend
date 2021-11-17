@@ -22,7 +22,7 @@ public class DepotController {
         depotDto.setCurrentGlp(depotDto.getGlpCapacity());
         Depot depot = depotService.register(depotDto);
         RestResponse response;
-        if (depot == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nueva planta.");
+        if (depot == null) response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al agregar nueva planta.");
         else response = new RestResponse(HttpStatus.OK, "Nueva planta agregada correctamente.", depotDto);
         return ResponseEntity
                 .status(response.getStatus())

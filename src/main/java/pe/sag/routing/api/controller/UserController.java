@@ -32,7 +32,7 @@ public class UserController {
         }
         else{
             response = RestResponse.builder()
-                    .status(HttpStatus.OK)
+                    .status(HttpStatus.BAD_REQUEST)
                     .message("Username ingresado ya existe.")
                     .build();
         }
@@ -52,7 +52,7 @@ public class UserController {
     protected ResponseEntity<?> edit(@Valid @RequestBody UserDto request) throws IllegalAccessException {
         RestResponse response;
         if(request.getCode() == null){
-            response = new RestResponse(HttpStatus.OK, "Error por no ingresar codigo de usuario.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no ingresar codigo de usuario.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -62,7 +62,7 @@ public class UserController {
         User userEdited = userService.edit(user, request);
 
         if (userEdited != null) response = new RestResponse(HttpStatus.OK, "Usuario editado correctamente.", userEdited);
-        else response = new RestResponse(HttpStatus.OK, "Error al editar usuario.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al editar usuario.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -72,7 +72,7 @@ public class UserController {
     protected ResponseEntity<?> delete(@Valid @RequestBody UserDto request) throws IllegalAccessException {
         RestResponse response;
         if(request.getCode() == null){
-            response = new RestResponse(HttpStatus.OK, "Error por no ingresar codigo de usuario.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no ingresar codigo de usuario.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -80,7 +80,7 @@ public class UserController {
 
         int count = userService.deleteByCode(request.getCode());
         if (count == 1) response = new RestResponse(HttpStatus.OK, "Usuario eliminado correctamente.");
-        else response = new RestResponse(HttpStatus.OK, "Error al eliminar usuario.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar usuario.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -116,11 +116,11 @@ public class UserController {
         User user = userService.findByUsername(request.getUsername());
 
         RestResponse response;
-        if(user == null) response = new RestResponse(HttpStatus.OK, "Usuario con username ingresado no existe.");
+        if(user == null) response = new RestResponse(HttpStatus.BAD_REQUEST, "Usuario con username ingresado no existe.");
         else if(user.getPassword().compareTo(request.getPassword()) == 0){
             response = new RestResponse(HttpStatus.OK, "Ingreso permitido.");
         }
-        else response = new RestResponse(HttpStatus.OK, "Contraseña incorrecta.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Contraseña incorrecta.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

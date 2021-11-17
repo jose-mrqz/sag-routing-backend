@@ -14,6 +14,9 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static java.lang.Math.pow;
+import static java.time.temporal.ChronoUnit.DAYS;
+
 @Service
 public class OrderService {
     @Autowired
@@ -109,11 +112,6 @@ public class OrderService {
         return order.orElse(null);
     }
 
-    public List<Order> saveMany(List<OrderDto> ordersDto) {
-        List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
-        return orderRepository.saveAll(orders);
-    }
-
     public void deleteByMonitoring(boolean monitoring) {
         orderRepository.deleteByMonitoring(monitoring);
     }
@@ -161,7 +159,62 @@ public class OrderService {
                 }
             }
         }
-
         orderRepository.saveAll(orders);
+    }
+
+    public ArrayList<OrderDto> generateFutureOrders(LocalDateTime startDate,LocalDateTime endDate){
+        List<Integer> coeficients = generateCoeficients();
+        int a = coeficients.get(0), b = coeficients.get(1), n = coeficients.get(2);
+
+        ArrayList<OrderDto> futureOrders = new ArrayList<>();
+        LocalDateTime orderDate = LocalDateTime.of(startDate.toLocalDate(),startDate.toLocalTime());//falta variacion de horas, min, seg
+        long totalDates = DAYS.between(startDate, endDate);
+        for(int numberDate = 1; numberDate <= totalDates; numberDate++){
+            //FALTA: confirmar si se calcula cantidad de pedidos por dia y si x es el numero de dia que mandan
+            int cantOrders = futureOrdersFunction(numberDate, a, b, n);
+            for(int i = 0; i < cantOrders; i++){
+                //FALTA: saber como generar estos atributos (fecha de llegada de pedido,
+                //ubicación de entrega, cantidad de GLP y número de horas límite)
+                int x = 10, y = 10, totalDemand = 5, slack = 4;
+                int demandGLP = 0;
+                //ArrayList<> variationDate;
+
+                OrderDto orderDto = OrderDto.builder()
+                        .x(x)
+                        .y(y)
+                        .demandGLP(demandGLP)
+                        .totalDemand(totalDemand)
+                        .registrationDate(orderDate)
+                        .deadlineDate(orderDate.plusHours(slack))
+                        .build();
+
+                //FALTA: confirmar si reviso bloqueo aqui o en simulacion
+                //Revisar si nodo de pedido se encuentra bloqueado
+                /*if(!orderDto.inRoadblocks(roadblocks)){
+                    futureOrders.add(orderDto);
+                }*/
+                futureOrders.add(orderDto);
+            }
+            orderDate = orderDate.plusDays(1);
+        }
+        return futureOrders;
+    }
+
+    public List<Integer> generateCoeficients(){
+        List<Integer> coeficients = new ArrayList<>();
+
+        //FALTA: saber si son escogidos a criterio nuestro o debemos calcularlo (como?)
+        int a = 1, b = 1, n = 1;
+
+        coeficients.add(a);
+        coeficients.add(b);
+        coeficients.add(n);
+
+        return coeficients;
+    }
+
+    public int futureOrdersFunction(int x, int a, int b, int n){
+        //FALTA: saber con exactitud que funcion polinomial es
+        return (int) (a*pow(x,n) + b);//modificar con funcion lineal
     }
 }
