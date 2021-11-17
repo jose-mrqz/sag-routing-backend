@@ -137,7 +137,7 @@ public class Colony extends Graph {
                     bestSolution = quality;
                     bestCost = total;
                     saveBestSolution();
-                    if (i >= 200 && bestSolution > 30) {
+                    if (i >= 50 && bestSolution > 30) {
                         resetStep();
                         break;
                     }
