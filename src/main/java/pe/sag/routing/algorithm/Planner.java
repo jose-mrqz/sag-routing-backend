@@ -48,7 +48,8 @@ public class Planner {
         List<Depot> depots = null;
 
         modelTrucks = modelTrucks.stream()
-                .sorted(Comparator.comparing(x -> x.getModel().getCapacity()))
+                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)
+                        .thenComparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime))
                 .collect(Collectors.toList());
         Collections.reverse(modelTrucks);
 

@@ -129,7 +129,7 @@ public class Colony extends Graph {
             updatePheroMatrix(visited);
 //            double quality = visited + 1/totalConsumption + 1/totalGLP;
             double quality = visited;
-            if (quality > bestSolution && totalConsumption < bestCost) {
+            if (quality > bestSolution || (quality == bestSolution && totalConsumption < bestCost)) {
                 if (validateRoutes()) {
                     bestSolution = quality;
                     bestCost = totalConsumption;
