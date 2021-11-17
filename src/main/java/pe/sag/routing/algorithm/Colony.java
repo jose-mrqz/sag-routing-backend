@@ -92,21 +92,23 @@ public class Colony extends Graph {
             nodes[i].reset();
     }
 
-    private boolean validateRoutes() {
+    private int validateRoutes() {
         AStar astar = new AStar();
         List<Route> routes = parseRoutes();
-//        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
-        List<Route> validatedRoutes = parseRoutes();
+        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+        int totalDistance = 0;
+//        List<Route> validatedRoutes = parseRoutes();
         for (Route r : validatedRoutes) {
+            totalDistance += r.getPath().size();
             r.generatePath();
-            if (r.getPath().size() <= 1) return false;
+            if (r.getPath().size() <= 1) return -1;
             Pair<Integer, Integer> lastNode = r.getPath().get(r.getPath().size()-1);
             Pair<Integer, Integer> firstNode = r.getPath().get(0);
-            if (firstNode.getX() != 12 || firstNode.getY() != 8) return false;
-            if (lastNode.getX() != 12 || lastNode.getY() != 8) return false;
+            if (firstNode.getX() != 12 || firstNode.getY() != 8) return -1;
+            if (lastNode.getX() != 12 || lastNode.getY() != 8) return -1;
         }
         solutionRoutes = validatedRoutes;
-        return true;
+        return totalDistance;
     }
 
     public void run()  {
@@ -129,10 +131,11 @@ public class Colony extends Graph {
             updatePheroMatrix(visited);
 //            double quality = visited + 1/totalConsumption + 1/totalGLP;
             double quality = visited;
-            if (quality > bestSolution || (quality == bestSolution && totalConsumption < bestCost)) {
-                if (validateRoutes()) {
+            int total = validateRoutes();
+            if (quality > bestSolution || (quality == bestSolution && total < bestCost)) {
+                if (total != -1) {
                     bestSolution = quality;
-                    bestCost = totalConsumption;
+                    bestCost = total;
                     saveBestSolution();
 //                    if (i >= 800 && bestSolution > 300) {
 //                        resetStep();
