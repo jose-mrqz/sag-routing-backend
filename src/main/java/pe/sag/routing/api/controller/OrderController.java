@@ -3,27 +3,20 @@ package pe.sag.routing.api.controller;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pe.sag.routing.api.request.ListOrderRequest;
-import pe.sag.routing.api.request.ManyOrdersRequest;
-import pe.sag.routing.api.request.NewOrderRequest;
-import pe.sag.routing.api.request.SimulationInputRequest;
+import pe.sag.routing.api.request.*;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Roadblock;
 import pe.sag.routing.core.model.SimulationInfo;
-import pe.sag.routing.core.model.User;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.parser.RoadblockParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
-import pe.sag.routing.shared.dto.UserDto;
 import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
-import pe.sag.routing.shared.util.enums.TruckStatus;
 
-import javax.validation.Valid;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +39,7 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody NewOrderRequest request) throws IllegalAccessException {
+        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
         OrderDto orderDto = OrderDto.builder()
                 .x(request.getX())
                 .y(request.getY())
@@ -54,9 +48,14 @@ public class OrderController {
                 .registrationDate(LocalDateTime.now())
                 .deadlineDate(LocalDateTime.now().plusHours(request.getSlack()))
                 .build();
-        Order order = orderService.register(orderDto, true);
+
+        Order order;
+        //Revisar si nodo de pedido se encuentra bloqueado
+        if(!orderDto.inRoadblocks(roadblocks)) order = orderService.register(orderDto, true);
+        else order = null;
+
         RestResponse response;
-        if (order == null) response = new RestResponse(HttpStatus.OK, "Error al agregar nuevo pedido.");
+        if (order == null) response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al agregar nuevo pedido.");
         else response = new RestResponse(HttpStatus.OK, "Nuevo pedido agregado correctamente.", order);
         return ResponseEntity
                 .status(response.getStatus())
@@ -65,7 +64,8 @@ public class OrderController {
 
     @PostMapping("/many")
     public ResponseEntity<?> registerMany(@RequestBody ManyOrdersRequest request) throws IllegalAccessException {
-        int registered = 0;
+        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
+        ArrayList<OrderDto> ordersDto = new ArrayList<>();
         for (ManyOrdersRequest.Order req : request.getOrders()) {
             OrderDto orderDto = OrderDto.builder()
                     .x(req.getX())
@@ -75,10 +75,24 @@ public class OrderController {
                     .registrationDate(LocalDateTime.now())
                     .deadlineDate(LocalDateTime.now().plusHours(req.getSlack()))
                     .build();
-            orderService.register(orderDto, true);
-            registered++;
+            //Revisar si nodo de pedido se encuentra bloqueado
+            if(!orderDto.inRoadblocks(roadblocks)){
+                ordersDto.add(orderDto);
+            }
         }
-        RestResponse response = new RestResponse(HttpStatus.OK, "Se registraron " + registered + " pedidos.");
+
+        if (ordersDto.size() == 0) {
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Todos los pedidos se encuentran bloqueados.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+
+        List<Order> ordersRegistered = orderService.registerAll(ordersDto,false);
+
+        RestResponse response;
+        if (ordersRegistered != null) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", ordersRegistered);
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al agregar pedidos.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -108,6 +122,7 @@ public class OrderController {
                     .registrationDate(r.getDate())
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
+            //Revisar si nodo de pedido se encuentra bloqueado
             if(!orderDto.inRoadblocks(roadblocks)){
                 ordersDto.add(orderDto);
                 inserted++;
@@ -122,7 +137,7 @@ public class OrderController {
                 .build();
 
         if (ordersDto.size() == 0) {
-            RestResponse response = new RestResponse(HttpStatus.OK, "Todos los pedidos se encuentran bloqueados.");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Todos los pedidos se encuentran bloqueados.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -154,7 +169,7 @@ public class OrderController {
 
         RestResponse response;
         if (responseOK) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", simulationInfo);
-        else response = new RestResponse(HttpStatus.OK, "Error al agregar pedidos.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al agregar pedidos.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -163,13 +178,13 @@ public class OrderController {
     @PostMapping(path = "/list")
     public ResponseEntity<?> list(@RequestBody ListOrderRequest request) {
         if(request.getFilter() == null){
-            RestResponse response = new RestResponse(HttpStatus.OK, "Se debe ingresar el tipo de filtro.");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al listar pedidos: se debe ingresar el tipo de filtro.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
         }
         List<OrderDto> orderDtos = orderService.list(request.getFilter(), request.getStartDate(), request.getEndDate());
-        RestResponse response = new RestResponse(HttpStatus.OK, orderDtos);
+        RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos listados correctamente.", orderDtos);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -198,7 +213,7 @@ public class OrderController {
     protected ResponseEntity<?> edit(@RequestBody NewOrderRequest request) {
         RestResponse response;
         if(request.getCode()<=0){
-            response = new RestResponse(HttpStatus.OK, "Error al editar pedido: no se ha ingresado codigo de pedido.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al editar pedido: no se ha ingresado codigo de pedido.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -206,13 +221,21 @@ public class OrderController {
 
         Order order = orderService.findByCode(request.getCode());
         if(order == null){
-            response = new RestResponse(HttpStatus.OK, "Error al editar pedido: pedido no encontrado.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al editar pedido: pedido no encontrado.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
         }
         if(!order.getStatus().equals(OrderStatus.PENDIENTE)){
-            response = new RestResponse(HttpStatus.OK, "Error al editar pedido: ya ha sido programado o atendido.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al editar pedido: ya ha sido programado o entregado.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        //Revisar si nodo de pedido se encuentra bloqueado
+        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
+        if(order.inRoadblocks(roadblocks)){
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al editar pedido: ubicacion de pedido se encuentra bloqueada.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -220,7 +243,7 @@ public class OrderController {
 
         Order orderEdited = orderService.edit(order, request);
         if (orderEdited != null) response = new RestResponse(HttpStatus.OK, "Pedido editado correctamente.", orderEdited);
-        else response = new RestResponse(HttpStatus.OK, "Error al editar pedido.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al editar pedido.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -230,7 +253,7 @@ public class OrderController {
     protected ResponseEntity<?> delete(@RequestBody NewOrderRequest request) {
         RestResponse response;
         if(request.getCode()<=0){
-            response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido: no se ha ingresado codigo de pedido.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar pedido: no se ha ingresado codigo de pedido.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -238,13 +261,13 @@ public class OrderController {
 
         Order order = orderService.findByCode(request.getCode());
         if(order == null){
-            response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido: pedido no encontrado.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar pedido: pedido no encontrado.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
         }
         if(!order.getStatus().equals(OrderStatus.PENDIENTE)){
-            response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido: ya ha sido programado o atendido.");
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar pedido: ya ha sido programado o atendido.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -252,7 +275,31 @@ public class OrderController {
 
         int count = orderService.deleteByCode(order.getCode());
         if (count == 1) response = new RestResponse(HttpStatus.OK, "Pedido eliminado correctamente.");
-        else response = new RestResponse(HttpStatus.OK, "Error al eliminar pedido.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar pedido.");
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/future")
+    public ResponseEntity<?> generateFutureOrders(@RequestBody FutureOrdersRequest request) throws IllegalAccessException {
+        LocalDateTime startDate = LocalDateTime.of(2021,11,16,0,0,0);
+        LocalDateTime endDate = startDate.plusMonths(request.getNumberMonths()); //minimo 6 meses
+
+        //FALTA: saber si se tiene que sobrescribir anteriores ya generados o sumarlos a partir de la última fecha
+        //orderService.deleteByMonitoring(false);
+
+        //generar pedidos futuros
+        ArrayList<OrderDto> futureOrders = orderService.generateFutureOrders(startDate,endDate);
+
+        //registrar todos los pedidos futuros
+        //FALTA: saber si se contabilizan aparte de los pedidos cargados por archivo o se suman a estos pedidos
+        //List<Order> orders = orderService.registerAll(futureOrders, false);
+
+        RestResponse response;
+        //if (orders != null) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", orders);
+        if (futureOrders.size()>0) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", futureOrders);
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al generar pedidos futuros.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

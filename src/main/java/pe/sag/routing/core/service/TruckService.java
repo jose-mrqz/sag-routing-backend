@@ -84,6 +84,7 @@ public class TruckService {
         Optional<Truck> truckOptional = truckRepository.findTopByModelOrderByCodeDesc(model);
         if (truckOptional.isPresent()) {
             String code = truckOptional.get().getCode();
+            if(code.substring(2).startsWith("0")) return Integer.parseInt(code.substring(3));
             return Integer.parseInt(code.substring(2));
         } else return -1;
     }

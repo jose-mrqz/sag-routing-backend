@@ -84,6 +84,32 @@ public class RouteService {
         return route;
     }
 
+    public LocalDateTime transformDateReverse(SimulationInfo simulationInfo, LocalDateTime dateToConvert){
+        LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
+        LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
+
+        long differenceTransformReal = NANOS.between(simulationStartReal, simulationStartTransform);
+        dateToConvert = dateToConvert.minusNanos(differenceTransformReal);
+
+        long amountNanos = NANOS.between(simulationStartReal, dateToConvert);
+        LocalDateTime transformedDate = LocalDateTime.of(simulationStartReal.toLocalDate(),simulationStartReal.toLocalTime());
+        transformedDate = transformedDate.plusNanos(amountNanos);
+        return transformedDate;
+    }
+
+    public Route transformRouteReverse(Route route, SimulationInfo simulationInfo){
+        //Route transformedRoute
+
+        route.setStartDate(transformDateReverse(simulationInfo,route.getStartDate()));
+        route.setFinishDate(transformDateReverse(simulationInfo,route.getFinishDate()));
+
+        for(Route.Order o : route.getOrders()){
+            o.setDeliveryDate(transformDateReverse(simulationInfo,o.getDeliveryDate()));
+        }
+
+        return route;
+    }
+
     public List<Route> findByDateAndMonitoring(LocalDateTime actualDate, boolean monitoring) {
         return routeRepository.findByStartDateBeforeAndFinishDateAfterAndMonitoringAndCancelled(actualDate, actualDate, monitoring, false);
     }

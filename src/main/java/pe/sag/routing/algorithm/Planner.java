@@ -48,6 +48,7 @@ public class Planner {
         List<Depot> depots = null;
 
         modelTrucks = modelTrucks.stream()
+
                 .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity))
 //                        .thenComparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime))
                 .collect(Collectors.toList());
@@ -71,9 +72,10 @@ public class Planner {
             trucks.add(new Truck(tm.get_id(), tm.getCode(), tm.getModel().getCapacity(),
                     tm.getModel().getTareWeight(), 0, tm.getLastRouteEndTime()));
         }
-
+      
 //        modelOrders = modelOrders.stream().sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDeadlineDate).
 //                thenComparing(pe.sag.routing.core.model.Order::getRegistrationDate)).collect(Collectors.toList());
+
 
         int k = 0;
         for (pe.sag.routing.core.model.Order om : modelOrders) {

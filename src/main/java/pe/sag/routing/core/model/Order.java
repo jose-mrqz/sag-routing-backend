@@ -7,6 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @EqualsAndHashCode(callSuper = true)
 @Document
@@ -27,4 +28,14 @@ public class Order extends Node {
     private OrderStatus status;
     private boolean monitoring;
     private boolean active = true;
+
+    public boolean inRoadblocks(List<Roadblock> roadblocks) {
+        for (Roadblock r : roadblocks) {
+            if (r.getX() == x && r.getY() == y) {
+                if (!(deadlineDate.isBefore(r.getStartDate()) || registrationDate.isAfter(r.getEndDate())))
+                    return true;
+            }
+        }
+        return false;
+    }
 }

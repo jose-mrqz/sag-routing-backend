@@ -148,6 +148,9 @@ public class RouteController {
                 for (Pair<String,LocalDateTime> delivery : solutionOrders) {
                     orderService.scheduleStatusChange(delivery.getX(), OrderStatus.ENTREGADO, delivery.getY());
                 }
+
+                orderService.registerDeliveryDate(pendingOrders,planner.getSolutionOrders());
+
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
                     routeService.save(r);
@@ -259,7 +262,7 @@ public class RouteController {
         List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() == 0) {
-            RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no registrar SimulationInfo");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -286,7 +289,7 @@ public class RouteController {
             for(Order o : pendingOrders){
                 boolean scheduled = false;
                 for (Pair<String, LocalDateTime> delivery : solutionOrders) {
-                    if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                    if (delivery.getX().compareTo(o.get_id()) == 0 && delivery.getY() != null) {
                         scheduled = true;
                         break;
                     }
@@ -307,7 +310,7 @@ public class RouteController {
             }
 
             if (planner.getNOrders() != planner.getNScheduled()) {
-                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
+                RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Pedidos sin planificar primera corrida.");
                 simulationData.setFinished(true);
                 simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().get_id());
 
@@ -325,7 +328,7 @@ public class RouteController {
             thread.start();
         }
         else {
-            RestResponse response = new RestResponse(HttpStatus.I_AM_A_TEAPOT, "Error: no hay pedidos o camiones.");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error: no hay pedidos o camiones.");
             return ResponseEntity.status(response.getStatus()).body(response);
         }
 
