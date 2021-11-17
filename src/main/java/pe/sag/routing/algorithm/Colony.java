@@ -111,6 +111,7 @@ public class Colony extends Graph {
 
     public void run()  {
         double bestSolution = Double.MIN_VALUE;
+        double bestCost = Double.MAX_VALUE;
         for(int i = 0; i < ITERATOR; i++) {
             solve();
             int attendedCustomers = 0;
@@ -128,7 +129,7 @@ public class Colony extends Graph {
             updatePheroMatrix(visited);
 //            double quality = visited + 1/totalConsumption + 1/totalGLP;
             double quality = visited;
-            if (quality > bestSolution) {
+            if (quality > bestSolution && totalConsumption < bestCost) {
                 if (validateRoutes()) {
                     bestSolution = quality;
                     saveBestSolution();
