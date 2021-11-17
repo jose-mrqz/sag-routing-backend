@@ -86,7 +86,7 @@ public class Truck {
 
     private boolean okCapacity(Node n, int travelTime) {
         if (n instanceof Order) {
-            return ((Order)n).demand > capacity && nowLoad > capacity/4 && capacity > 5 || nowLoad >= ((Order)n).demand;
+            return (((Order)n).demand > capacity && nowLoad > capacity/4 && capacity > 5) || nowLoad >= ((Order)n).demand;
         } else {
             double remainingGlp = ((Depot)n).getAvailableGLp(nowTime.plusSeconds(travelTime).toLocalDate());
             return remainingGlp >= capacity/4 && nowLoad <= capacity/4;
