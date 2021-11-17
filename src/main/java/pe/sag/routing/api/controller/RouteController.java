@@ -39,6 +39,7 @@ public class RouteController {
     private static Thread simulationThread = null;
     public static SimulationData simulationData = null;
     public static SimulationInfo simulationInfo = null;
+    public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
@@ -233,7 +234,7 @@ public class RouteController {
 
                         pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
                         LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
-
+                        transformed = routeService.transformDateSpeed(RouteController.simulationInfo, RouteController.simulationSpeed, transformed);
                         RouteController.simulationData.setOrder(order, transformed);
                         break;
                     }
@@ -312,6 +313,7 @@ public class RouteController {
 
                 pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
                 LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
+                transformed = routeService.transformDateSpeed(RouteController.simulationInfo, RouteController.simulationSpeed, transformed);
 
                 RouteController.simulationData.setOrder(order, transformed);
                 return ResponseEntity.status(response.getStatus()).body(response);
