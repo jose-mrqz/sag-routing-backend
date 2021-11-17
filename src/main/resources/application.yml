@@ -4,12 +4,13 @@ server:
 spring:
   data:
     mongodb:
-      authentication-database: admin
-      username: admin
-      password: jacaras
-      database: sag
-      port: 27017
-      host: 3.232.77.224
+      uri: mongodb+srv://admin:_Jacaras178@test-cluster.malkn.mongodb.net/test
+#      authentication-database: admin
+#      username: admin
+#      password: jacaras
+#      database: sag
+#      port: 27017
+#      host: 3.232.77.224
 
   jackson:
     date-format: yyyy-MM-dd HH:mm:ss

@@ -132,6 +132,7 @@ public class Colony extends Graph {
             if (quality > bestSolution && totalConsumption < bestCost) {
                 if (validateRoutes()) {
                     bestSolution = quality;
+                    bestCost = totalConsumption;
                     saveBestSolution();
 //                    if (i >= 800 && bestSolution > 300) {
 //                        resetStep();
