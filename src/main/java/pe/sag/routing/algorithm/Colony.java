@@ -93,13 +93,13 @@ public class Colony extends Graph {
     }
 
     private int validateRoutes() {
-//        AStar astar = new AStar();
+        AStar astar = new AStar();
         List<Route> routes = parseRoutes();
-//        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
         int totalDistance = 0;
-        List<Route> validatedRoutes = parseRoutes();
+//        List<Route> validatedRoutes = parseRoutes();
         for (Route r : validatedRoutes) {
-            r.generatePath();
+//            r.generatePath();
             totalDistance += r.getPath().size();
             if (r.getPath().size() <= 1) return -1;
             Pair<Integer, Integer> lastNode = r.getPath().get(r.getPath().size()-1);
@@ -137,10 +137,10 @@ public class Colony extends Graph {
                     bestSolution = quality;
                     bestCost = total;
                     saveBestSolution();
-//                    if (i >= 800 && bestSolution > 300) {
-//                        resetStep();
-//                        break;
-//                    }
+                    if (i >= 500 && bestSolution > 30) {
+                        resetStep();
+                        break;
+                    }
                 }
             }
             updateThreshold();
