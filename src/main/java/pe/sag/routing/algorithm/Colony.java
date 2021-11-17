@@ -51,7 +51,7 @@ public class Colony extends Graph {
                 pheromoneMatrix[j][i] = INIT_PHERO;
                 ethaMatrix[i][j] = Q / (distanceMatrix[i][j]+1);
                 if (nodes[j] instanceof Order)
-                    ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours()  + (((Order) nodes[j]).totalDemand/10);
+                    ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours() + (((Order) nodes[j]).totalDemand/10);
                 else ethaMatrix[i][j] += 0.5;
                 ethaMatrix[j][i] = Q / (distanceMatrix[j][i]+1);
                 if (nodes[i] instanceof Order)
