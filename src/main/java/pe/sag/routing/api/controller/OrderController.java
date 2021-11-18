@@ -88,7 +88,7 @@ public class OrderController {
                     .body(response);
         }
 
-        List<Order> ordersRegistered = orderService.registerAll(ordersDto,false);
+        List<Order> ordersRegistered = orderService.registerAll(ordersDto,true);
 
         RestResponse response;
         if (ordersRegistered != null) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos agregados correctamente.", ordersRegistered);
@@ -295,6 +295,8 @@ public class OrderController {
         //registrar todos los pedidos futuros
         //FALTA: saber si se contabilizan aparte de los pedidos cargados por archivo o se suman a estos pedidos
         //List<Order> orders = orderService.registerAll(futureOrders, false);
+
+        //generar un archivo txt por mes a partir de futureOrders
 
         RestResponse response;
         //if (orders != null) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", orders);
