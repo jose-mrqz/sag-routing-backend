@@ -241,7 +241,6 @@ public class RouteController {
                         RouteController.simulationData.setOrder(order, transformed);
                         break;
                     }
-                    RouteController.simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
