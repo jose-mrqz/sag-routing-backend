@@ -103,7 +103,7 @@ public class RouteDto {
         }
     }
 
-    public LocalDateTime transformDate(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
+    public LocalDateTime transformDateSpeed(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
         LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
         long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);
         amountNanos /= speed;
@@ -130,14 +130,56 @@ public class RouteDto {
                 .route(getRoute())
                 .build();
 
-        transformedRoute.setStartDate(transformDate(simulationInfo,speed,getStartDate()));
-        transformedRoute.setEndDate(transformDate(simulationInfo,speed,getEndDate()));
+        transformedRoute.setStartDate(transformDateSpeed(simulationInfo,speed,getStartDate()));
+        transformedRoute.setEndDate(transformDateSpeed(simulationInfo,speed,getEndDate()));
         transformedRoute.setTimeAttention(getTimeAttention()/speed);
         transformedRoute.setVelocity(getVelocity()*speed);
 
         for(RouteDto.Order o : transformedRoute.getOrders()){
-            o.setDeliveryDate(transformDate(simulationInfo,speed,o.getDeliveryDate()));
-            o.setLeftDate(transformDate(simulationInfo,speed,o.getLeftDate()));
+            o.setDeliveryDate(transformDateSpeed(simulationInfo,speed,o.getDeliveryDate()));
+            o.setLeftDate(transformDateSpeed(simulationInfo,speed,o.getLeftDate()));
+        }
+
+        return transformedRoute;
+    }
+
+    public LocalDateTime transformDate(SimulationInfo simulationInfo, LocalDateTime dateToConvert){
+        LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
+        LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
+
+        long differenceTransformReal = NANOS.between(simulationStartReal, simulationStartTransform);
+        dateToConvert = dateToConvert.plusNanos(differenceTransformReal);
+
+        long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);
+        LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
+        transformedDate = transformedDate.plusNanos(amountNanos);
+        return transformedDate;
+    }
+
+    public RouteDto transformRoute(SimulationInfo simulationInfo){
+        List<RouteDto.Order> orders = new ArrayList<>();
+        for(RouteDto.Order o : getOrders()){
+            RouteDto.Order newOrder = new RouteDto.Order(o.getX(), o.getY(), o.getIndexRoute(),
+                    o.getDeliveryDate(), o.getLeftDate(), o.getDelivered());
+            orders.add(newOrder);
+        }
+
+        RouteDto transformedRoute = RouteDto.builder()
+                .startDate(getStartDate())
+                .endDate(getEndDate())
+                .timeAttention(getTimeAttention())
+                .velocity(getVelocity())
+                .truckCode(getTruckCode())
+                .orders(orders)
+                .route(getRoute())
+                .build();
+
+        transformedRoute.setStartDate(transformDate(simulationInfo,getStartDate()));
+        transformedRoute.setEndDate(transformDate(simulationInfo,getEndDate()));
+
+        for(RouteDto.Order o : transformedRoute.getOrders()){
+            o.setDeliveryDate(transformDate(simulationInfo,o.getDeliveryDate()));
+            o.setLeftDate(transformDate(simulationInfo,o.getLeftDate()));
         }
 
         return transformedRoute;

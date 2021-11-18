@@ -74,7 +74,8 @@ public class RouteController {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
             for(RouteDto r : routesDto) {
-                RouteDto rt = r.transformRouteSpeed(simulationInfo, request.getSpeed());
+                RouteDto rt = r.transformRoute(simulationInfo);
+                rt = rt.transformRouteSpeed(simulationInfo, request.getSpeed());
                 routesTransformedDto.add(rt);
             }
         }
@@ -244,7 +245,7 @@ public class RouteController {
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
-                        r = routeService.transformRoute(r,simulationInfo);
+                        //r = routeService.transformRoute(r,simulationInfo);
                         routeService.save(r);
                     }
                 }
@@ -303,7 +304,7 @@ public class RouteController {
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
                     r.setMonitoring(false);
-                    r = routeService.transformRoute(r, simulationInfo);
+                    //r = routeService.transformRoute(r, simulationInfo);
                     routeService.save(r);
                 }
             }
