@@ -2,8 +2,9 @@ package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestParam;
+import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.api.request.NewOrderRequest;
+import pe.sag.routing.core.model.FutureOrdersGenerator;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.scheduler.OrderScheduler;
 import pe.sag.routing.data.parser.OrderParser;
@@ -11,10 +12,19 @@ import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
+
+import static java.lang.Math.pow;
+import static java.time.temporal.ChronoUnit.*;
 
 @Service
 public class OrderService {
@@ -111,11 +121,6 @@ public class OrderService {
         return order.orElse(null);
     }
 
-    public List<Order> saveMany(List<OrderDto> ordersDto) {
-        List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
-        return orderRepository.saveAll(orders);
-    }
-
     public void deleteByMonitoring(boolean monitoring) {
         orderRepository.deleteByMonitoring(monitoring);
     }
@@ -125,7 +130,7 @@ public class OrderService {
     }
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
-        return orderRepository.findFirst1000ByStatusAndMonitoringOrderByDeadlineDateAscRegistrationDateAsc(status, isMonitoring);
+        return orderRepository.findFirst30ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
     }
 
     public Order cancelOrder(String id, double amount) {
@@ -154,5 +159,84 @@ public class OrderService {
 
     public List<Order> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return orderRepository.findByMonitoringAndRegistrationDateBetweenOrderByCodeAsc(true, startDate, endDate);
+    }
+    public void registerDeliveryDate(List<Order> orders, List<pe.sag.routing.algorithm.Order> ordersAlgorithm){
+        List<pe.sag.routing.algorithm.Order> ordersAlgorithmLeft = new ArrayList<>(ordersAlgorithm);
+        for(Order o : orders){
+            for(pe.sag.routing.algorithm.Order oa : ordersAlgorithmLeft){
+                if( oa.get_id().compareTo(o.get_id()) == 0 ){
+                    o.setDeliveryDate(oa.getDeliveryTime());
+                    ordersAlgorithmLeft.remove(oa);
+                    break;
+                }
+            }
+        }
+        orderRepository.saveAll(orders);
+    }
+
+    public ArrayList<OrderDto> generateFutureOrders(LocalDateTime startDate, LocalDateTime endDate){
+        ArrayList<OrderDto> futureOrders = new ArrayList<>();
+
+        //Generar coeficicientes y parametro de crecimiento
+        int a = 5, b = 240;
+        double n = 1.223;
+
+        LocalDateTime orderDate = LocalDateTime.of(startDate.toLocalDate(),startDate.toLocalTime());
+        long totalDates = DAYS.between(startDate, endDate);
+        for(int numberDate = 1; numberDate <= totalDates; numberDate++){
+            int maxGLP = (int) (a*pow(numberDate,n) + b); //revisar como cambia esto
+
+            FutureOrdersGenerator futureOrdersGenerator = new FutureOrdersGenerator();
+            ArrayList<OrderDto> futureOrdersDay = futureOrdersGenerator.generateFutureOrders(maxGLP, orderDate);
+            futureOrders.addAll(futureOrdersDay);
+
+            orderDate = orderDate.plusDays(1);
+            //if(numberDate==20)break;//
+        }
+        return futureOrders;
+    }
+
+    public List<FileWriter> generateFile(ArrayList<OrderDto> futureOrders) throws IOException {
+        String projectPath = System.getProperty("user.dir");
+        FileWriter fileWriter = null;
+        PrintWriter printWriter = null;
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd:HH:mm");
+        NumberFormat formatter = new DecimalFormat("#0.0");
+        List<FileWriter> files = new ArrayList<>();
+
+        int lastMonth = 0;
+        for (OrderDto orderDto : futureOrders) {
+            int actualMonth = orderDto.getRegistrationDate().getMonthValue();
+            if(actualMonth != lastMonth){
+                if(lastMonth != 0) {
+                    printWriter.close();
+                    files.add(fileWriter);
+                }
+
+                int actualYear = orderDto.getRegistrationDate().getYear();
+                String actualMonthString;
+                if(actualMonth<10) actualMonthString = "0" + actualMonth;
+                else actualMonthString = Integer.toString(actualMonth);
+
+                fileWriter = new FileWriter(projectPath + "/files/orders/" + "ventas" + actualYear + actualMonthString + ".txt",
+                        false);
+                printWriter = new PrintWriter(fileWriter);
+                lastMonth = actualMonth;
+            }
+
+            int x = orderDto.getX();
+            int y = orderDto.getY();
+            int tw = (int) HOURS.between(orderDto.getRegistrationDate(), orderDto.getDeadlineDate());
+            double demand = orderDto.getDemandGLP();
+            LocalDateTime day = orderDto.getRegistrationDate();
+            printWriter.print(day.format(format) + ",");
+            printWriter.print(x + "," + y + ",");
+            printWriter.println(formatter.format(demand) + "," + tw);
+        }
+        if(printWriter != null){
+            printWriter.close();
+            files.add(fileWriter);
+        }
+        return files;
     }
 }

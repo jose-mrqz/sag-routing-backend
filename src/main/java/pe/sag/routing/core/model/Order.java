@@ -10,6 +10,8 @@ import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 
 @EqualsAndHashCode(callSuper = true)
 @Document
@@ -28,6 +30,7 @@ public class Order extends Node {
     private OrderStatus status;
     private boolean monitoring;
     private boolean active = true;
+
 
     public Order(String _id, int code, double demandGLP, double totalDemand, LocalDateTime registrationDate, LocalDateTime deadlineDate, LocalDateTime deliveryDate, OrderStatus status, boolean monitoring, boolean active) {
         this._id = _id;
@@ -64,5 +67,14 @@ public class Order extends Node {
 
     public String getUbication(){
         return '(' + Integer.toString(this.getX()) + " , " + Integer.toString(this.getY()) + ')';
+    }
+    public boolean inRoadblocks(List<Roadblock> roadblocks) {
+        for (Roadblock r : roadblocks) {
+            if (r.getX() == x && r.getY() == y) {
+                if (!(deadlineDate.isBefore(r.getStartDate()) || registrationDate.isAfter(r.getEndDate())))
+                    return true;
+            }
+        }
+        return false;
     }
 }

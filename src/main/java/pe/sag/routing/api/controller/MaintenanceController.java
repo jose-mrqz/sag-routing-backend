@@ -4,20 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.request.ManyMaintenanceRequest;
-import pe.sag.routing.api.request.SimulationInputRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Maintenance;
-import pe.sag.routing.core.model.Order;
-import pe.sag.routing.core.model.Roadblock;
 import pe.sag.routing.core.service.MaintenanceService;
-import pe.sag.routing.data.parser.RoadblockParser;
 import pe.sag.routing.shared.dto.MaintenanceDto;
-import pe.sag.routing.shared.dto.OrderDto;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/maintenance")
@@ -65,7 +58,7 @@ public class MaintenanceController {
 
         RestResponse response;
         if (maintenancesRegistered != null) response = new RestResponse(HttpStatus.OK, "Nuevos mantenimientos preventivos agregados correctamente.", maintenancesRegistered);
-        else response = new RestResponse(HttpStatus.OK, "Error al agregar mantenimientos preventivos.");
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al agregar mantenimientos preventivos.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);

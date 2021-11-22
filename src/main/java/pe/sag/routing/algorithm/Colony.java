@@ -1,6 +1,7 @@
 package pe.sag.routing.algorithm;
 
 import lombok.*;
+import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.core.model.Roadblock;
 
 import java.time.Duration;
@@ -20,7 +21,7 @@ public class Colony extends Graph {
     private static final Double Q = 1.0;
     private static final Double DECAY_RATE = 0.95;
     private static final int INF = Integer.MAX_VALUE;
-    private static final int ITERATOR = 2500;
+    private static final int ITERATOR = 3000;
     private Double threshold;
     private Double[][] pheromoneMatrix;
     private Double[][] ethaMatrix;
@@ -28,12 +29,14 @@ public class Colony extends Graph {
 
     public List<Route> solutionRoutes = null;
     public List<Order> solutionOrders = null;
+    public List<Order> orderList = null;
     public List<Depot> solutionDepots = null;
     public List<Roadblock> roadblocks = null;
     public double bestSolutionQuality;
 
     public Colony(List<Order> orders, List<Truck> trucks, List<Depot> depots, List<Roadblock> roadblocks) {
         super(trucks, orders, depots);
+        this.orderList = orders;
         this.roadblocks = roadblocks;
         this.rand = new Random();
         this.threshold = 0.5;
@@ -48,10 +51,12 @@ public class Colony extends Graph {
                 pheromoneMatrix[j][i] = INIT_PHERO;
                 ethaMatrix[i][j] = Q / (distanceMatrix[i][j]+1);
                 if (nodes[j] instanceof Order)
-                    ethaMatrix[i][j] += Q / Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours();
+                    ethaMatrix[i][j] += Q / (Duration.between(((Order)nodes[j]).twOpen, ((Order)nodes[j]).twClose).toHours()/10.0) + Q * (((Order) nodes[j]).totalDemand/5);
+                else ethaMatrix[i][j] += 0.85;
                 ethaMatrix[j][i] = Q / (distanceMatrix[j][i]+1);
                 if (nodes[i] instanceof Order)
-                    ethaMatrix[j][i] += Q / Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours();
+                    ethaMatrix[j][i] += Q / (Duration.between(((Order)nodes[i]).twOpen, ((Order)nodes[i]).twClose).toHours()/10.0) + Q * (((Order) nodes[i]).totalDemand/5);
+                else ethaMatrix[j][i] += 0.85;
             }
         }
     }
@@ -66,7 +71,7 @@ public class Colony extends Graph {
         this.threshold *= DECAY_RATE;
     }
 
-    public void updatePheroMatrix() {
+    public void updatePheroMatrix(int visited) {
         for (int i = 0; i < nTruck; i++) {
             int tourDistance = calculateTourDistance(trucks[i].tour, 0);
             for (int j = 0; j < trucks[i].tour.size(); j++) {
@@ -74,7 +79,7 @@ public class Colony extends Graph {
                     int currIdx = trucks[i].tour.get(j).idx;
                     int nextIdx = trucks[i].tour.get(j+1).idx;
                     pheromoneMatrix[currIdx][nextIdx] =
-                            EVAP_RATE * pheromoneMatrix[currIdx][nextIdx] + Q / tourDistance;
+                            EVAP_RATE * pheromoneMatrix[currIdx][nextIdx] + Q / tourDistance + (Q * visited);
                 }
             }
         }
@@ -87,11 +92,30 @@ public class Colony extends Graph {
             nodes[i].reset();
     }
 
+    private int validateRoutes() {
+//        AStar astar = new AStar();
+//        List<Route> routes = parseRoutes();
+//        List<Route> validatedRoutes = astar.run(routes, orderList, roadblocks);
+        int totalDistance = 0;
+        List<Route> validatedRoutes = parseRoutes();
+        for (Route r : validatedRoutes) {
+            r.generatePath();
+            totalDistance += r.getPath().size();
+            if (r.getPath().size() <= 1) return -1;
+            Pair<Integer, Integer> lastNode = r.getPath().get(r.getPath().size()-1);
+            Pair<Integer, Integer> firstNode = r.getPath().get(0);
+            if (firstNode.getX() != 12 || firstNode.getY() != 8) return -1;
+            if (lastNode.getX() != 12 || lastNode.getY() != 8) return -1;
+        }
+        solutionRoutes = validatedRoutes;
+        return totalDistance;
+    }
+
     public void run()  {
         double bestSolution = Double.MIN_VALUE;
+        double bestCost = Double.MAX_VALUE;
         for(int i = 0; i < ITERATOR; i++) {
             solve();
-            updatePheroMatrix();
             int attendedCustomers = 0;
             double totalGLP = 0.0;
             double totalConsumption = 0.0;
@@ -100,10 +124,24 @@ public class Colony extends Graph {
                 totalGLP += t.totalDelivered;
                 totalConsumption += t.totalFuelConsumption;
             }
-            double quality = (totalGLP * attendedCustomers) / totalConsumption;
-            if (quality > bestSolution) {
-                bestSolution = quality;
-                saveBestSolution();
+            int visited = 0;
+            for (int k = 3; k < nodes.length; k++) {
+                if (((Order)nodes[k]).visited) visited++;
+            }
+            updatePheroMatrix(visited);
+//            double quality = visited + 1/totalConsumption + 1/totalGLP;
+            double quality = visited;
+            int total = validateRoutes();
+            if (quality > bestSolution || (quality == bestSolution && total < bestCost)) {
+                if (total != -1) {
+                    bestSolution = quality;
+                    bestCost = total;
+                    saveBestSolution();
+//                    if (i >= 50 && bestSolution > 30) {
+//                        resetStep();
+//                        break;
+//                    }
+                }
             }
             updateThreshold();
             resetStep();
@@ -111,16 +149,8 @@ public class Colony extends Graph {
         this.bestSolutionQuality = bestSolution;
     }
 
-    private void saveBestSolution() {
-        solutionRoutes = new ArrayList<>();
-        solutionOrders = new ArrayList<>();
-        solutionDepots = List.of(new Depot((Depot)nodes[1]), new Depot((Depot)nodes[2]));
-        for (Node node : nodes) {
-            if (node instanceof Order) {
-                Order order = (Order)node;
-                solutionOrders.add(new Order(order));
-            }
-        }
+    private List<Route> parseRoutes() {
+        List<Route> solutionRoutes = new ArrayList<>();
         for (Truck t : trucks) {
             int depIdx = 0;
             int arrIdx = 0;
@@ -169,6 +199,18 @@ public class Colony extends Graph {
                 }
             }
         }
+        return solutionRoutes;
+    }
+
+    private void saveBestSolution() {
+        solutionOrders = new ArrayList<>();
+        solutionDepots = List.of(new Depot((Depot)nodes[1]), new Depot((Depot)nodes[2]));
+        for (Node node : nodes) {
+            if (node instanceof Order) {
+                Order order = (Order)node;
+                solutionOrders.add(new Order(order));
+            }
+        }
     }
 
     public double getRandom() {
@@ -195,7 +237,7 @@ public class Colony extends Graph {
                 if (onlyDepot) feasibleEdges.clear();
                 if (feasibleEdges.isEmpty()) {
                     if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes); //return to main depot
-                    else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(30); // wait at main depot
+                    else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(15); // wait at main depot
                 }
             }
 

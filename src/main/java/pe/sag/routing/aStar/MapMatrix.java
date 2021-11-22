@@ -10,7 +10,7 @@ import java.util.List;
 public class MapMatrix {
     //Parametros para revision de bloqueos a tiempo real
     public static final int NUMBER_NODES_EVALUATION = 10; //esto equivale a 12 min
-    public static final long TIME_PER_CICLE = 12;
+    public static final int TIME_PER_CICLE = 60*12;
 
     int[][] matrix;
     int cordX,cordY;
@@ -94,7 +94,7 @@ public class MapMatrix {
 
         ///////inicializar bloqueos
         fechaMin1 = LocalDateTime.of(fechaMin2.toLocalDate(),fechaMin2.toLocalTime());
-        fechaMin2 = fechaMin2.plusMinutes(TIME_PER_CICLE);
+        fechaMin2 = fechaMin2.plusSeconds(TIME_PER_CICLE);
         //Reiniciar mapa
         initializedMatrix();
         //Obtener bloqueos dentro de rango [timeMin1;timeMin2]
@@ -215,7 +215,7 @@ public class MapMatrix {
             numberNodes++;
             if(numberNodes == NUMBER_NODES_EVALUATION || contCiclos == 0) {
                 fechaMin1 = LocalDateTime.of(fechaMin2.toLocalDate(),fechaMin2.toLocalTime());
-                fechaMin2 = fechaMin2.plusMinutes(TIME_PER_CICLE);
+                fechaMin2 = fechaMin2.plusSeconds(TIME_PER_CICLE);
                 //Reiniciar mapa
                 initializedMatrix();
                 //Obtener bloqueos dentro de rango [timeMin1;timeMin2]

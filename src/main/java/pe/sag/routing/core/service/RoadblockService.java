@@ -19,8 +19,8 @@ public class RoadblockService {
         this.roadblockRepository = roadblockRepository;
     }
 
-    public List<Roadblock> findAll() {
-        return roadblockRepository.findAll();
+    public List<Roadblock> findAllByMonitoring(boolean monitoring) {
+        return roadblockRepository.findAllByMonitoring(monitoring);
     }
 
     public List<Roadblock> findByDateTime(LocalDateTime now) {

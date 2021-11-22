@@ -46,4 +46,8 @@ public class SimulationData {
                 .demand(order.getTotalDemand())
                 .build();
     }
+
+    public void setOrderDateTransformed(LocalDateTime transformed) {
+        this.lastOrder.setRegistrationDateTransformed(transformed);
+    }
 }

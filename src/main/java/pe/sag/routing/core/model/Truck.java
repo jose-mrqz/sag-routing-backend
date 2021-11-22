@@ -30,4 +30,8 @@ public class Truck {
     public boolean isTruckAvailable(){
         return status.equals(TruckStatus.DISPONIBLE.toString()) || status.equals(TruckStatus.RUTA.toString());
     }
+
+    public double getModelCapacity() {
+        return model.getCapacity();
+    }
 }

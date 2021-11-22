@@ -44,8 +44,8 @@ public class RoadblockController {
     }
 
     @GetMapping(path = "/all")
-    protected ResponseEntity<?> getAll() {
-        List<Roadblock> roadblocks = roadblockService.findAll();
+    protected ResponseEntity<?> getAllMonitoring() {
+        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
         List<RoadblockDto> roadblocksDto = roadblocks.stream().map(RoadblockParser::toDto).collect(Collectors.toList());
         RestResponse response = new RestResponse(HttpStatus.OK, roadblocksDto);
         return ResponseEntity
@@ -57,7 +57,7 @@ public class RoadblockController {
     protected ResponseEntity<?> getAllSimulation(@RequestBody SimulationRequest request) {
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() == 0) {
-            RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no registrar SimulationInfo");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -80,7 +80,9 @@ public class RoadblockController {
     protected ResponseEntity<?> saveMany(@RequestBody List<RoadblockDto> roadblocksDto) {
         List<Roadblock> roadblocks = roadblocksDto.stream().map(RoadblockParser::fromDto).collect(Collectors.toList());
         roadblocks = roadblockService.saveMany(roadblocks);
-        RestResponse response = new RestResponse(HttpStatus.OK, roadblocks);
+        RestResponse response;
+        if(roadblocks.size()>0) response = new RestResponse(HttpStatus.OK, "Nuevos bloqueos registrados correctamente", roadblocks);
+        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error en registrar bloqueos");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -94,7 +96,7 @@ public class RoadblockController {
         Node nodeGoal = new Node(20,20,2);
         //Node nodeStart = new Node(20,20,1);
         //Node nodeGoal = new Node(12,8,2);
-        List<Roadblock> roadblocks = roadblockService.findAll();
+        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
         List<Pair<Integer,Integer>> solutionList = aStar.run(startDate,nodeStart,nodeGoal,roadblocks);
 
         RestResponse response = new RestResponse(HttpStatus.OK, solutionList);
@@ -106,7 +108,7 @@ public class RoadblockController {
     @PostMapping(path = "/astar2")
     protected ResponseEntity<?> astar2() {
         AStar aStar = new AStar();
-        List<Roadblock> roadblocks = roadblockService.findAll();
+        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
         List<Route> routes = new ArrayList<>();
 
         ArrayList<NodeInfo> nodesInfo = new ArrayList<>();

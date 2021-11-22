@@ -39,6 +39,7 @@ public class RouteController {
     private static Thread simulationThread = null;
     public static SimulationData simulationData = null;
     public static SimulationInfo simulationInfo = null;
+    public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
@@ -73,7 +74,8 @@ public class RouteController {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
             for(RouteDto r : routesDto) {
-                RouteDto rt = r.transformRouteSpeed(simulationInfo, request.getSpeed());
+                RouteDto rt = r.transformRoute(simulationInfo);
+                rt = rt.transformRouteSpeed(simulationInfo, request.getSpeed());
                 routesTransformedDto.add(rt);
             }
         }
@@ -85,6 +87,33 @@ public class RouteController {
         simulationData.setLastRouteEndTime(last);
         SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
+    @PostMapping(path = "/routeTableSimulation")
+    protected ResponseEntity<?> getRouteTableSimulation() {
+        LocalDateTime filterDate = LocalDateTime.now();
+        List<Route> activeRoutes = routeService.findByMonitoring(false);//cambiar por filtro
+        activeRoutes.sort(Comparator.comparing(Route::getStartDate));
+        List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
+        ArrayList<RouteDto> routesDtoFiltered = new ArrayList<>();
+
+        //sacar simulation info de bd
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        if (listSimulationInfo.size() != 0) {
+            SimulationInfo simulationInfo = listSimulationInfo.get(0);
+            for(RouteDto r : routesDto) {
+                RouteDto rt = r.transformRoute(simulationInfo);
+                rt = rt.transformRouteSpeed(simulationInfo, simulationInfo.getSpeed());//revisar si mandar o no speed
+                if(rt.getStartDate().isBefore(filterDate) && filterDate.isBefore(rt.getEndDate())){
+                    routesDtoFiltered.add(r);
+                }
+            }
+        }
+
+        RestResponse response = new RestResponse(HttpStatus.OK, routesDtoFiltered);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -103,13 +132,14 @@ public class RouteController {
             for (int i = 0; i < availableTrucks.size(); i++) {
                 Truck truck = availableTrucks.get(i);
                 Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, true);
-                if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
+                if (lastRoute != null) {
+                    truck.setLastRouteEndTime(lastRoute.getFinishDate());
+                }
                 else truck.setLastRouteEndTime(now);
             }
 
             //mejorar con formato de error: colapso logistico
             if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-                Collections.shuffle(availableTrucks);
                 Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, depots);
                 planner.run();
                 if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
@@ -136,7 +166,7 @@ public class RouteController {
                     boolean scheduled = false;
                     for (Pair<String, LocalDateTime> delivery : solutionOrders) {
                         //if(delivery.getY() == null) //muere
-                        if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                        if (delivery.getX().compareTo(o.get_id()) == 0 && delivery.getY() != null) {
                             scheduled = true;
                             break;
                         }
@@ -146,6 +176,9 @@ public class RouteController {
                 for (Pair<String,LocalDateTime> delivery : solutionOrders) {
                     orderService.scheduleStatusChange(delivery.getX(), OrderStatus.ENTREGADO, delivery.getY());
                 }
+
+                orderService.registerDeliveryDate(pendingOrders,planner.getSolutionOrders());
+
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
                     routeService.save(r);
@@ -191,12 +224,15 @@ public class RouteController {
                 for (int i = 0; i < availableTrucks.size(); i++) {
                     Truck truck = availableTrucks.get(i);
                     Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
-                    if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
+                    if (lastRoute != null) {
+//                        LocalDateTime endTime = routeService.transformDateReverse(simulationInfo, lastRoute.getFinishDate());
+                        LocalDateTime endTime = lastRoute.getFinishDate();
+                        truck.setLastRouteEndTime(endTime);
+                    }
                     else truck.setLastRouteEndTime(startDateReal);
                 }
 
                 if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-                    Collections.shuffle(availableTrucks);
                     Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
                     planner.setNOrders(pendingOrders.size());
                     planner.run();
@@ -230,15 +266,14 @@ public class RouteController {
 
                         pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
                         LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
-
+                        transformed = routeService.transformDateSpeed(RouteController.simulationInfo, RouteController.simulationSpeed, transformed);
                         RouteController.simulationData.setOrder(order, transformed);
                         break;
                     }
-                    RouteController.simulationData.setNScheduled(simulationData.getNScheduled() + planner.getNScheduled());
                     for (pe.sag.routing.algorithm.Route sr : solutionRoutes) {
                         Route r = new Route(sr);
                         r.setMonitoring(false);
-                        r = routeService.transformRoute(r,simulationInfo);
+                        //r = routeService.transformRoute(r,simulationInfo);
                         routeService.save(r);
                     }
                 }
@@ -255,7 +290,7 @@ public class RouteController {
         List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() == 0) {
-            RestResponse response = new RestResponse(HttpStatus.OK, "Error por no registrar SimulationInfo");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no registrar SimulationInfo");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -273,7 +308,6 @@ public class RouteController {
         }
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
-            Collections.shuffle(availableTrucks);
             Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
             planner.setNOrders(pendingOrders.size());
             planner.run();
@@ -283,7 +317,7 @@ public class RouteController {
             for(Order o : pendingOrders){
                 boolean scheduled = false;
                 for (Pair<String, LocalDateTime> delivery : solutionOrders) {
-                    if (delivery.getX().equals(o.get_id()) && delivery.getY() != null) {
+                    if (delivery.getX().compareTo(o.get_id()) == 0 && delivery.getY() != null) {
                         scheduled = true;
                         break;
                     }
@@ -298,18 +332,19 @@ public class RouteController {
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
                     r.setMonitoring(false);
-                    r = routeService.transformRoute(r, simulationInfo);
+                    //r = routeService.transformRoute(r, simulationInfo);
                     routeService.save(r);
                 }
             }
 
             if (planner.getNOrders() != planner.getNScheduled()) {
-                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
+                RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Pedidos sin planificar primera corrida.");
                 simulationData.setFinished(true);
                 simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().get_id());
 
                 pe.sag.routing.algorithm.Order order = planner.getFirstFailed();
                 LocalDateTime transformed = routeService.transformDate(RouteController.simulationInfo, order.getTwOpen());
+                transformed = routeService.transformDateSpeed(RouteController.simulationInfo, RouteController.simulationSpeed, transformed);
 
                 RouteController.simulationData.setOrder(order, transformed);
                 return ResponseEntity.status(response.getStatus()).body(response);
@@ -321,7 +356,7 @@ public class RouteController {
             thread.start();
         }
         else {
-            RestResponse response = new RestResponse(HttpStatus.I_AM_A_TEAPOT, "Error: no hay pedidos o camiones.");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error: no hay pedidos o camiones.");
             return ResponseEntity.status(response.getStatus()).body(response);
         }
 
