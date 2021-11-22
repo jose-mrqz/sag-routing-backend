@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.request.*;
 import pe.sag.routing.api.response.RestResponse;
+import pe.sag.routing.core.model.FutureOrdersGenerator;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Roadblock;
 import pe.sag.routing.core.model.SimulationInfo;
@@ -17,6 +18,8 @@ import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -282,25 +285,19 @@ public class OrderController {
     }
 
     @PostMapping(path = "/future")
-    public ResponseEntity<?> generateFutureOrders(@RequestBody FutureOrdersRequest request) throws IllegalAccessException {
+    public ResponseEntity<?> generateFutureOrders(@RequestBody FutureOrdersRequest request) throws IOException {
         LocalDateTime startDate = LocalDateTime.of(2021,11,16,0,0,0);
         LocalDateTime endDate = startDate.plusMonths(request.getNumberMonths()); //minimo 6 meses
-
-        //FALTA: saber si se tiene que sobrescribir anteriores ya generados o sumarlos a partir de la última fecha
-        //orderService.deleteByMonitoring(false);
 
         //generar pedidos futuros
         ArrayList<OrderDto> futureOrders = orderService.generateFutureOrders(startDate,endDate);
 
-        //registrar todos los pedidos futuros
-        //FALTA: saber si se contabilizan aparte de los pedidos cargados por archivo o se suman a estos pedidos
-        //List<Order> orders = orderService.registerAll(futureOrders, false);
-
         //generar un archivo txt por mes a partir de futureOrders
+        List<FileWriter> files = orderService.generateFile(futureOrders);
 
         RestResponse response;
-        //if (orders != null) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", orders);
-        if (futureOrders.size()>0) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", futureOrders);
+        if (files != null) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", files);
+        //if (futureOrders.size()>0) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", futureOrders);
         else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al generar pedidos futuros.");
         return ResponseEntity
                 .status(response.getStatus())

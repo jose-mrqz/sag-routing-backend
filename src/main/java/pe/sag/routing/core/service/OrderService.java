@@ -2,7 +2,9 @@ package pe.sag.routing.core.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.api.request.NewOrderRequest;
+import pe.sag.routing.core.model.FutureOrdersGenerator;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.scheduler.OrderScheduler;
 import pe.sag.routing.data.parser.OrderParser;
@@ -10,12 +12,19 @@ import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.pow;
-import static java.time.temporal.ChronoUnit.DAYS;
+import static java.time.temporal.ChronoUnit.*;
 
 @Service
 public class OrderService {
@@ -162,59 +171,69 @@ public class OrderService {
         orderRepository.saveAll(orders);
     }
 
-    public ArrayList<OrderDto> generateFutureOrders(LocalDateTime startDate,LocalDateTime endDate){
-        List<Integer> coeficients = generateCoeficients();
-        int a = coeficients.get(0), b = coeficients.get(1), n = coeficients.get(2);
-
+    public ArrayList<OrderDto> generateFutureOrders(LocalDateTime startDate, LocalDateTime endDate){
         ArrayList<OrderDto> futureOrders = new ArrayList<>();
-        LocalDateTime orderDate = LocalDateTime.of(startDate.toLocalDate(),startDate.toLocalTime());//falta variacion de horas, min, seg
+
+        //Generar coeficicientes y parametro de crecimiento
+        int a = 5, b = 240;
+        double n = 1.223;
+
+        LocalDateTime orderDate = LocalDateTime.of(startDate.toLocalDate(),startDate.toLocalTime());
         long totalDates = DAYS.between(startDate, endDate);
         for(int numberDate = 1; numberDate <= totalDates; numberDate++){
-            //FALTA: confirmar si se calcula cantidad de pedidos por dia y si x es el numero de dia que mandan
-            int cantOrders = futureOrdersFunction(numberDate, a, b, n);
-            for(int i = 0; i < cantOrders; i++){
-                //FALTA: saber como generar estos atributos (fecha de llegada de pedido,
-                //ubicación de entrega, cantidad de GLP y número de horas límite)
-                int x = 10, y = 10, totalDemand = 5, slack = 4;
-                int demandGLP = 0;
-                //ArrayList<> variationDate;
+            int maxGLP = (int) (a*pow(numberDate,n) + b); //revisar como cambia esto
 
-                OrderDto orderDto = OrderDto.builder()
-                        .x(x)
-                        .y(y)
-                        .demandGLP(demandGLP)
-                        .totalDemand(totalDemand)
-                        .registrationDate(orderDate)
-                        .deadlineDate(orderDate.plusHours(slack))
-                        .build();
+            FutureOrdersGenerator futureOrdersGenerator = new FutureOrdersGenerator();
+            ArrayList<OrderDto> futureOrdersDay = futureOrdersGenerator.generateFutureOrders(maxGLP, orderDate);
+            futureOrders.addAll(futureOrdersDay);
 
-                //FALTA: confirmar si reviso bloqueo aqui o en simulacion
-                //Revisar si nodo de pedido se encuentra bloqueado
-                /*if(!orderDto.inRoadblocks(roadblocks)){
-                    futureOrders.add(orderDto);
-                }*/
-                futureOrders.add(orderDto);
-            }
             orderDate = orderDate.plusDays(1);
+            //if(numberDate==20)break;//
         }
         return futureOrders;
     }
 
-    public List<Integer> generateCoeficients(){
-        List<Integer> coeficients = new ArrayList<>();
+    public List<FileWriter> generateFile(ArrayList<OrderDto> futureOrders) throws IOException {
+        String projectPath = System.getProperty("user.dir");
+        FileWriter fileWriter = null;
+        PrintWriter printWriter = null;
+        DateTimeFormatter format = DateTimeFormatter.ofPattern("dd:HH:mm");
+        NumberFormat formatter = new DecimalFormat("#0.0");
+        List<FileWriter> files = new ArrayList<>();
 
-        //FALTA: saber si son escogidos a criterio nuestro o debemos calcularlo (como?)
-        int a = 1, b = 1, n = 1;
+        int lastMonth = 0;
+        for (OrderDto orderDto : futureOrders) {
+            int actualMonth = orderDto.getRegistrationDate().getMonthValue();
+            if(actualMonth != lastMonth){
+                if(lastMonth != 0) {
+                    printWriter.close();
+                    files.add(fileWriter);
+                }
 
-        coeficients.add(a);
-        coeficients.add(b);
-        coeficients.add(n);
+                int actualYear = orderDto.getRegistrationDate().getYear();
+                String actualMonthString;
+                if(actualMonth<10) actualMonthString = "0" + actualMonth;
+                else actualMonthString = Integer.toString(actualMonth);
 
-        return coeficients;
-    }
+                fileWriter = new FileWriter(projectPath + "/" + "ventas" + actualYear + actualMonthString + ".txt",
+                        false);
+                printWriter = new PrintWriter(fileWriter);
+                lastMonth = actualMonth;
+            }
 
-    public int futureOrdersFunction(int x, int a, int b, int n){
-        //FALTA: saber con exactitud que funcion polinomial es
-        return (int) (a*pow(x,n) + b);//modificar con funcion lineal
+            int x = orderDto.getX();
+            int y = orderDto.getY();
+            int tw = (int) HOURS.between(orderDto.getRegistrationDate(), orderDto.getDeadlineDate());
+            double demand = orderDto.getDemandGLP();
+            LocalDateTime day = orderDto.getRegistrationDate();
+            printWriter.print(day.format(format) + ",");
+            printWriter.print(x + "," + y + ",");
+            printWriter.println(formatter.format(demand) + "," + tw);
+        }
+        if(printWriter != null){
+            printWriter.close();
+            files.add(fileWriter);
+        }
+        return files;
     }
 }
