@@ -98,7 +98,6 @@ public class RouteController {
         List<Route> activeRoutes = routeService.findByMonitoring(false);//cambiar por filtro
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
         ArrayList<RouteDto> routesDtoFiltered = new ArrayList<>();
 
         //sacar simulation info de bd
@@ -110,18 +109,11 @@ public class RouteController {
                 rt = rt.transformRouteSpeed(simulationInfo, simulationInfo.getSpeed());//revisar si mandar o no speed
                 if(rt.getStartDate().isBefore(filterDate) && filterDate.isBefore(rt.getEndDate())){
                     routesDtoFiltered.add(r);
-                    routesTransformedDto.add(rt);
                 }
             }
         }
 
-        LocalDateTime last = LocalDateTime.MIN;
-        for (RouteDto route : routesTransformedDto) {
-            if (route.getEndDate().isAfter(last)) last = route.getEndDate();
-        }
-        simulationData.setLastRouteEndTime(last);
-        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDtoFiltered, routesTransformedDto);
-        RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
+        RestResponse response = new RestResponse(HttpStatus.OK, routesDtoFiltered);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
