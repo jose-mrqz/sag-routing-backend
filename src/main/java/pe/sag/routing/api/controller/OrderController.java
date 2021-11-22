@@ -1,6 +1,7 @@
 package pe.sag.routing.api.controller;
 
 import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.parser.RoadblockParser;
+import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.dto.UserDto;
@@ -28,7 +30,9 @@ import pe.sag.routing.shared.util.enums.TruckStatus;
 import javax.validation.Valid;
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -262,21 +266,44 @@ public class OrderController {
     }
 
     @PostMapping(path = "/reportOrders")
-    public ResponseEntity<?> reportOrdersIntoDate() throws  Exception, JRException {
+    public ResponseEntity<?> reportOrdersIntoDate(@RequestBody ListOrderRequest request) throws  Exception, JRException {
 
-        List<OrderDto> orderDtos = orderService.list();
+        if(request.getFilter() == null){
+            RestResponse response = new RestResponse(HttpStatus.OK, "Se debe ingresar el tipo de filtro.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
 
+        List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
+        /*
+        List<Order> orders = new ArrayList<Order>();
 
-        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orderDtos);
+        Order order =new Order("0102",01,34.5,50.5,LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),OrderStatus.PENDIENTE,true,true);
+        orders.add(order);
+        order =new Order("0103",02,55.5,45.5,LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),OrderStatus.PENDIENTE,true,true);
+        orders.add(order);
+        order =new Order("0104",03,12.5,59.0,LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),OrderStatus.PENDIENTE,true,true);
+        orders.add(order);
+        System.out.println(Arrays.toString(orders.toArray()));
+        */
+
+        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
+        //JRBeanArrayDataSource beanCollectionDataSource = new JRBeanArrayDataSource(orders.toArray());
+
+        JRDataSource compileReportEmpty = new JREmptyDataSource(1);
         JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/ReportePedidos.jrxml"));
+        //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/reportAux.jrxml"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String fechaInicial = request.getStartDate().format(formatter);
+        String fechaFinal = request.getEndDate().format(formatter);
 
         HashMap<String,Object> map = new HashMap<>();
-        //map.put("fechaInicio", dateIni);
-        map.put("fechaInicio", "00-00-0000");
-        //map.put("fechaFinal", dateEnd);
-        map.put("fechaFinal", "00-00-0000");
+        map.put("fechaInicial", fechaInicial);
+        map.put("fechaFinal", fechaFinal);
+        map.put("dataSetPedidos", beanCollectionDataSource);
 
-        JasperPrint report = JasperFillManager.fillReport(compileReport, map, beanCollectionDataSource);
+        JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
         JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
 
         RestResponse response = new RestResponse(HttpStatus.OK, "Reporte generado correctamente.");

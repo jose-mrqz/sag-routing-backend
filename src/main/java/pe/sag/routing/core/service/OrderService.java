@@ -151,4 +151,8 @@ public class OrderService {
     public int deleteByCode(int code) {
         return orderRepository.deleteByCode(code);
     }
+
+    public List<Order> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return orderRepository.findByMonitoringAndRegistrationDateBetweenOrderByCodeAsc(true, startDate, endDate);
+    }
 }
