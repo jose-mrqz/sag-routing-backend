@@ -93,10 +93,8 @@ public class Planner {
             Colony colony = new Colony(orders, trucks, depots, roadblocks);
             colony.run();
 
-            if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0) {
-                System.out.println("null");
-                break;
-            }
+            if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0) break;
+
             solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
             orders = colony.solutionOrders.stream().filter(o -> !o.visited).collect(Collectors.toList());
             for (int i = 0; i < orders.size(); i++) {
@@ -124,7 +122,7 @@ public class Planner {
                             truck.startDate = route.getFinishDate();
                             truck.startingDate = route.getFinishDate();
                             truck.finished = false;
-//                            break;
+                            break;
                         }
                     }
                 }
