@@ -198,7 +198,8 @@ public class RouteController {
                     Truck truck = availableTrucks.get(i);
                     Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
                     if (lastRoute != null) {
-                        LocalDateTime endTime = routeService.transformDateReverse(simulationInfo, lastRoute.getFinishDate());
+//                        LocalDateTime endTime = routeService.transformDateReverse(simulationInfo, lastRoute.getFinishDate());
+                        LocalDateTime endTime = lastRoute.getFinishDate();
                         truck.setLastRouteEndTime(endTime);
                     }
                     else truck.setLastRouteEndTime(startDateReal);
