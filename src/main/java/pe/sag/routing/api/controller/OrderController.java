@@ -19,6 +19,7 @@ import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.websocket.server.PathParam;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -285,11 +286,11 @@ public class OrderController {
                 .body(response);
     }
 
-    @PostMapping(path = "/future")
+    @RequestMapping(path = "/future/{months}")
     @ResponseBody
-    public void generateFutureOrders(@RequestBody FutureOrdersRequest request, HttpServletResponse response) throws IOException {
+    public void generateFutureOrders(@PathVariable("months") Integer months, HttpServletResponse response) throws IOException {
         LocalDateTime startDate = LocalDateTime.of(2021,11,16,0,0,0);
-        LocalDateTime endDate = startDate.plusMonths(request.getNumberMonths()); //minimo 6 meses
+        LocalDateTime endDate = startDate.plusMonths(months); //minimo 6 meses
 
         //generar pedidos futuros
         ArrayList<OrderDto> futureOrders = orderService.generateFutureOrders(startDate,endDate);
