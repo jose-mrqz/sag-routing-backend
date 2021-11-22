@@ -215,7 +215,7 @@ public class OrderService {
                 if(actualMonth<10) actualMonthString = "0" + actualMonth;
                 else actualMonthString = Integer.toString(actualMonth);
 
-                fileWriter = new FileWriter(projectPath + "/" + "ventas" + actualYear + actualMonthString + ".txt",
+                fileWriter = new FileWriter(projectPath + "/files/orders/" + "ventas" + actualYear + actualMonthString + ".txt",
                         false);
                 printWriter = new PrintWriter(fileWriter);
                 lastMonth = actualMonth;
