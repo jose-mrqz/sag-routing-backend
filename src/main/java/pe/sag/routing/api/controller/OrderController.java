@@ -5,10 +5,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.request.*;
 import pe.sag.routing.api.response.RestResponse;
-import pe.sag.routing.core.model.FutureOrdersGenerator;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Roadblock;
 import pe.sag.routing.core.model.SimulationInfo;
+import pe.sag.routing.core.service.FileService;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.data.parser.OrderParser;
@@ -18,12 +18,13 @@ import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
-import java.io.FileWriter;
-import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipOutputStream;
 
 @RestController
 @RequestMapping("/order")
@@ -285,7 +286,8 @@ public class OrderController {
     }
 
     @PostMapping(path = "/future")
-    public ResponseEntity<?> generateFutureOrders(@RequestBody FutureOrdersRequest request) throws IOException {
+    @ResponseBody
+    public void generateFutureOrders(@RequestBody FutureOrdersRequest request, HttpServletResponse response) throws IOException {
         LocalDateTime startDate = LocalDateTime.of(2021,11,16,0,0,0);
         LocalDateTime endDate = startDate.plusMonths(request.getNumberMonths()); //minimo 6 meses
 
@@ -295,12 +297,37 @@ public class OrderController {
         //generar un archivo txt por mes a partir de futureOrders
         List<FileWriter> files = orderService.generateFile(futureOrders);
 
-        RestResponse response;
-        if (files != null) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", files);
+//        RestResponse response;
+        if (files != null)  {
+            String sourceFile = System.getProperty("user.dir") + "/files/orders";
+            FileOutputStream fos = new FileOutputStream(System.getProperty("user.dir") + "/files/orders.zip");
+            ZipOutputStream zipOut = new ZipOutputStream(fos);
+            File fileToZip = new File(sourceFile);
+
+            FileService.zipFile(fileToZip, fileToZip.getName(), zipOut);
+            zipOut.close();
+            fos.close();
+
+            response.setContentType("application/zip");
+            response.setHeader("Content-Disposition", "attachment; filename=orders.zip");
+            response.setHeader("Content-Transfer-Encoding", "binary");
+
+            BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+            FileInputStream fis = new FileInputStream(System.getProperty("user.dir") + "/files/orders.zip");
+            int len;
+            byte[] buf = new byte[1024];
+            while((len = fis.read(buf)) > 0) {
+                bos.write(buf,0,len);
+            }
+            bos.close();
+            response.flushBuffer();
+
+//            response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.");
+        }
         //if (futureOrders.size()>0) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", futureOrders);
-        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al generar pedidos futuros.");
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
+//        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al generar pedidos futuros.");
+//        return ResponseEntity
+//                .status(response.getStatus())
+//                .body(response);
     }
 }
