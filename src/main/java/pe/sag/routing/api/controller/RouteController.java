@@ -92,6 +92,41 @@ public class RouteController {
                 .body(response);
     }
 
+    @PostMapping(path = "/routeTableSimulation")
+    protected ResponseEntity<?> getRouteTableSimulation() {
+        LocalDateTime filterDate = LocalDateTime.now();
+        List<Route> activeRoutes = routeService.findByMonitoring(false);//cambiar por filtro
+        activeRoutes.sort(Comparator.comparing(Route::getStartDate));
+        List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
+        ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
+        ArrayList<RouteDto> routesDtoFiltered = new ArrayList<>();
+
+        //sacar simulation info de bd
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        if (listSimulationInfo.size() != 0) {
+            SimulationInfo simulationInfo = listSimulationInfo.get(0);
+            for(RouteDto r : routesDto) {
+                RouteDto rt = r.transformRoute(simulationInfo);
+                rt = rt.transformRouteSpeed(simulationInfo, simulationInfo.getSpeed());//revisar si mandar o no speed
+                if(rt.getStartDate().isBefore(filterDate) && filterDate.isBefore(rt.getEndDate())){
+                    routesDtoFiltered.add(r);
+                    routesTransformedDto.add(rt);
+                }
+            }
+        }
+
+        LocalDateTime last = LocalDateTime.MIN;
+        for (RouteDto route : routesTransformedDto) {
+            if (route.getEndDate().isAfter(last)) last = route.getEndDate();
+        }
+        simulationData.setLastRouteEndTime(last);
+        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDtoFiltered, routesTransformedDto);
+        RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
+        return ResponseEntity
+                .status(response.getStatus())
+                .body(response);
+    }
+
     @PostMapping
     public ResponseEntity<?> scheduleRoutes() {
         while (true) {
