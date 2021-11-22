@@ -1,8 +1,8 @@
 package pe.sag.routing.core.service;
 
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.core.model.FutureOrdersGenerator;
 import pe.sag.routing.core.model.Order;
@@ -12,6 +12,7 @@ import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,7 +21,6 @@ import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
 import static java.lang.Math.pow;
@@ -130,7 +130,7 @@ public class OrderService {
     }
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
-        return orderRepository.findFirst30ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
+        return orderRepository.findFirst80ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
     }
 
     public Order cancelOrder(String id, double amount) {
@@ -200,6 +200,10 @@ public class OrderService {
         DateTimeFormatter format = DateTimeFormatter.ofPattern("dd:HH:mm");
         NumberFormat formatter = new DecimalFormat("#0.0");
         List<FileWriter> files = new ArrayList<>();
+
+        // clear dir
+        File dir = new File(projectPath + "/files/orders");
+        FileUtils.cleanDirectory(dir);
 
         int lastMonth = 0;
         for (OrderDto orderDto : futureOrders) {

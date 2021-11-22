@@ -21,19 +21,19 @@ public class Depot extends Node {
     boolean isMain;
     String id;
 
-    public Depot(boolean isMain, int x, int y, int idx) {
+    public Depot(String id, boolean isMain, int x, int y, int idx) {
         originalState = new HashMap<>();
         remainingGlp = new HashMap<>();
         this.isMain = isMain;
         this.x = x;
         this.y = y;
         this.idx = idx;
-        id = null;
+        this.id = id;
     }
 
     public Depot(Depot d) {
         this.x = d.x;
-        this.x = d.y;
+        this.y = d.y;
         this.isMain = d.isMain;
         this.originalState = (HashMap<LocalDate, Double>) d.originalState.clone();
         this.remainingGlp = (HashMap<LocalDate, Double>) d.remainingGlp.clone();

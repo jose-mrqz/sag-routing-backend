@@ -39,6 +39,7 @@ public class RouteController {
     private static Thread simulationThread = null;
     public static SimulationData simulationData = null;
     public static SimulationInfo simulationInfo = null;
+    public static SimulationHelper simulationHelper = null;
     public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
