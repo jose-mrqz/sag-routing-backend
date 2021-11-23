@@ -52,7 +52,7 @@ public class UserService {
                 .lastName("test")
                 .username("admin_test")
                 .password("test")
-                .roles(List.of(Role.ADMINISTRADOR, Role.PLANIFICADOR, Role.GERENTE))
+                .roles(List.of(Role.ADMINISTRADOR))
                 .active(true)
                 .build();
         return userRepository.save(admin);
@@ -72,7 +72,8 @@ public class UserService {
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         if(request.getPassword() != null) user.setPassword(request.getPassword());
-        if(request.getRoles() != null) user.setRoles(request.getRoles().stream().map(Role::valueOf).collect(Collectors.toList()));
+        List<String> roles = List.of(request.getRole());
+        user.setRoles(roles.stream().map(Role::valueOf).collect(Collectors.toList()));
         return userRepository.save(user);
     }
 

@@ -7,6 +7,7 @@ import pe.sag.routing.data.repository.RouteRepository;
 import pe.sag.routing.shared.dto.RouteDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -123,6 +124,11 @@ public class RouteService {
         return transformedDate;
     }
 
+    public List<FuelConsume> getFuelConsumedPerDay(LocalDateTime startDate, LocalDateTime endDate){
+        List<FuelConsume> fuelConsumed = new ArrayList<>();
+        List<Route> routes = routeRepository.findByFinishDateBetweenAndMonitoringAndCancelled(startDate, endDate, true, false);
 
+        return fuelConsumed;
+    }
 }
 
