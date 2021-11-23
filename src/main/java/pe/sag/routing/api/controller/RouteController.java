@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.algorithm.DepotInfo;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
+import pe.sag.routing.api.request.FuelConsumedRequest;
+import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.api.response.SimulationResponse;
@@ -367,5 +369,12 @@ public class RouteController {
 
         RestResponse response = new RestResponse(HttpStatus.OK, "Algoritmo de Simulacion realizado correctamente.");
         return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @PostMapping(path = "/fuelConsumed")
+    public ResponseEntity<?> getFuelConsumed(@RequestBody FuelConsumedRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.I_AM_A_TEAPOT)
+                .body(routeService.getFuelConsumedPerDay(request.startDate, request.endDate));
     }
 }
