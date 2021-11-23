@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.SneakyThrows;
+import pe.sag.routing.api.controller.RouteController;
+import pe.sag.routing.core.model.SimulationHelper;
 
 import java.io.*;
 import java.time.LocalDateTime;
@@ -36,11 +38,16 @@ public class Graph {
 
         // depots - add availableGlp
         nodes = new Node[nNode];
-        nodes[0] = new Depot(true, MDX, MDY, 0);
+        nodes[0] = new Depot("PORONGAZO PRINCIPAL", true, MDX, MDY, 0);
 
         if (depots == null) {
-            nodes[1] = new Depot(false, D1X, D1Y, 1);
-            nodes[2] = new Depot(false, D2X, D2Y, 2);
+            SimulationHelper sh = RouteController.simulationHelper;
+            if (sh.getDepots().size() == 0) {
+                sh.getDepots().add(new Depot("PORONGAZO NORTE",false, D1X, D1Y, 1));
+                sh.getDepots().add(new Depot("PORONGAZO SUR", false, D2X, D2Y, 2));
+            }
+            nodes[1] = sh.getDepots().get(0);
+            nodes[2] = sh.getDepots().get(1);
         } else {
             nodes[1] = depots.get(0);
             nodes[2] = depots.get(1);

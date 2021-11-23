@@ -6,6 +6,8 @@ import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.algorithm.DepotInfo;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
+import pe.sag.routing.api.request.FuelConsumedRequest;
+import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.api.response.SimulationResponse;
@@ -39,6 +41,7 @@ public class RouteController {
     private static Thread simulationThread = null;
     public static SimulationData simulationData = null;
     public static SimulationInfo simulationInfo = null;
+    public static SimulationHelper simulationHelper = null;
     public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
@@ -63,20 +66,24 @@ public class RouteController {
 
     @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
+        LocalDateTime filterDate = LocalDateTime.now();
         List<Route> activeRoutes = routeService.findByMonitoring(false);
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
+        ArrayList<RouteDto> routesDtoFiltered = new ArrayList<>();
         ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
 
         //sacar simulation info de bd
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() != 0) {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
-
             for(RouteDto r : routesDto) {
                 RouteDto rt = r.transformRoute(simulationInfo);
                 rt = rt.transformRouteSpeed(simulationInfo, request.getSpeed());
-                routesTransformedDto.add(rt);
+                if(rt.inDateRange(filterDate)){
+                    routesDtoFiltered.add(r);
+                    routesTransformedDto.add(rt);
+                }
             }
         }
 
@@ -85,7 +92,7 @@ public class RouteController {
             if (route.getEndDate().isAfter(last)) last = route.getEndDate();
         }
         simulationData.setLastRouteEndTime(last);
-        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDto, routesTransformedDto);
+        SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDtoFiltered, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         return ResponseEntity
                 .status(response.getStatus())
@@ -95,7 +102,7 @@ public class RouteController {
     @PostMapping(path = "/routeTableSimulation")
     protected ResponseEntity<?> getRouteTableSimulation() {
         LocalDateTime filterDate = LocalDateTime.now();
-        List<Route> activeRoutes = routeService.findByMonitoring(false);//cambiar por filtro
+        List<Route> activeRoutes = routeService.findByMonitoring(false);
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
         ArrayList<RouteDto> routesDtoFiltered = new ArrayList<>();
@@ -107,7 +114,7 @@ public class RouteController {
             for(RouteDto r : routesDto) {
                 RouteDto rt = r.transformRoute(simulationInfo);
                 rt = rt.transformRouteSpeed(simulationInfo, simulationInfo.getSpeed());//revisar si mandar o no speed
-                if(rt.getStartDate().isBefore(filterDate) && filterDate.isBefore(rt.getEndDate())){
+                if(rt.inDateRange(filterDate)){
                     routesDtoFiltered.add(r);
                 }
             }
@@ -365,6 +372,11 @@ public class RouteController {
     }
 
 
-
+    @PostMapping(path = "/fuelConsumed")
+    public ResponseEntity<?> getFuelConsumed(@RequestBody FuelConsumedRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.I_AM_A_TEAPOT)
+                .body(routeService.getFuelConsumedPerDay(request.startDate, request.endDate));
+    }
 
 }

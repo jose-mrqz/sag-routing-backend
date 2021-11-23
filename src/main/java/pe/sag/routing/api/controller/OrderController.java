@@ -10,6 +10,7 @@ import pe.sag.routing.api.request.*;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Order;
 import pe.sag.routing.core.model.Roadblock;
+import pe.sag.routing.core.model.SimulationHelper;
 import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.service.FileService;
 import pe.sag.routing.core.service.OrderService;
@@ -30,7 +31,9 @@ import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+
 import java.util.Arrays;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -149,6 +152,7 @@ public class OrderController {
                 .message("Simulacion iniciada con " + inserted +  " pedidos.")
                 .finished(false)
                 .build();
+        RouteController.simulationHelper = new SimulationHelper();
 
         if (ordersDto.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Todos los pedidos se encuentran bloqueados.");
@@ -308,7 +312,6 @@ public class OrderController {
         //generar un archivo txt por mes a partir de futureOrders
         List<FileWriter> files = orderService.generateFile(futureOrders);
 
-//        RestResponse response;
         if (files != null)  {
             String sourceFile = System.getProperty("user.dir") + "/files/orders";
             FileOutputStream fos = new FileOutputStream(System.getProperty("user.dir") + "/files/orders.zip");
@@ -332,9 +335,8 @@ public class OrderController {
             }
             bos.close();
             response.flushBuffer();
-
-//            response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.");
         }
+
         //if (futureOrders.size()>0) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", futureOrders);
 //        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al generar pedidos futuros.");
 //        return ResponseEntity
@@ -388,5 +390,6 @@ public class OrderController {
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
+
     }
 }

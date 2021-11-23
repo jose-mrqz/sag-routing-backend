@@ -9,13 +9,14 @@ import java.util.stream.Collectors;
 
 public class UserParser {
     public static User fromDto(UserDto userDto) {
+        List<String> roles = List.of(userDto.getRole());
         User user = User.builder()
                 .code(userDto.getCode())
                 .firstName(userDto.getFirstName())
                 .lastName(userDto.getLastName())
                 .username(userDto.getUsername())
                 .password(userDto.getPassword())
-                .roles(userDto.getRoles().stream().map(Role::valueOf).collect(Collectors.toList()))
+                .roles(roles.stream().map(Role::valueOf).collect(Collectors.toList()))
                 .active(true)
                 .build();
         return user;
@@ -23,7 +24,7 @@ public class UserParser {
 
     public static UserDto toDto(User user) {
         UserDto userDto = BaseParser.parse(user, UserDto.class);
-        userDto.setRoles(user.getRoles().stream().map(Role::toString).collect(Collectors.toList()));
+        userDto.setRole(user.getRoles().stream().map(Role::toString).collect(Collectors.toList()).get(0));
         return userDto;
     }
 }

@@ -184,4 +184,10 @@ public class RouteDto {
 
         return transformedRoute;
     }
+
+    public boolean inDateRange(LocalDateTime filterDate){
+        LocalDateTime filterDateRangeStart = filterDate.minusDays(1);
+        LocalDateTime filterDateRangeEnd = filterDate.plusDays(1);
+        return !filterDateRangeEnd.isBefore(startDate) && !endDate.isBefore(filterDateRangeStart);
+    }
 }

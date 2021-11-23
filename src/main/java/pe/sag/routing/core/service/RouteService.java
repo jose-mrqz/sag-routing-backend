@@ -7,12 +7,12 @@ import pe.sag.routing.data.repository.RouteRepository;
 import pe.sag.routing.shared.dto.RouteDto;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static java.time.temporal.ChronoUnit.NANOS;
-import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.time.temporal.ChronoUnit.*;
 
 @Service
 public class RouteService {
@@ -123,6 +123,23 @@ public class RouteService {
         return transformedDate;
     }
 
+    public List<FuelConsume> getFuelConsumedPerDay(LocalDateTime startDate, LocalDateTime endDate){
+        List<FuelConsume> fuelConsumes = new ArrayList<>();
+        List<Route> routes = routeRepository.findByFinishDateBetweenAndMonitoringAndCancelled(startDate, endDate.plusDays(1), true, false);
+        LocalDateTime actualDate = LocalDateTime.of(startDate.toLocalDate(),startDate.toLocalTime());
 
+        double totalFuel = 0;
+        for(Route r : routes){
+            //revisar condicion
+            if(actualDate.toLocalDate().isBefore(r.getFinishDate().toLocalDate())){
+                fuelConsumes.add(new FuelConsume(actualDate, totalFuel));
+                totalFuel = 0;
+                actualDate = actualDate.plusDays(1);
+            }
+            totalFuel += r.getFuelConsumed();
+        }
+        fuelConsumes.add(new FuelConsume(actualDate, totalFuel));
+        return fuelConsumes;
+    }
 }
 

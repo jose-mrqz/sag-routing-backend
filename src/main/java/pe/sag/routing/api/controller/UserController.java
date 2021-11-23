@@ -118,7 +118,7 @@ public class UserController {
         RestResponse response;
         if(user == null) response = new RestResponse(HttpStatus.BAD_REQUEST, "Usuario con username ingresado no existe.");
         else if(user.getPassword().compareTo(request.getPassword()) == 0){
-            response = new RestResponse(HttpStatus.OK, "Ingreso permitido.");
+            response = new RestResponse(HttpStatus.OK, "Ingreso permitido.",user);
         }
         else response = new RestResponse(HttpStatus.BAD_REQUEST, "Contraseña incorrecta.");
         return ResponseEntity
