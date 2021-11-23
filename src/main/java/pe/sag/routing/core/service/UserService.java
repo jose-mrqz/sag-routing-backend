@@ -63,8 +63,8 @@ public class UserService {
         return lastUser.orElse(null);
     }
 
-    public User findByCode(String code) throws IllegalAccessException {
-        return userRepository.findByCode(code).orElseThrow(IllegalAccessException::new);
+    public User findByCode(String code) {
+        return userRepository.findByCode(code).orElse(null);
     }
 
     public User edit(User user, UserDto request) {
@@ -77,8 +77,8 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    public int deleteByCode(String code) {
-        return userRepository.deleteByCode(code);
+    public void deleteUser(User user) {
+        userRepository.delete(user);
     }
 
     public List<String> listRoles() {
