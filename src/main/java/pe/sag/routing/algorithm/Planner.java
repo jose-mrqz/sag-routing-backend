@@ -52,10 +52,10 @@ public class Planner {
 //                        .thenComparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime))
                 .collect(Collectors.toList());
 
-        modelOrders = modelOrders.stream()
-                .sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDemandGLP)
-                    .thenComparing(pe.sag.routing.core.model.Order::getDeadlineDate))
-                .collect(Collectors.toList());
+//        modelOrders = modelOrders.stream()
+//                .sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDemandGLP)
+//                    .thenComparing(pe.sag.routing.core.model.Order::getRegistrationDate))
+//                .collect(Collectors.toList());
 
         HashMap<String, List<pe.sag.routing.core.model.Truck>> truckCategory = new HashMap<>();
         for (int i = 0; i < modelTrucks.size(); i++) {
@@ -70,12 +70,12 @@ public class Planner {
 
 
         Collections.reverse(modelTrucks);
-        Collections.reverse(modelOrders);
+//        Collections.reverse(modelOrders);
 //            Collections.shuffle(modelTrucks);
 
         for (pe.sag.routing.core.model.Truck tm : modelTrucks) {
             trucks.add(new Truck(tm.get_id(), tm.getCode(), tm.getModel().getCapacity(),
-                    tm.getModel().getTareWeight(), 0, tm.getLastRouteEndTime()));
+                    tm.getModel().getTareWeight(), 0, tm.getLastRouteEndTime(), tm.getClosestMaintenanceStart()));
         }
 
 //        modelOrders = modelOrders.stream().sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDeadlineDate).
@@ -101,15 +101,15 @@ public class Planner {
 
             if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0) break;
 
-            solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
-
             List<Route> solutionRoutes = colony.getSolutionRoutes();
             AStar astar = new AStar();
             solutionRoutes = astar.run(solutionRoutes, solutionOrders, roadblocks);
             solutionDepots = colony.solutionDepots;
-            orders = solutionOrders;
+            orders = colony.solutionOrders;
 
             createBreakdowns(solutionRoutes, orders, solutionDepots);
+
+            solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
 
             orders = orders.stream().filter(o -> !o.visited).collect(Collectors.toList());
             for (int i = 0; i < orders.size(); i++) {
@@ -137,7 +137,7 @@ public class Planner {
                     }
                 }
 
-                this.solutionRoutes.addAll(colony.getSolutionRoutes());
+                this.solutionRoutes.addAll(solutionRoutes);
 
                 for (int i = 0; i < orders.size(); i++) {
                     Order order = orders.get(i);
@@ -187,7 +187,7 @@ public class Planner {
         SimulationHelper sh = RouteController.simulationHelper;
         if (sh.getCount() >= 2) return;
         if (sh.getCount() == 0) { //second truck
-            if (routes.size() < 2) { //metida de ratinha
+            if (routes.size() < 2 && sh.getTruckCount() < 1) { //metida de ratinha
                 sh.setCount(1);
                 return;
             }
@@ -199,20 +199,22 @@ public class Planner {
             sh.setCount(1);
             Breakdown breakdown = cancelRoute(route, 120, orders, depots);
             sh.getBreakdowns().put(route.getTruckId(), breakdown);
-        } else if (sh.getCount() == 1) { //fourth truck
-            if (routes.size() < 2) { //metida de ratinha
-                sh.setCount(1);
+        }
+        if (sh.getCount() == 1) { //fourth truck
+            if (routes.size() < 4 || (sh.getTruckCount() + routes.size() < 4)) { //metida de ratinha
+                sh.setCount(2);
                 return;
             }
-            Route route = routes.get(1);
+            Route route = routes.get(3);
             if (Duration.between(route.getStartDate(), route.getFinishDate()).toMinutes() <= 180) {
-                sh.setCount(1);
+                sh.setCount(2);
                 return;
             }
             sh.setCount(2);
             Breakdown breakdown = cancelRoute(route, 180, orders, depots);
             sh.getBreakdowns().put(route.getTruckId(), breakdown);
         }
+        sh.setTruckCount(sh.getTruckCount() + routes.size());
     }
 
     private Breakdown cancelRoute(Route route, int minutes, List<Order> orders, List<Depot> depots) {
@@ -232,6 +234,9 @@ public class Planner {
                 .startDate(now)
                 .endDate(now.plusMinutes(60))
                 .build();
+        List<Pair<Integer,Integer>> remainingPath = route.getPath().subList(route.getPath().indexOf(route.getPath().get(traveledNodes)),
+                route.getPath().size());
+        route.getPath().removeAll(remainingPath);
         if (nextNode != null) {
             List<NodeInfo> pendingNodes = route.getNodesInfo().subList(route.getNodesInfo().indexOf(nextNode), route.getNodesInfo().size());
             for (NodeInfo ni : pendingNodes) {
@@ -241,6 +246,7 @@ public class Planner {
                     revertDepot(depots, ((DepotInfo)ni).getId(), ((DepotInfo)ni).getRefilledGlp(), ni.getArrivalTime());
                 }
             }
+            route.nodesInfo.removeAll(pendingNodes);
         }
         return breakdown;
     }

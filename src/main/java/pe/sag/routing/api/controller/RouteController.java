@@ -7,13 +7,11 @@ import pe.sag.routing.algorithm.DepotInfo;
 import pe.sag.routing.algorithm.Pair;
 import pe.sag.routing.algorithm.Planner;
 import pe.sag.routing.api.request.FuelConsumedRequest;
-import pe.sag.routing.api.request.NewOrderRequest;
 import pe.sag.routing.api.request.SimulationRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.api.response.SimulationResponse;
 import pe.sag.routing.core.model.*;
 import pe.sag.routing.core.service.*;
-import pe.sag.routing.data.parser.DepotParser;
 import pe.sag.routing.data.parser.RouteParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.RouteDto;
@@ -23,7 +21,6 @@ import pe.sag.routing.shared.util.enums.TruckStatus;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -35,6 +32,7 @@ public class RouteController {
     private final TruckService truckService;
     private final OrderService orderService;
     private final DepotService depotService;
+    private final MaintenanceService maintenanceService;
     private final SimulationInfoRepository simulationInfoRepository;
     private final RoadblockService roadblockService;
 
@@ -45,11 +43,12 @@ public class RouteController {
     public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
-                           OrderService orderService, DepotService depotService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
+                           OrderService orderService, DepotService depotService, MaintenanceService maintenanceService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
         this.depotService = depotService;
+        this.maintenanceService = maintenanceService;
         this.simulationInfoRepository = simulationInfoRepository;
         this.roadblockService = roadblockService;
     }
@@ -143,6 +142,10 @@ public class RouteController {
                     truck.setLastRouteEndTime(lastRoute.getFinishDate());
                 }
                 else truck.setLastRouteEndTime(now);
+                Maintenance maintenance = maintenanceService.closestMaintenance(truck.getCode());
+                if (maintenance != null) {
+                    truck.setClosestMaintenanceStart(maintenance.getStartDate());
+                }
             }
 
             //mejorar con formato de error: colapso logistico

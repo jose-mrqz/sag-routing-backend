@@ -15,6 +15,7 @@ public class SimulationHelper {
      private HashMap<String, Breakdown> breakdowns;
      private ArrayList<Depot> depots;
      private int count = 0;
+     private int truckCount = 0;
 
      public SimulationHelper() {
           breakdowns = new HashMap<>();

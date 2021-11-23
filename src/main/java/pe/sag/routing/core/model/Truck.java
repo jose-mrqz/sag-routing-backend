@@ -23,6 +23,7 @@ public class Truck {
     private String code;
     private TruckModel model;
     private LocalDateTime lastRouteEndTime = null;
+    private LocalDateTime closestMaintenanceStart = null;
     private boolean monitoring;
     private boolean active = true;
     private String status = TruckStatus.DISPONIBLE.toString();
