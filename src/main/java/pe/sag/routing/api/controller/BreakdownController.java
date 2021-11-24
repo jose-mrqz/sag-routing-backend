@@ -43,7 +43,7 @@ public class BreakdownController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
-    @GetMapping
+    @GetMapping(path = "/simulation")
     public ResponseEntity<?> getSimulation() {
         RestResponse response;
         List<Breakdown> breakdowns = new ArrayList<>();
