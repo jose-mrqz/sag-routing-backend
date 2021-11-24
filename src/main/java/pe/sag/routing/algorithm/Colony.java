@@ -21,7 +21,7 @@ public class Colony extends Graph {
     private static final Double Q = 1.0;
     private static final Double DECAY_RATE = 0.95;
     private static final int INF = Integer.MAX_VALUE;
-    private static final int ITERATOR = 3000;
+    private static final int ITERATOR = 100;
     private Double threshold;
     private Double[][] pheromoneMatrix;
     private Double[][] ethaMatrix;

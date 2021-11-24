@@ -223,6 +223,8 @@ public class OrderService {
                         false);
                 printWriter = new PrintWriter(fileWriter);
                 lastMonth = actualMonth;
+                fileWriter.close();
+                printWriter.close();
             }
 
             int x = orderDto.getX();

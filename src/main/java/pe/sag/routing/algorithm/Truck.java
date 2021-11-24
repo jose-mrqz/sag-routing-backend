@@ -27,6 +27,7 @@ public class Truck {
     LocalDateTime nowTime;
     LocalDateTime startDate;
     LocalDateTime finishDate;
+    LocalDateTime closestMaintenance = LocalDateTime.MAX;
 
     LocalDateTime startingDate;
     boolean finished;
@@ -45,7 +46,7 @@ public class Truck {
     private static final Double MAX_FUEL = 25.0;
     private static final Double GLP_WEIGHT = 0.5;
 
-    public Truck(String _id, String code, double capacity, double tareWeight, int nowIdx, LocalDateTime startingDate) {
+    public Truck(String _id, String code, double capacity, double tareWeight, int nowIdx, LocalDateTime startingDate, LocalDateTime closestMaintenance) {
         this._id = _id;
         this.code = code;
         this.startingDate = startingDate;
@@ -68,6 +69,7 @@ public class Truck {
         fuelConsumption = new ArrayList<>();
         glpRegistry = new ArrayList<>();
         finished = false;
+        this.closestMaintenance = closestMaintenance == null ?  LocalDateTime.MAX : closestMaintenance;
     }
 
     private int calculateTravelTime(int[][] matrix, int i, int j) {
@@ -78,10 +80,15 @@ public class Truck {
         return matrix[i][j] * weight / CONSUMPTION_RATE;
     }
 
-    private boolean okTime(Order o, int travelTime) {
+    private boolean okTime(Order o, int travelTime, int idx, int[][] matrix) {
         LocalDateTime arrivalTime = nowTime.plusSeconds(travelTime);
-        return (nowTime.isAfter(o.twOpen.minusMinutes(10)) || nowTime.isEqual(o.twOpen.minusMinutes(10))) &&
+        boolean valid = (nowTime.isAfter(o.twOpen.minusMinutes(10)) || nowTime.isEqual(o.twOpen.minusMinutes(10))) &&
                 (arrivalTime.isBefore(o.twClose.minusMinutes(o.unloadTime+10)) || arrivalTime.isEqual(o.twClose.minusMinutes(o.unloadTime+10)));
+        if (valid && closestMaintenance != null) {
+            int returnTime = calculateTravelTime(matrix, idx, 0);
+            valid = arrivalTime.plusSeconds(returnTime).isBefore(closestMaintenance);
+        }
+        return valid;
     }
 
     private boolean okCapacity(Node n, int travelTime) {
@@ -112,7 +119,7 @@ public class Truck {
     private boolean evaluateOrder(Order o, int[][] matrix) {
         if (nowTime.isBefore(o.twOpen)) return false;
         int travelTime = calculateTravelTime(matrix, nowIdx, o.idx);
-        return (okTime(o, travelTime) && okCapacity(o, travelTime) && okFuel(o, matrix));
+        return (okTime(o, travelTime, o.idx, matrix) && okCapacity(o, travelTime) && okFuel(o, matrix));
     }
 
     private boolean evaluateDepot(Depot d, int[][] matrix) {
