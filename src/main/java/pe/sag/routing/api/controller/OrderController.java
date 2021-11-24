@@ -345,7 +345,7 @@ public class OrderController {
         //JRBeanArrayDataSource beanCollectionDataSource = new JRBeanArrayDataSource(orders.toArray());
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
-        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/ReportePedidos.jrxml"));
+        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
         //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/reportAux.jrxml"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaInicial = request.getStartDate().format(formatter);

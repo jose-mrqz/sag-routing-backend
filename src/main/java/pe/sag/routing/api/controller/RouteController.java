@@ -407,7 +407,7 @@ public class RouteController {
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(oilSpending);
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
-        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/ReporteConsumoPetroleoDiario.jrxml"));
+        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") +"/reportes/ReporteConsumoPetroleoDiario.jrxml"));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaInicial = request.getStartDate().format(formatter);
