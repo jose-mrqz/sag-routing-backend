@@ -94,7 +94,9 @@ public class Planner {
         }
 
         while (!allVisited(orders)) {
-            checkBreakdowns(trucks);
+            if (!RouteController.simulationHelper.isCollapse()) {
+                checkBreakdowns(trucks);
+            }
 
             Colony colony = new Colony(orders, trucks, solutionDepots, roadblocks);
             colony.run();
@@ -107,7 +109,9 @@ public class Planner {
             solutionDepots = colony.solutionDepots;
             orders = colony.solutionOrders;
 
-            createBreakdowns(solutionRoutes, orders, solutionDepots);
+            if (!RouteController.simulationHelper.isCollapse()) {
+                createBreakdowns(solutionRoutes, orders, solutionDepots);
+            }
 
             solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
 

@@ -51,15 +51,20 @@ public class OrderService {
     }
 
     public List<Order> registerAll(ArrayList<OrderDto> orderRequest, boolean monitoring) throws IllegalAccessException {
+        Order lastOrder = findFirstByOrderByCodeDesc();
+        int code = 0;
+
         ArrayList<Order> orders = new ArrayList<>();
         for(OrderDto od : orderRequest){
             Order order = OrderParser.fromDto(od);
 
             //asign code
-            Order lastOrder = findFirstByOrderByCodeDesc();
-            int code = 0;
-            if (lastOrder == null) code++;
-            else code = lastOrder.getCode()+1;
+            if (code == 0){
+                if (lastOrder == null) code++;
+                else code = lastOrder.getCode()+1;
+            }
+            else code++;
+
             order.setCode(code);
 
             order.setStatus(OrderStatus.PENDIENTE);
@@ -160,6 +165,7 @@ public class OrderService {
     public List<Order> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
         return orderRepository.findByMonitoringAndRegistrationDateBetweenOrderByCodeAsc(true, startDate, endDate);
     }
+
     public void registerDeliveryDate(List<Order> orders, List<pe.sag.routing.algorithm.Order> ordersAlgorithm){
         List<pe.sag.routing.algorithm.Order> ordersAlgorithmLeft = new ArrayList<>(ordersAlgorithm);
         for(Order o : orders){

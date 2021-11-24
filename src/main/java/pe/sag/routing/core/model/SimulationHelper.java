@@ -16,10 +16,12 @@ public class SimulationHelper {
      private ArrayList<Depot> depots;
      private int count = 0;
      private int truckCount = 0;
+     private boolean collapse = false;
 
-     public SimulationHelper() {
+     public SimulationHelper(boolean collapse) {
           breakdowns = new HashMap<>();
           depots = new ArrayList<>();
+          this.collapse = collapse;
           count = 0;
      }
 }
