@@ -43,7 +43,9 @@ public class RouteController {
     public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
-                           OrderService orderService, DepotService depotService, MaintenanceService maintenanceService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
+                           OrderService orderService, DepotService depotService,
+                           MaintenanceService maintenanceService, SimulationInfoRepository simulationInfoRepository,
+                           RoadblockService roadblockService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
