@@ -57,10 +57,10 @@ public class BreakdownController {
                 time = routeService.transformDate(simulationInfo, time);
                 time = routeService.transformDateSpeed(simulationInfo, RouteController.simulationSpeed, time);
                 b.setStartDate(time);
-                time = b.getEndDate();
-                time = routeService.transformDate(simulationInfo, time);
-                time = routeService.transformDateSpeed(simulationInfo, RouteController.simulationSpeed, time);
-                b.setEndDate(time);
+                LocalDateTime endTime = b.getEndDate();
+                endTime = routeService.transformDate(simulationInfo, endTime);
+                endTime = routeService.transformDateSpeed(simulationInfo, RouteController.simulationSpeed, endTime);
+                b.setEndDate(endTime);
             }
             response = new RestResponse(HttpStatus.OK, breakdowns);
         } else {
