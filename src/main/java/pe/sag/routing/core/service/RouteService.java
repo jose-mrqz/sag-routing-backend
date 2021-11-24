@@ -131,7 +131,7 @@ public class RouteService {
         double totalFuel = 0;
         for(Route r : routes){
             //revisar condicion
-            if(actualDate.toLocalDate().isBefore(r.getFinishDate().toLocalDate())){
+            while(actualDate.toLocalDate().isBefore(r.getFinishDate().toLocalDate())){
                 fuelConsumes.add(new FuelConsume(actualDate, totalFuel));
                 totalFuel = 0;
                 actualDate = actualDate.plusDays(1);
@@ -139,6 +139,13 @@ public class RouteService {
             totalFuel += r.getFuelConsumed();
         }
         fuelConsumes.add(new FuelConsume(actualDate, totalFuel));
+
+        long totalDates = DAYS.between(actualDate, endDate);
+        for(int numberDate = 0; numberDate <= totalDates; numberDate++){
+            totalFuel = 0;
+            fuelConsumes.add(new FuelConsume(actualDate, totalFuel));
+            actualDate = actualDate.plusDays(1);
+        }
         return fuelConsumes;
     }
 }

@@ -121,9 +121,9 @@ public class FutureOrdersGenerator {
         while (true) {
             x = ThreadLocalRandom.current().nextInt(1, 70);
             y = ThreadLocalRandom.current().nextInt(1, 50);
-            if (x == 10 && y == 8 ||
-                    x == 40 && y == 45 ||
-                    x == 60 && y == 5) continue;
+            if (x == 12 && y == 8 ||
+                    x == 42 && y == 42 ||
+                    x == 63 && y == 3) continue;
             else break;
         }
         coords.setX(x);

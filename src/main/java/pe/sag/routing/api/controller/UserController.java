@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.request.LoginRequest;
+import pe.sag.routing.api.request.UserDeleteRequest;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.User;
 import pe.sag.routing.core.service.UserService;
@@ -49,7 +50,7 @@ public class UserController {
     }
 
     @PostMapping(path = "/edit")
-    protected ResponseEntity<?> edit(@Valid @RequestBody UserDto request) throws IllegalAccessException {
+    protected ResponseEntity<?> edit(@Valid @RequestBody UserDto request) {
         RestResponse response;
         if(request.getCode() == null){
             response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no ingresar codigo de usuario.");
@@ -59,6 +60,12 @@ public class UserController {
         }
 
         User user = userService.findByCode(request.getCode());
+        if (user == null) {
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al editar usuario: Usuario no encontrado.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
         User userEdited = userService.edit(user, request);
 
         if (userEdited != null) response = new RestResponse(HttpStatus.OK, "Usuario editado correctamente.", userEdited);
@@ -69,18 +76,24 @@ public class UserController {
     }
 
     @PostMapping(path = "/delete")
-    protected ResponseEntity<?> delete(@Valid @RequestBody UserDto request) throws IllegalAccessException {
+    protected ResponseEntity<?> delete(@RequestBody UserDeleteRequest request) {
         RestResponse response;
-        if(request.getCode() == null){
+        if(request.code == null){
             response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no ingresar codigo de usuario.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
         }
 
-        int count = userService.deleteByCode(request.getCode());
-        if (count == 1) response = new RestResponse(HttpStatus.OK, "Usuario eliminado correctamente.");
-        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar usuario.");
+        User user = userService.findByCode(request.code);
+        if (user == null) {
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al eliminar usuario: Usuario no encontrado.");
+            return ResponseEntity
+                    .status(response.getStatus())
+                    .body(response);
+        }
+        userService.deleteUser(user);
+        response = new RestResponse(HttpStatus.OK, "Usuario eliminado correctamente.");
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
