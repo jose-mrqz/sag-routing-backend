@@ -114,6 +114,15 @@ public class RouteService {
         return transformedDate;
     }
 
+    public LocalDateTime transformDateReverseSpeed(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
+        LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
+        long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);
+        amountNanos *= speed;
+        LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
+        transformedDate = transformedDate.plusNanos(amountNanos);
+        return transformedDate;
+    }
+
     public LocalDateTime transformDateSpeed(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
         LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
         long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);

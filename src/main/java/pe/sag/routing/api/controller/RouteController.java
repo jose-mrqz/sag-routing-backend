@@ -82,16 +82,18 @@ public class RouteController {
 
         //sacar simulation info de bd
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        LocalDateTime filterDateReal = null;
         if (listSimulationInfo.size() != 0) {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
             LocalDateTime filterDateTransformed = LocalDateTime.now();
-            LocalDateTime filterDateReal = routeService.transformDateReverse(simulationInfo, filterDateTransformed);
+            filterDateReal = routeService.transformDateReverseSpeed(simulationInfo, request.getSpeed(), filterDateTransformed);
+            filterDateReal = routeService.transformDateReverse(simulationInfo, filterDateReal);
 
             for(RouteDto r : routesDto) {
                 RouteDto rt = r.transformRoute(simulationInfo);
                 rt = rt.transformRouteSpeed(simulationInfo, request.getSpeed());
-                if(r.inDateRange(filterDateReal)){
+                if(/*true*/r.inDateRange(filterDateReal)){
                     routesDtoFiltered.add(r);
                     routesTransformedDto.add(rt);
                 }
@@ -119,16 +121,16 @@ public class RouteController {
 
         //sacar simulation info de bd
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        LocalDateTime filterDateReal = null;
         if (listSimulationInfo.size() != 0) {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
 
             LocalDateTime filterDateTransformed = LocalDateTime.now();
-            LocalDateTime filterDateReal = routeService.transformDateReverse(simulationInfo, filterDateTransformed);
+            filterDateReal = routeService.transformDateReverseSpeed(simulationInfo, simulationInfo.getSpeed(), filterDateTransformed);
+            filterDateReal = routeService.transformDateReverse(simulationInfo, filterDateReal);
 
             for(RouteDto r : routesDto) {
-                RouteDto rt = r.transformRoute(simulationInfo);
-                rt = rt.transformRouteSpeed(simulationInfo, simulationInfo.getSpeed());//revisar si mandar o no speed
-                if(rt.inDateRange(filterDateReal)){
+                if(r.inDateRange(filterDateReal)){
                     routesDtoFiltered.add(r);
                 }
             }
