@@ -340,10 +340,10 @@ public class OrderController {
     public void reportOrdersIntoDate(@RequestBody ListOrderRequest request, HttpServletResponse response ) throws  Exception, JRException {
 
 
-        List<OrderDto> ordersDto = orderService.list("todos",request.getStartDate(), request.getEndDate());
-        List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
+        //List<OrderDto> ordersDto = orderService.list("todos",request.getStartDate(), request.getEndDate());
+        //List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
 
-        //List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
+        List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
 
         for(int i=0;i<orders.size();i++){
             System.out.println(orders.get(i));
