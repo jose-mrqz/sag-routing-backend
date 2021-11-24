@@ -165,7 +165,7 @@
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{demandGLP}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[new BigDecimal($F{demandGLP}).setScale(2, BigDecimal.ROUND_CEILING)]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>

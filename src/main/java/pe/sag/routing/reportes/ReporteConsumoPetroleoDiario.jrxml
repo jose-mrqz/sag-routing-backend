@@ -162,7 +162,8 @@
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{fuelConsumed}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[new BigDecimal($F{fuelConsumed}).setScale(2, BigDecimal.ROUND_CEILING)
+]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
