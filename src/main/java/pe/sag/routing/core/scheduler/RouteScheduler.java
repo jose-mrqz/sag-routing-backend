@@ -14,7 +14,7 @@ public class RouteScheduler {
         this.routeController = routeController;
     }
 
-    @Scheduled(initialDelayString = "PT1M", fixedDelayString = "PT15M")
+    @Scheduled(initialDelayString = "PT10M", fixedDelayString = "PT15M")
     void schedulePendingOrders() {
         System.out.println("Scheduling @: " + LocalDateTime.now());
         routeController.scheduleRoutes();
