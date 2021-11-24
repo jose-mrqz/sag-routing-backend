@@ -63,8 +63,9 @@ public class BreakdownController {
                 b.setEndDate(time);
             }
             response = new RestResponse(HttpStatus.OK, breakdowns);
+        } else {
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Simulacion no iniciada");
         }
-        response = new RestResponse(HttpStatus.BAD_REQUEST, "Simulacion no iniciada");
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

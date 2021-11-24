@@ -153,7 +153,7 @@ public class OrderController {
                 .message("Simulacion iniciada con " + inserted +  " pedidos.")
                 .finished(false)
                 .build();
-        RouteController.simulationHelper = new SimulationHelper();
+        RouteController.simulationHelper = new SimulationHelper(request.isColapse());
 
         if (ordersDto.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Todos los pedidos se encuentran bloqueados.");
