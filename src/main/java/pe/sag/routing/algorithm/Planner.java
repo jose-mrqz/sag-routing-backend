@@ -31,6 +31,7 @@ public class Planner {
     private int nScheduled = 0;
     private int nOrders = 0;
     private Order firstFailed = null;
+    private boolean isSimulation = false;
 
     public Planner(List<pe.sag.routing.core.model.Truck> modelTrucks,
                    List<pe.sag.routing.core.model.Order> modelOrders,
@@ -94,7 +95,7 @@ public class Planner {
         }
 
         while (!allVisited(orders)) {
-            if (!RouteController.simulationHelper.isCollapse()) {
+            if (isSimulation && !RouteController.simulationHelper.isCollapse()) {
                 checkBreakdowns(trucks);
             }
 
@@ -109,7 +110,7 @@ public class Planner {
             solutionDepots = colony.solutionDepots;
             orders = colony.solutionOrders;
 
-            if (!RouteController.simulationHelper.isCollapse()) {
+            if (isSimulation && !RouteController.simulationHelper.isCollapse()) {
                 createBreakdowns(solutionRoutes, orders, solutionDepots);
             }
 

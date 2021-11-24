@@ -170,6 +170,7 @@ public class RouteController {
             //mejorar con formato de error: colapso logistico
             if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
                 Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, depots);
+                planner.setSimulation(false);
                 planner.run();
                 if (planner.getSolutionRoutes() == null) break; //colapso no se pueden planificar rutas
                 List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
@@ -263,6 +264,7 @@ public class RouteController {
 
                 if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
                     Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
+                    planner.setSimulation(true);
                     planner.setNOrders(pendingOrders.size());
                     planner.run();
                     if (planner.getSolutionRoutes() == null || planner.getSolutionRoutes().isEmpty()) {
@@ -338,6 +340,7 @@ public class RouteController {
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
             Planner planner = new Planner(availableTrucks, pendingOrders, roadblocks, null);
+            planner.setSimulation(true);
             planner.setNOrders(pendingOrders.size());
             planner.run();
             List<pe.sag.routing.algorithm.Route> solutionRoutes = planner.getSolutionRoutes();
