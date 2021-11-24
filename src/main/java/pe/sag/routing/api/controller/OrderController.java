@@ -4,6 +4,7 @@ import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.request.*;
 import pe.sag.routing.api.response.RestResponse;
@@ -341,12 +342,20 @@ public class OrderController {
         List<OrderDto> ordersDto = orderService.list("todos",request.getStartDate(), request.getEndDate());
         List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
 
+        //List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
+
+        for(int i=0;i<orders.size();i++){
+            System.out.println(orders.get(i));
+        }
+
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
         //JRBeanArrayDataSource beanCollectionDataSource = new JRBeanArrayDataSource(orders.toArray());
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
-        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
-        //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/reportAux.jrxml"));
+        //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
+        File file  = ResourceUtils.getFile("classpath:reportes/ReportePedidos.jrxml");
+        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaInicial = request.getStartDate().format(formatter);
         String fechaFinal = request.getEndDate().format(formatter);
