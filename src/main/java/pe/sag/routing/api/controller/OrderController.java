@@ -169,9 +169,9 @@ public class OrderController {
         //correr algoritmo
         RouteController.simulationSpeed = request.getSpeed();
         ResponseEntity<?> responseEntity = routeController.scheduleRoutesSimulation(startDateReal);//probar response
-        if(responseEntity.getStatusCode() != HttpStatus.OK){
+        /*if(responseEntity.getStatusCode() != HttpStatus.OK){
             return responseEntity;
-        }
+        }*/
 
         boolean responseOK = ordersRegistered.size() != 0;
 

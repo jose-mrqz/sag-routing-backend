@@ -65,7 +65,6 @@ public class RouteController {
 
     @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
-        LocalDateTime filterDate = LocalDateTime.now();
         List<Route> activeRoutes = routeService.findByMonitoring(false);
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
@@ -76,10 +75,14 @@ public class RouteController {
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() != 0) {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
+
+            LocalDateTime filterDateTransformed = LocalDateTime.now();
+            LocalDateTime filterDateReal = routeService.transformDateReverse(simulationInfo, filterDateTransformed);
+
             for(RouteDto r : routesDto) {
                 RouteDto rt = r.transformRoute(simulationInfo);
                 rt = rt.transformRouteSpeed(simulationInfo, request.getSpeed());
-                if(r.inDateRange(filterDate)){
+                if(r.inDateRange(filterDateReal)){
                     routesDtoFiltered.add(r);
                     routesTransformedDto.add(rt);
                 }
@@ -100,7 +103,6 @@ public class RouteController {
 
     @PostMapping(path = "/routeTableSimulation")
     protected ResponseEntity<?> getRouteTableSimulation() {
-        LocalDateTime filterDate = LocalDateTime.now();
         List<Route> activeRoutes = routeService.findByMonitoring(false);
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
@@ -110,10 +112,14 @@ public class RouteController {
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() != 0) {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
+
+            LocalDateTime filterDateTransformed = LocalDateTime.now();
+            LocalDateTime filterDateReal = routeService.transformDateReverse(simulationInfo, filterDateTransformed);
+
             for(RouteDto r : routesDto) {
                 RouteDto rt = r.transformRoute(simulationInfo);
                 rt = rt.transformRouteSpeed(simulationInfo, simulationInfo.getSpeed());//revisar si mandar o no speed
-                if(rt.inDateRange(filterDate)){
+                if(rt.inDateRange(filterDateReal)){
                     routesDtoFiltered.add(r);
                 }
             }
