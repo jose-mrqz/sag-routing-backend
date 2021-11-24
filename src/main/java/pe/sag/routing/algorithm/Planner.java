@@ -238,8 +238,7 @@ public class Planner {
                 .startDate(now)
                 .endDate(now.plusMinutes(60))
                 .build();
-        List<Pair<Integer,Integer>> realPath = route.getPath().subList(route.getPath().indexOf(route.getPath().get(0)),
-                route.getPath().indexOf(route.getPath().get(traveledNodes)));
+        List<Pair<Integer,Integer>> realPath = route.getPath().subList(0, traveledNodes);
         route.setPath(new ArrayList<>(realPath));
         if (nextNode != null) {
             List<NodeInfo> pendingNodes = route.getNodesInfo().subList(route.getNodesInfo().indexOf(nextNode), route.getNodesInfo().size());
