@@ -6,14 +6,17 @@ import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.response.RestResponse;
 import pe.sag.routing.core.model.Breakdown;
 import pe.sag.routing.core.model.Route;
+import pe.sag.routing.core.model.SimulationInfo;
 import pe.sag.routing.core.model.Truck;
 import pe.sag.routing.core.service.BreakdownService;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RouteService;
 import pe.sag.routing.core.service.TruckService;
+import pe.sag.routing.data.repository.SimulationInfoRepository;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -23,18 +26,46 @@ public class BreakdownController {
     private final TruckService truckService;
     private final RouteService routeService;
     private final OrderService orderService;
+    private final SimulationInfoRepository simulationInfoRepository;
 
-    public BreakdownController(BreakdownService breakdownService, TruckService truckService, RouteService routeService, OrderService orderService) {
+    public BreakdownController(BreakdownService breakdownService, TruckService truckService, RouteService routeService, OrderService orderService, SimulationInfoRepository simulationInfoRepository) {
         this.breakdownService = breakdownService;
         this.truckService = truckService;
         this.routeService = routeService;
         this.orderService = orderService;
+        this.simulationInfoRepository = simulationInfoRepository;
     }
 
     @GetMapping
     public ResponseEntity<?> getActive() {
         List<Breakdown> activeBreakdowns = breakdownService.getActive();
         RestResponse response = new RestResponse(HttpStatus.OK, activeBreakdowns);
+        return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    @GetMapping(path = "/simulation")
+    public ResponseEntity<?> getSimulation() {
+        RestResponse response;
+        List<Breakdown> breakdowns = new ArrayList<>();
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        if (listSimulationInfo.size() != 0) {
+            SimulationInfo simulationInfo = listSimulationInfo.get(0);
+            RouteController.simulationHelper.getBreakdowns().forEach((k, v) -> breakdowns.add(v));
+            for (int i = 0; i < breakdowns.size(); i++) {
+                Breakdown b = breakdowns.get(i);
+                LocalDateTime time = b.getStartDate();
+                time = routeService.transformDate(simulationInfo, time);
+                time = routeService.transformDateSpeed(simulationInfo, RouteController.simulationSpeed, time);
+                b.setStartDate(time);
+                time = b.getEndDate();
+                time = routeService.transformDate(simulationInfo, time);
+                time = routeService.transformDateSpeed(simulationInfo, RouteController.simulationSpeed, time);
+                b.setEndDate(time);
+            }
+            response = new RestResponse(HttpStatus.OK, breakdowns);
+        } else {
+            response = new RestResponse(HttpStatus.BAD_REQUEST, "Simulacion no iniciada");
+        }
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 

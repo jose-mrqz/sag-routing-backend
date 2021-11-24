@@ -1,5 +1,8 @@
 package pe.sag.routing.api.controller;
 
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,10 +22,14 @@ import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 import pe.sag.routing.shared.util.enums.TruckStatus;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedOutputStream;
+import java.io.FileInputStream;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+
 import java.util.stream.Collectors;
 
 @RestController
@@ -43,7 +50,9 @@ public class RouteController {
     public static int simulationSpeed = 1;
 
     public RouteController(RouteService routeService, TruckService truckService,
-                           OrderService orderService, DepotService depotService, MaintenanceService maintenanceService, SimulationInfoRepository simulationInfoRepository, RoadblockService roadblockService) {
+                           OrderService orderService, DepotService depotService,
+                           MaintenanceService maintenanceService, SimulationInfoRepository simulationInfoRepository,
+                           RoadblockService roadblockService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
@@ -354,7 +363,7 @@ public class RouteController {
             }
 
             if (planner.getNOrders() != planner.getNScheduled()) {
-                RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Pedidos sin planificar primera corrida.");
+                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
                 simulationData.setFinished(true);
                 simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().get_id());
 
@@ -380,10 +389,47 @@ public class RouteController {
         return ResponseEntity.status(response.getStatus()).body(response);
     }
 
+
     @PostMapping(path = "/fuelConsumed")
     public ResponseEntity<?> getFuelConsumed(@RequestBody FuelConsumedRequest request) {
         return ResponseEntity
                 .status(HttpStatus.I_AM_A_TEAPOT)
                 .body(routeService.getFuelConsumedPerDay(request.startDate, request.endDate));
+    }
+
+    @RequestMapping(path = "/reportOilSpending")
+    @ResponseBody
+    public void reportOilSpendingIntoDate(@RequestBody FuelConsumedRequest request, HttpServletResponse response) throws  Exception, JRException {
+
+        List<FuelConsume> oilSpending = routeService.getFuelConsumedPerDay(request.getStartDate(), request.getEndDate());
+
+
+        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(oilSpending);
+
+        JRDataSource compileReportEmpty = new JREmptyDataSource(1);
+        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/ReporteConsumoPetroleoDiario.jrxml"));
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String fechaInicial = request.getStartDate().format(formatter);
+        String fechaFinal = request.getEndDate().format(formatter);
+
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("fechaInicial", fechaInicial);
+        map.put("fechaFinal", fechaFinal);
+        map.put("dataSetPetroleoDiario", beanCollectionDataSource);
+
+        JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
+        //JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
+        byte[] data = JasperExportManager.exportReportToPdf(report);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=reporteConsumoPetroleoXdia.pdf");
+        response.setHeader("Content-Transfer-Encoding", "binary");
+
+        BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+        bos.write(data,0,data.length);
+        bos.close();
+        response.flushBuffer();
+
     }
 }

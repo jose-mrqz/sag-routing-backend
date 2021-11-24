@@ -162,6 +162,10 @@ public class OrderService {
         return orderRepository.deleteByCode(code);
     }
 
+    public List<Order> findByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return orderRepository.findByMonitoringAndRegistrationDateBetweenOrderByCodeAsc(true, startDate, endDate);
+    }
+
     public void registerDeliveryDate(List<Order> orders, List<pe.sag.routing.algorithm.Order> ordersAlgorithm){
         List<pe.sag.routing.algorithm.Order> ordersAlgorithmLeft = new ArrayList<>(ordersAlgorithm);
         for(Order o : orders){
