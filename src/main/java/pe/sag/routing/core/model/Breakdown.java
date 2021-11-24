@@ -23,4 +23,14 @@ public class Breakdown {
     private String routeId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+
+    public Breakdown(Breakdown breakdown) {
+        this._id = breakdown._id;
+        this.x = breakdown.x;
+        this.y = breakdown.y;
+        this.truckCode = breakdown.truckCode;
+        this.routeId = breakdown.routeId;
+        this.startDate = breakdown.getStartDate();
+        this.endDate = breakdown.getEndDate();
+    }
 }

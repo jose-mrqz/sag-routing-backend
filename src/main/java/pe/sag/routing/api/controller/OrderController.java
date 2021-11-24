@@ -114,6 +114,7 @@ public class OrderController {
     public ResponseEntity<?> insertHistoricOrders(@RequestBody SimulationInputRequest request) throws IllegalAccessException {
         orderService.deleteByMonitoring(false);
         roadblockService.deleteByMonitoring(false);
+        RouteController.simulationSpeed = request.getSpeed();
 
         List<Roadblock> roadblocks = request.getRoadblocks().stream().map(RoadblockParser::fromDto).collect(Collectors.toList());
         for (Roadblock r : roadblocks) {
