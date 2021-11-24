@@ -1,9 +1,7 @@
 package pe.sag.routing.api.controller;
 
 import net.sf.jasperreports.engine.*;
-import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,22 +16,17 @@ import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RoadblockService;
 import pe.sag.routing.data.parser.OrderParser;
 import pe.sag.routing.data.parser.RoadblockParser;
-import pe.sag.routing.data.repository.OrderRepository;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.OrderDto;
 import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 
-import javax.validation.Valid;
 import java.io.FileInputStream;
 import javax.servlet.http.HttpServletResponse;
-import javax.websocket.server.PathParam;
 import java.io.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
-import java.util.Arrays;
 
 import java.util.HashMap;
 import java.util.List;
@@ -345,14 +338,14 @@ public class OrderController {
     public void reportOrdersIntoDate(@RequestBody ListOrderRequest request, HttpServletResponse response ) throws  Exception, JRException {
 
 
-        List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
-
+        List<OrderDto> ordersDto = orderService.list("todos",request.getStartDate(), request.getEndDate());
+        List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
 
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
         //JRBeanArrayDataSource beanCollectionDataSource = new JRBeanArrayDataSource(orders.toArray());
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
-        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/ReportePedidos.jrxml"));
+        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
         //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream("src/main/java/pe/sag/routing/reportes/reportAux.jrxml"));
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaInicial = request.getStartDate().format(formatter);
