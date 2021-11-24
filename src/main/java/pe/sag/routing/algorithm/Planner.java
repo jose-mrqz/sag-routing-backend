@@ -252,6 +252,7 @@ public class Planner {
             }
             route.nodesInfo.removeAll(pendingNodes);
         }
+        route.setFinishDate(route.getStartDate().plusMinutes(minutes));
         return breakdown;
     }
 
