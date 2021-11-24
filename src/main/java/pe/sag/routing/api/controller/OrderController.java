@@ -344,10 +344,7 @@ public class OrderController {
         //List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
 
         List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
-
-        for(int i=0;i<orders.size();i++){
-            System.out.println(orders.get(i));
-        }
+        
 
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
         //JRBeanArrayDataSource beanCollectionDataSource = new JRBeanArrayDataSource(orders.toArray());
