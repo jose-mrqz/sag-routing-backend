@@ -361,7 +361,7 @@ public class RouteController {
             }
 
             if (planner.getNOrders() != planner.getNScheduled()) {
-                RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Pedidos sin planificar primera corrida.");
+                RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
                 simulationData.setFinished(true);
                 simulationData.setMessage("Primer pedido sin planificar: " + planner.getFirstFailed().get_id());
 
