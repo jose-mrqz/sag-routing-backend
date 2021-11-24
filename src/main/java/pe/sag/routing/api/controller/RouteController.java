@@ -5,6 +5,7 @@ import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.algorithm.DepotInfo;
 import pe.sag.routing.algorithm.Pair;
@@ -24,6 +25,7 @@ import pe.sag.routing.shared.util.enums.TruckStatus;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.time.LocalDateTime;
 
@@ -407,7 +409,9 @@ public class RouteController {
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(oilSpending);
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
-        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") +"/reportes/ReporteConsumoPetroleoDiario.jrxml"));
+        //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") +"/reportes/ReporteConsumoPetroleoDiario.jrxml"));
+        File file  = ResourceUtils.getFile("classpath:reportes/ReporteConsumoPetroleoDiario.jrxml");
+        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaInicial = request.getStartDate().format(formatter);
