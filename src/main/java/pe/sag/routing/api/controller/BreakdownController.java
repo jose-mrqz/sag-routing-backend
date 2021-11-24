@@ -50,7 +50,7 @@ public class BreakdownController {
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() != 0) {
             SimulationInfo simulationInfo = listSimulationInfo.get(0);
-            RouteController.simulationHelper.getBreakdowns().forEach((k, v) -> breakdowns.add(v));
+            RouteController.simulationHelper.getBreakdowns().forEach((k, v) -> breakdowns.add(new Breakdown(v)));
             for (int i = 0; i < breakdowns.size(); i++) {
                 Breakdown b = breakdowns.get(i);
                 LocalDateTime time = b.getStartDate();
