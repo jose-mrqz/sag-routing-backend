@@ -3,6 +3,7 @@ package pe.sag.routing.api.controller;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanArrayDataSource;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -336,37 +337,16 @@ public class OrderController {
             bos.close();
             response.flushBuffer();
         }
-
-        //if (futureOrders.size()>0) response = new RestResponse(HttpStatus.OK, "Nuevos pedidos futuros generados correctamente.", futureOrders);
-//        else response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al generar pedidos futuros.");
-//        return ResponseEntity
-//                .status(response.getStatus())
-//                .body(response);
-
     }
 
-    @PostMapping(path = "/reportOrders")
-    public ResponseEntity<?> reportOrdersIntoDate(@RequestBody ListOrderRequest request) throws  Exception, JRException {
 
-        if(request.getFilter() == null){
-            RestResponse response = new RestResponse(HttpStatus.OK, "Se debe ingresar el tipo de filtro.");
-            return ResponseEntity
-                    .status(response.getStatus())
-                    .body(response);
-        }
+    @RequestMapping(path = "/reportOrders")
+    @ResponseBody
+    public void reportOrdersIntoDate(@RequestBody ListOrderRequest request, HttpServletResponse response ) throws  Exception, JRException {
+
 
         List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
-        /*
-        List<Order> orders = new ArrayList<Order>();
 
-        Order order =new Order("0102",01,34.5,50.5,LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),OrderStatus.PENDIENTE,true,true);
-        orders.add(order);
-        order =new Order("0103",02,55.5,45.5,LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),OrderStatus.PENDIENTE,true,true);
-        orders.add(order);
-        order =new Order("0104",03,12.5,59.0,LocalDateTime.now(),LocalDateTime.now(),LocalDateTime.now(),OrderStatus.PENDIENTE,true,true);
-        orders.add(order);
-        System.out.println(Arrays.toString(orders.toArray()));
-        */
 
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
         //JRBeanArrayDataSource beanCollectionDataSource = new JRBeanArrayDataSource(orders.toArray());
@@ -384,12 +364,17 @@ public class OrderController {
         map.put("dataSetPedidos", beanCollectionDataSource);
 
         JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
-        JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
+        //JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
+        byte[] data = JasperExportManager.exportReportToPdf(report);
 
-        RestResponse response = new RestResponse(HttpStatus.OK, "Reporte generado correctamente.");
-        return ResponseEntity
-                .status(response.getStatus())
-                .body(response);
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=reportePedidos.pdf");
+        response.setHeader("Content-Transfer-Encoding", "binary");
+
+        BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+        bos.write(data,0,data.length);
+        bos.close();
+        response.flushBuffer();
 
     }
 }
