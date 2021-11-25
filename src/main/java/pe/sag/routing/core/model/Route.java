@@ -41,6 +41,7 @@ public class Route {
         int x;
         int y;
         double refilledGlp;
+        LocalDateTime refillDate;
     }
 
     public Route (pe.sag.routing.algorithm.Route route) {
@@ -62,7 +63,7 @@ public class Route {
                         orderInfo.getDeliveredGlp()));
             } else {
                 DepotInfo depotInfo = (DepotInfo)ni;
-                depots.add(new Depot(depotInfo.getId(), depotInfo.getX(), depotInfo.getY(), depotInfo.getRefilledGlp()));
+                depots.add(new Depot(depotInfo.getId(), depotInfo.getX(), depotInfo.getY(), depotInfo.getRefilledGlp(), depotInfo.getArrivalTime()));
             }
         }
     }
