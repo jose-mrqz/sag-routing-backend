@@ -78,7 +78,7 @@ public class OrderService {
 
     public void updateStatus(Order order, OrderStatus status){
         order.setStatus(status);
-        if (status == OrderStatus.PROGRAMADO) order.setDemandGLP(0.0);
+        if (status == OrderStatus.PROGRAMADO) order.setTotalDemand(0.0);
         orderRepository.save(order);
     }
 
@@ -143,7 +143,7 @@ public class OrderService {
         Optional<Order> orderOptional = orderRepository.findBy_id(id);
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
-            order.setDemandGLP(amount + order.getDemandGLP());
+            order.setTotalDemand(amount + order.getDemandGLP());
             orderScheduler.cancelStatusChange(id);
             order.setStatus(OrderStatus.PENDIENTE);
             order.setDeliveryDate(null);
@@ -155,6 +155,7 @@ public class OrderService {
         order.setX(request.getX());
         order.setY(request.getY());
         order.setDemandGLP(request.getDemandGLP());
+        order.setTotalDemand(request.getDemandGLP());
         order.setDeadlineDate(order.getRegistrationDate().plusHours(request.getSlack()));
         return orderRepository.save(order);
     }
