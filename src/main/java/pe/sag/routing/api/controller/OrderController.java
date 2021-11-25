@@ -25,6 +25,8 @@ import pe.sag.routing.shared.util.enums.OrderStatus;
 import java.io.FileInputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.JarURLConnection;
+import java.net.URL;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -351,7 +353,9 @@ public class OrderController {
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
         //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
-        File file  = ResourceUtils.getFile("classpath:reportes/ReportePedidos.jrxml");
+//        File file  = ResourceUtils.getFile("classpath:reportes/ReportePedidos.jrxml");
+        URL jarUrl = new URL("jar:file:/home/arch/sag-routing-backend/target/routing-0.0.1-SNAPSHOT.jar!/BOOT-INF/classes!/reportes/ReportePedidos.jrxml");
+        File file  = ResourceUtils.getFile(jarUrl);
         JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
