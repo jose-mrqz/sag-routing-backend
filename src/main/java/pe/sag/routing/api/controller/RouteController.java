@@ -95,7 +95,7 @@ public class RouteController {
             for(RouteDto r : routesDto) {
                 RouteDto rt = r.transformRoute(simulationInfo);
                 rt = rt.transformRouteSpeed(simulationInfo, request.getSpeed());
-                if(/*true*/r.inDateRange(filterDateReal)){
+                if(true/*r.inDateRange(filterDateReal)*/){
                     routesDtoFiltered.add(r);
                     routesTransformedDto.add(rt);
                 }
@@ -132,7 +132,7 @@ public class RouteController {
             filterDateReal = routeService.transformDateReverse(simulationInfo, filterDateReal);
 
             for(RouteDto r : routesDto) {
-                if(r.inDateRange(filterDateReal)){
+                if(true/*r.inDateRange(filterDateReal)*/){
                     routesDtoFiltered.add(r);
                 }
             }
