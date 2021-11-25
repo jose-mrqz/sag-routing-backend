@@ -79,6 +79,7 @@ public class RouteService {
 
         for(Route.Order o : route.getOrders()){
             o.setDeliveryDate(transformDate(simulationInfo,o.getDeliveryDate()));
+            o.setDeadlineDate(transformDate(simulationInfo,o.getDeadlineDate()));
         }
 
         return route;
@@ -92,6 +93,7 @@ public class RouteService {
 
         for(Route.Order o : route.getOrders()){
             o.setDeliveryDate(transformDateReverse(simulationInfo,o.getDeliveryDate()));
+            o.setDeadlineDate(transformDateReverse(simulationInfo,o.getDeadlineDate()));
         }
 
         return route;

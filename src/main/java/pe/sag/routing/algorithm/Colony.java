@@ -192,7 +192,7 @@ public class Colony extends Graph {
                     else {
                         double delivered = t.glpRegistry.get(glpIdx++);
                         routeDelivered += delivered;
-                        routeNodes.add(new OrderInfo(n.x, n.y, ((Order)n)._id, ((Order)n).deliveryTime, delivered,
+                        routeNodes.add(new OrderInfo(n.x, n.y, ((Order)n)._id, ((Order)n).deliveryTime, ((Order)n).deadlineTime, delivered,
                                 t.arrivalRegistry.get(arrIdx++)));
                     }
                     i++;

@@ -113,7 +113,7 @@ public class RoadblockController {
 
         ArrayList<NodeInfo> nodesInfo = new ArrayList<>();
         OrderInfo orderInfo = new OrderInfo(40,35,"6181658d7378f13a04c4dae5",LocalDateTime.of(2021,11,1,8,23,24),
-                12,LocalDateTime.of(2021,11,1,8,23,24));
+                LocalDateTime.of(2021,11,1,8,23,24), 12,LocalDateTime.of(2021,11,1,8,23,24));
         nodesInfo.add(orderInfo);
         Route route = new Route("6178bc8205cbc421b0a7bc18", "TB2", LocalDateTime.of(2021,11,1,7,9),
                 LocalDateTime.of(2021,11,1,9,47,48), nodesInfo, 5.373333333333333, 12.0);
@@ -123,7 +123,7 @@ public class RoadblockController {
 
         List<Order> orders = new ArrayList<>();
 
-        Order order = new Order("181658d7378f13a04c4dae5", 40, 35, 0, 12.0, LocalDateTime.parse("2021-11-01T07:09"), LocalDateTime.parse("2021-11-01T11:09"));
+        Order order = new Order("181658d7378f13a04c4dae5", 40, 35, 0, 12.0, LocalDateTime.parse("2021-11-01T12:09"), LocalDateTime.parse("2021-11-01T07:09"), LocalDateTime.parse("2021-11-01T11:09"));
         order.setDeliveryTime(LocalDateTime.parse("2021-11-01T08:23:24"));
         order.setVisited(true);
         order.setUnloadTime(10);

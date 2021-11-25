@@ -15,6 +15,7 @@ import pe.sag.routing.algorithm.Pair;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Document
 @Data
@@ -30,6 +31,7 @@ public class Route {
         int x;
         int y;
         LocalDateTime deliveryDate;
+        LocalDateTime deadlineDate;
         double deliveredGlp;
     }
 
@@ -58,8 +60,10 @@ public class Route {
         for (NodeInfo ni : route.getNodesInfo()) {
             if (ni instanceof OrderInfo) {
                 OrderInfo orderInfo = (OrderInfo)ni;
+
+                //falta que hacer para obtener deadlineDate
                 orders.add(new Order(orderInfo.getId(), orderInfo.getX(),
-                        orderInfo.getY(), orderInfo.getArrivalTime(),
+                        orderInfo.getY(), orderInfo.getArrivalTime(), orderInfo.getDeadlineDate(),
                         orderInfo.getDeliveredGlp()));
             } else {
                 DepotInfo depotInfo = (DepotInfo)ni;

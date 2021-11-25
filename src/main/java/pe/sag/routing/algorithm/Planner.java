@@ -85,7 +85,7 @@ public class Planner {
         int k = 0;
         for (pe.sag.routing.core.model.Order om : modelOrders) {
             orders.add(new Order(om.get_id(), om.getX(), om.getY(), k++,
-                    om.getDemandGLP(), om.getRegistrationDate(), om.getDeadlineDate()));
+                    om.getDemandGLP(), om.getDeadlineDate(), om.getRegistrationDate(), om.getDeadlineDate()));
         }
 
         if (modelDepots != null) {

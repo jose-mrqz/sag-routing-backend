@@ -31,6 +31,7 @@ public class RouteDto {
         int indexRoute;
         LocalDateTime deliveryDate;
         LocalDateTime leftDate;
+        LocalDateTime deadlineDate;
         double delivered;
     }
 
@@ -67,6 +68,7 @@ public class RouteDto {
                     .y(order.getY())
                     .deliveryDate(order.getDeliveryDate())
                     .leftDate(order.getDeliveryDate().plusSeconds(timeAttention))
+                    .deadlineDate(order.getDeadlineDate())
                     .delivered(order.getDeliveredGlp())
                     .build();
             this.orders.add(newOrder);
@@ -116,7 +118,7 @@ public class RouteDto {
         List<RouteDto.Order> orders = new ArrayList<>();
         for(RouteDto.Order o : getOrders()){
             RouteDto.Order newOrder = new RouteDto.Order(o.getX(), o.getY(), o.getIndexRoute(),
-                    o.getDeliveryDate(), o.getLeftDate(), o.getDelivered());
+                    o.getDeliveryDate(), o.getLeftDate(), o.getDeadlineDate(), o.getDelivered());
             orders.add(newOrder);
         }
 
@@ -138,6 +140,7 @@ public class RouteDto {
         for(RouteDto.Order o : transformedRoute.getOrders()){
             o.setDeliveryDate(transformDateSpeed(simulationInfo,speed,o.getDeliveryDate()));
             o.setLeftDate(transformDateSpeed(simulationInfo,speed,o.getLeftDate()));
+            o.setDeadlineDate(transformDateSpeed(simulationInfo,speed,o.getDeadlineDate()));
         }
 
         return transformedRoute;
@@ -160,7 +163,7 @@ public class RouteDto {
         List<RouteDto.Order> orders = new ArrayList<>();
         for(RouteDto.Order o : getOrders()){
             RouteDto.Order newOrder = new RouteDto.Order(o.getX(), o.getY(), o.getIndexRoute(),
-                    o.getDeliveryDate(), o.getLeftDate(), o.getDelivered());
+                    o.getDeliveryDate(), o.getLeftDate(), o.getDeadlineDate(), o.getDelivered());
             orders.add(newOrder);
         }
 
@@ -180,6 +183,7 @@ public class RouteDto {
         for(RouteDto.Order o : transformedRoute.getOrders()){
             o.setDeliveryDate(transformDate(simulationInfo,o.getDeliveryDate()));
             o.setLeftDate(transformDate(simulationInfo,o.getLeftDate()));
+            o.setDeadlineDate(transformDate(simulationInfo,o.getDeadlineDate()));
         }
 
         return transformedRoute;
