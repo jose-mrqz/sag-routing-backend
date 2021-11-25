@@ -2,6 +2,7 @@ package pe.sag.routing.api.controller;
 
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRSaver;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
@@ -355,10 +356,11 @@ public class OrderController {
         //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
 //        File file  = ResourceUtils.getFile("classpath:reportes/ReportePedidos.jrxml");
 //        File file  = ResourceUtils.getFile("/home/arch/reportes/ReportePedidos.jrxml");
-        InputStream resource = this.getClass().getClassLoader().getResourceAsStream("/reportes/ReportePedidos.jrxml");
+        InputStream resource = getClass().getResourceAsStream("/ReportePedidos.jrxml");
 //        URL jarUrl = new URL("jar:file:/home/arch/sag-routing-backend/target/routing-0.0.1-SNAPSHOT.jar!/BOOT-INF/classes!/reportes/ReportePedidos.jrxml");
 //        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
         JasperReport compileReport = JasperCompileManager.compileReport(resource);
+        JRSaver.saveObject(compileReport, "ReportePedidos.jasper");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaInicial = request.getStartDate().format(formatter);
