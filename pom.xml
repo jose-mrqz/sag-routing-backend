@@ -47,6 +47,11 @@
             <artifactId>jasperreports</artifactId>
             <version>6.4.0</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>net.sf.jasperreports</groupId>-->
+<!--            <artifactId>jasperreports</artifactId>-->
+<!--            <version>6.4.0</version>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports-fonts</artifactId>
@@ -59,18 +64,6 @@
         </dependency>
 
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>jasperreports</id>
-            <url>http://jasperreports.sourceforge.net/maven2</url>
-        </repository>
-        <repository>
-            <id>jaspersoft-third-party</id>
-            <url>http://jaspersoft.artifactoryonline.com/jaspersoft/t‌​hird-party-ce-artifa‌​cts/</url>
-        </repository>
-    </repositories>
-
     <build>
         <plugins>
             <plugin>
