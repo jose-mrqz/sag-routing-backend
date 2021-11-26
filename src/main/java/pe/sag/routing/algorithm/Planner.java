@@ -113,8 +113,10 @@ public class Planner {
             solutionDepots = colony.solutionDepots;
             orders = colony.solutionOrders;
 
-            System.out.println(solutionDepots.get(0));
-            System.out.println(solutionDepots.get(1));
+            for (Depot d : solutionDepots) {
+                System.out.println(d.getId());
+                d.remainingGlp.forEach((key, value) -> System.out.println("\t" + key + " --- " + value));
+            }
 
             if (isSimulation) {
                 if (!RouteController.simulationHelper.isCollapse()) {
