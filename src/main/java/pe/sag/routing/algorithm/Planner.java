@@ -113,6 +113,9 @@ public class Planner {
             solutionDepots = colony.solutionDepots;
             orders = colony.solutionOrders;
 
+            System.out.println(solutionDepots.get(0));
+            System.out.println(solutionDepots.get(1));
+
             if (isSimulation) {
                 if (!RouteController.simulationHelper.isCollapse()) {
                     createBreakdowns(solutionRoutes, orders, solutionDepots);
