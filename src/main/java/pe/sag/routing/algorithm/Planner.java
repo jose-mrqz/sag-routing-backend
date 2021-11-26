@@ -152,6 +152,9 @@ public class Planner {
                 for (int i = 0; i < orders.size(); i++) {
                     Order order = orders.get(i);
                     if (order.visited) order.shouldReset = false;
+                    else {
+                        order.resetDemand = order.demand;
+                    }
                 }
             } else {
                 break;
