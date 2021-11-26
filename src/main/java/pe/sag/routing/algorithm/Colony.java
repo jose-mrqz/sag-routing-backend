@@ -113,7 +113,7 @@ public class Colony extends Graph {
 
     public void run()  {
         double bestSolution = Double.MIN_VALUE;
-        double bestCost = Double.MAX_VALUE;
+        double bestCost = Double.MIN_VALUE;
         for(int i = 0; i < ITERATOR; i++) {
             solve();
             int attendedCustomers = 0;
@@ -132,7 +132,8 @@ public class Colony extends Graph {
 //            double quality = visited + 1/totalConsumption + 1/totalGLP;
             double quality = visited;
             int total = validateRoutes();
-            if (quality > bestSolution || (quality == bestSolution && total < bestCost)) {
+//            if (quality > bestSolution || (quality == bestSolution && total < bestCost)) {
+            if (quality > bestSolution || (quality == bestSolution && totalGLP > bestCost)) {
                 if (total != -1) {
                     bestSolution = quality;
                     bestCost = total;
