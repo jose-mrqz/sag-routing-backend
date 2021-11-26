@@ -224,7 +224,8 @@ public class Colony extends Graph {
             if (trucks[truckIdx].tour.isEmpty()) // add main depot as starting point
                 trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes);
             ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
-            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
+//            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
+            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
                 onlyDepot = true;
                 for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
                     if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
