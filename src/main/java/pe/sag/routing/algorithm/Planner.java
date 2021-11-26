@@ -113,7 +113,13 @@ public class Planner {
             solutionDepots = colony.solutionDepots;
             orders = colony.solutionOrders;
 
+            SimulationHelper sh = RouteController.simulationHelper;
+
+
+            sh.setDepots(new ArrayList<>());
             for (Depot d : solutionDepots) {
+                Depot clone = new Depot(d);
+                sh.getDepots().add(clone);
                 System.out.println(d.getId());
                 d.remainingGlp.forEach((key, value) -> System.out.println("\t" + key + " --- " + value));
             }
@@ -135,7 +141,8 @@ public class Planner {
             if (solutionRoutes != null && solutionRoutes.size() != 0) {
                 for (int i = 0; i < solutionDepots.size(); i++) {
                     Depot depot = solutionDepots.get(i);
-                    depot.originalState = (HashMap<LocalDate, Double>) depot.getRemainingGlp().clone();
+                    depot.originalState = new HashMap<>();
+                    depot.getRemainingGlp().forEach((key, val) -> depot.originalState.put(key, val));
                 }
 
                 for (int i = 0; i < trucks.size(); i++) {

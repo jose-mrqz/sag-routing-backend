@@ -35,8 +35,10 @@ public class Depot extends Node {
         this.x = d.x;
         this.y = d.y;
         this.isMain = d.isMain;
-        this.originalState = (HashMap<LocalDate, Double>) d.originalState.clone();
-        this.remainingGlp = (HashMap<LocalDate, Double>) d.remainingGlp.clone();
+        this.originalState = new HashMap<>();
+        d.originalState.forEach((key, val) -> this.originalState.put(key, val));
+        this.remainingGlp = new HashMap<>();
+        d.remainingGlp.forEach((key, val) -> this.remainingGlp.put(key, val));
         this.id = d.getId();
     }
 
@@ -76,6 +78,7 @@ public class Depot extends Node {
 
     @Override
     public void reset() {
-        remainingGlp = (HashMap<LocalDate, Double>) originalState.clone();
+        remainingGlp = new HashMap<>();
+        originalState.forEach((key, val) -> remainingGlp.put(key, val));
     }
 }
