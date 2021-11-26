@@ -120,8 +120,6 @@ public class Planner {
             for (Depot d : solutionDepots) {
                 Depot clone = new Depot(d);
                 sh.getDepots().add(clone);
-                System.out.println(d.getId());
-                d.remainingGlp.forEach((key, value) -> System.out.println("\t" + key + " --- " + value));
             }
 
             if (isSimulation) {

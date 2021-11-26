@@ -309,6 +309,10 @@ public class RouteController {
                     }
                 }
             }
+            for (pe.sag.routing.algorithm.Depot d : RouteController.simulationHelper.getDepots()) {
+                System.out.println(d.getId());
+                d.getRemainingGlp().forEach((key, val) -> System.out.println("/t" + key + " --- " + val));
+            }
         }
     }
 
