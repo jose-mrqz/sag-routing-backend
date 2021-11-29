@@ -136,7 +136,7 @@ public class Colony extends Graph {
             if (quality > bestSolution || (quality == bestSolution && totalGLP > bestCost)) {
                 if (total != -1) {
                     bestSolution = quality;
-                    bestCost = total;
+                    bestCost = totalGLP;
                     saveBestSolution();
 //                    if (i >= 50 && bestSolution > 30) {
 //                        resetStep();
@@ -250,7 +250,7 @@ public class Colony extends Graph {
 //                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+                if (feasibleEdges.size() <= 5) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
             } else if (currentTruck.capacity >= 15.0) {
                 feasibleEdges = evaluate(truckIdx, orderMap.get(15));
 //                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
@@ -258,7 +258,7 @@ public class Colony extends Graph {
 //                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+                if (feasibleEdges.size() <= 5) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
             } else if (currentTruck.capacity >= 10.0) {
                 feasibleEdges = evaluate(truckIdx, orderMap.get(10));
 //                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
@@ -266,7 +266,7 @@ public class Colony extends Graph {
 //                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+                if (feasibleEdges.size() <= 5) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
             } else {
                 feasibleEdges = evaluate(truckIdx, orderMap.get(5));
 //                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
@@ -274,7 +274,7 @@ public class Colony extends Graph {
 //                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
                 feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+                if (feasibleEdges.size() <= 5) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
             }
             if (feasibleEdges.isEmpty()) {
                 if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes); //return to main depot
