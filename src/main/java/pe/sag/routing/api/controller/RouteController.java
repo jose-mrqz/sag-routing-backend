@@ -243,8 +243,18 @@ public class RouteController {
             while(true) {
 //                List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
                 LocalDateTime start = RouteController.simulationHelper.getStartDate();
-                LocalDateTime end = start.plusMinutes(15);
-                List<Order> pendingOrders = orderService.getByDateSimulation(start, end);
+                LocalDateTime end;
+                List<Order> pendingOrders;
+                int wtf = 0;
+                while (true) {
+                    end = start.plusMinutes(15);
+                    pendingOrders = orderService.getByDateSimulation(start, end);
+                    if (pendingOrders.size() != 0) break;
+                    wtf++;
+                    if (wtf == 100) break;
+                    start = end;
+                }
+//                List<Order> pendingOrders = orderService.getByDateSimulation(start, end);
                 RouteController.simulationHelper.setStartDate(end);
 
                 if (pendingOrders.size() == 0) {
