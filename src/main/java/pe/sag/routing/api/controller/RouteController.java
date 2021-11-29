@@ -247,7 +247,7 @@ public class RouteController {
                 List<Order> pendingOrders;
                 int wtf = 0;
                 while (true) {
-                    end = start.plusMinutes(30);
+                    end = start.plusMinutes(60);
                     pendingOrders = orderService.getByDateSimulation(start, end);
                     if (pendingOrders.size() != 0) break;
                     wtf++;
@@ -356,7 +356,7 @@ public class RouteController {
 
         int wtf = 0;
         while (true) {
-            end = start.plusMinutes(30);
+            end = start.plusMinutes(60);
             pendingOrders = orderService.getByDateSimulation(start, end);
             if (pendingOrders.size() != 0) break;
             wtf++;
