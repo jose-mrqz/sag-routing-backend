@@ -341,9 +341,15 @@ public class RouteController {
         List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
 
         LocalDateTime start = RouteController.simulationHelper.getStartDate();
-        LocalDateTime end = start.plusMinutes(15);
+        LocalDateTime end;
+        List<Order> pendingOrders;
+        while (true) {
+            end = start.plusMinutes(15);
+            pendingOrders = orderService.getByDateSimulation(start, end);
+            if (pendingOrders.size() != 0) break;
+            start = end;
+        }
 //        List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
-        List<Order> pendingOrders = orderService.getByDateSimulation(start, end);
         RouteController.simulationHelper.setStartDate(end);
 
         for (Truck truck : availableTrucks) {
