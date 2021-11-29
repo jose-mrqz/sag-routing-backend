@@ -241,7 +241,12 @@ public class RouteController {
         public void run() {
             SimulationData simulationData = RouteController.simulationData;
             while(true) {
-                List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
+//                List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
+                LocalDateTime start = RouteController.simulationHelper.getStartDate();
+                LocalDateTime end = start.plusMinutes(15);
+                List<Order> pendingOrders = orderService.getByDateSimulation(start, end);
+                RouteController.simulationHelper.setStartDate(end);
+
                 if (pendingOrders.size() == 0) {
                     RouteController.simulationData.setNScheduled(simulationData.getNOrders());
                     RouteController.simulationData.setMessage("Simulacion terminada con exito.");
@@ -334,7 +339,12 @@ public class RouteController {
         RouteController.simulationInfo = simulationInfo;
 
         List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);
-        List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
+
+        LocalDateTime start = RouteController.simulationHelper.getStartDate();
+        LocalDateTime end = start.plusMinutes(15);
+//        List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
+        List<Order> pendingOrders = orderService.getByDateSimulation(start, end);
+        RouteController.simulationHelper.setStartDate(end);
 
         for (Truck truck : availableTrucks) {
             Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);

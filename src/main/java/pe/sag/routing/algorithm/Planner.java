@@ -49,8 +49,8 @@ public class Planner {
         List<Depot> solutionDepots = null;
 
         modelTrucks = modelTrucks.stream()
-                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity))
-//                        .thenComparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime))
+                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)
+                        .thenComparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime))
                 .collect(Collectors.toList());
 
 //        modelOrders = modelOrders.stream()
@@ -58,17 +58,29 @@ public class Planner {
 //                    .thenComparing(pe.sag.routing.core.model.Order::getRegistrationDate))
 //                .collect(Collectors.toList());
 
-        HashMap<String, List<pe.sag.routing.core.model.Truck>> truckCategory = new HashMap<>();
-        for (int i = 0; i < modelTrucks.size(); i++) {
-            pe.sag.routing.core.model.Truck t = modelTrucks.get(i);
-            List<pe.sag.routing.core.model.Truck> list = truckCategory.getOrDefault(t.getModel().get_id(), null);
-            if (list == null) {
-                list = new ArrayList<>();
-            }
-            list.add(t);
-            truckCategory.put(t.getModel().get_id(), list);
-        }
+//        HashMap<Integer, Integer> count = new HashMap<>();
+//        for (pe.sag.routing.core.model.Order o : modelOrders) {
+//            if (o.getTotalDemand() > 15.0) {
+//                count.put(10, count.getOrDefault(25, 0)+1);
+//            } else if (o.getTotalDemand() > 10.0) {
+//                count.put(15, count.getOrDefault(15, 0)+1);
+//            } else if (o.getTotalDemand() > 5.0) {
+//                count.put(25, count.getOrDefault(10, 0)+1);
+//            } else {
+//                count.put(5, count.getOrDefault(5, 0)+1);
+//            }
+//        }
 
+//        HashMap<String, List<pe.sag.routing.core.model.Truck>> truckCategory = new HashMap<>();
+//        for (int i = 0; i < modelTrucks.size(); i++) {
+//            pe.sag.routing.core.model.Truck t = modelTrucks.get(i);
+//            List<pe.sag.routing.core.model.Truck> list = truckCategory.getOrDefault(t.getModel().get_id(), null);
+//            if (list == null) {
+//                list = new ArrayList<>();
+//            }
+//            list.add(t);
+//            truckCategory.put(t.getModel().get_id(), list);
+//        }
 
         Collections.reverse(modelTrucks);
 //        Collections.reverse(modelOrders);

@@ -218,30 +218,98 @@ public class Colony extends Graph {
         return ThreadLocalRandom.current().nextDouble(0.0, 1.0);
     }
 
+    public ArrayList<Integer> getList() {
+        ArrayList<Integer> aux = new ArrayList<>();
+        aux.add(1);
+        aux.add(2);
+        return aux;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> evaluate(int truckIdx, ArrayList<Integer> edgesIdx) {
+        ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
+        boolean onlyDepot;
+        onlyDepot = true;
+        for (Integer nodeIdx : edgesIdx) {
+            if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix, nodes)) {
+                if (onlyDepot && nodes[nodeIdx] instanceof Order) onlyDepot = false;
+                feasibleEdges.add(new Pair<>(trucks[truckIdx].nowIdx, nodeIdx));
+            }
+        }
+        if (onlyDepot) feasibleEdges.clear();
+        return feasibleEdges;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> evaluateFeasibleEdges(int truckIdx, HashMap<Integer, ArrayList<Integer>> orderMap) {
+        ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
+        Truck currentTruck = trucks[truckIdx];
+        while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
+            if (currentTruck.capacity >= 25.0) {
+                feasibleEdges = evaluate(truckIdx, orderMap.get(25));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+            } else if (currentTruck.capacity >= 15.0) {
+                feasibleEdges = evaluate(truckIdx, orderMap.get(15));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+            } else if (currentTruck.capacity >= 10.0) {
+                feasibleEdges = evaluate(truckIdx, orderMap.get(10));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+            } else {
+                feasibleEdges = evaluate(truckIdx, orderMap.get(5));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+            }
+            if (feasibleEdges.isEmpty()) {
+                if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes); //return to main depot
+                else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(15); // wait at main depot
+            }
+        }
+        return feasibleEdges;
+    }
+
+    public ArrayList<Pair<Integer, Integer>> getFeasibleEdges(int truckIdx) {
+        HashMap<Integer, ArrayList<Integer>> orderMap = new HashMap<>();
+        ArrayList<Integer> aux;
+        orderMap.put(25, getList());
+        orderMap.put(15, getList());
+        orderMap.put(10, getList());
+        orderMap.put(5, getList());
+        for (int i = 3; i < nodes.length; i++) {
+            Order o = (Order)nodes[i];
+            if (o.isVisited()) continue;
+            if (o.getTotalDemand() > 15.0) {
+                aux = orderMap.get(25);
+                aux.add(i);
+                orderMap.put(25, aux);
+            } else if (o.getTotalDemand() > 10.0) {
+                aux = orderMap.get(15);
+                aux.add(i);
+                orderMap.put(15, aux);
+            } else if (o.getTotalDemand() > 5.0) {
+                aux = orderMap.get(10);
+                aux.add(i);
+                orderMap.put(10, aux);
+            } else {
+                aux = orderMap.get(5);
+                aux.add(i);
+                orderMap.put(5, aux);
+            }
+        }
+        return evaluateFeasibleEdges(truckIdx, orderMap);
+    }
+
     public void solve()  {
         int truckIdx = 0;
         boolean onlyDepot;
         while (!isAllVisited()) {
             if (trucks[truckIdx].tour.isEmpty()) // add main depot as starting point
                 trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes);
-            ArrayList<Pair<Integer, Integer>> feasibleEdges = new ArrayList<>();
-//            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
-            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
-                onlyDepot = true;
-                for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
-                    if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
-//                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix)) {
-                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix, nodes)) {
-                        if (onlyDepot && nodes[nodeIdx] instanceof Order) onlyDepot = false;
-                        feasibleEdges.add(new Pair<>(trucks[truckIdx].nowIdx, nodeIdx));
-                    }
-                }
-                if (onlyDepot) feasibleEdges.clear();
-                if (feasibleEdges.isEmpty()) {
-                    if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes); //return to main depot
-                    else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(15); // wait at main depot
-                }
-            }
+            ArrayList<Pair<Integer, Integer>> feasibleEdges = getFeasibleEdges(truckIdx);
 
             if (feasibleEdges.isEmpty()) {
                 if (truckIdx + 1 < nTruck) { // check if there are other available trucks
@@ -250,7 +318,7 @@ public class Colony extends Graph {
                     truckIdx += 1;
                 } else {
                     break; // collapse
-                };
+                }
             } else {
                 int nextNodeIdx;
                 if (getRandom() < threshold) {

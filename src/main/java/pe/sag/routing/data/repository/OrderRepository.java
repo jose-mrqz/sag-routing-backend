@@ -15,6 +15,7 @@ public interface OrderRepository extends MongoRepository<Order,String> {
     Optional<Order> findFirstByOrderByCodeDesc();
     List<Order> findFirst500ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(OrderStatus status, boolean monitoring);
     List<Order> findFirst80ByStatusAndMonitoringAndDeadlineDateAfterOrderByRegistrationDateAscDeadlineDateAsc(OrderStatus status, boolean monitoring, LocalDateTime deadline);
+    List<Order> findByStatusAndMonitoringAndRegistrationDateBetween(OrderStatus status, boolean monitoring, LocalDateTime startDate, LocalDateTime endDate);
     void deleteByMonitoring(boolean monitoring);
     int deleteByCode(int code);
 

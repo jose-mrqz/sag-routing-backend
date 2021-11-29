@@ -139,6 +139,10 @@ public class OrderService {
         return orderRepository.findFirst500ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
     }
 
+    public List<Order> getByDateSimulation(LocalDateTime startDate, LocalDateTime endDate) {
+        return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetween(OrderStatus.PENDIENTE, false, startDate, endDate);
+    }
+
     public Order cancelOrder(String id, double amount) {
         Optional<Order> orderOptional = orderRepository.findBy_id(id);
         if (orderOptional.isPresent()) {

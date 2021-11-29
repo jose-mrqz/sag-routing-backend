@@ -153,7 +153,6 @@ public class OrderController {
                 .message("Simulacion iniciada con " + inserted +  " pedidos.")
                 .finished(false)
                 .build();
-        RouteController.simulationHelper = new SimulationHelper(request.isColapse());
 
         if (ordersDto.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Todos los pedidos se encuentran bloqueados.");
@@ -169,6 +168,23 @@ public class OrderController {
                 startDateReal = LocalDateTime.of(order.getRegistrationDate().toLocalDate(),order.getRegistrationDate().toLocalTime());
             }
         }
+
+        HashMap<Integer, Integer> count = new HashMap<>();
+        for (pe.sag.routing.core.model.Order o : ordersRegistered) {
+            if (o.getTotalDemand() > 15.0) {
+                count.put(10, count.getOrDefault(25, 0)+1);
+            } else if (o.getTotalDemand() > 10.0) {
+                count.put(15, count.getOrDefault(15, 0)+1);
+            } else if (o.getTotalDemand() > 5.0) {
+                count.put(25, count.getOrDefault(10, 0)+1);
+            } else {
+                count.put(5, count.getOrDefault(5, 0)+1);
+            }
+        }
+
+        RouteController.simulationHelper = new SimulationHelper(request.isColapse());
+        RouteController.simulationHelper.setStartDate(startDateReal);
+
 
         simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();

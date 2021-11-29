@@ -82,8 +82,8 @@ public class Truck {
 
     private boolean okTime(Order o, int travelTime, int idx, int[][] matrix) {
         LocalDateTime arrivalTime = nowTime.plusSeconds(travelTime);
-        boolean valid = (nowTime.isAfter(o.twOpen.minusMinutes(10)) || nowTime.isEqual(o.twOpen.minusMinutes(10))) &&
-                (arrivalTime.isBefore(o.twClose.minusMinutes(o.unloadTime+10)) || arrivalTime.isEqual(o.twClose.minusMinutes(o.unloadTime+10)));
+        boolean valid = (nowTime.isAfter(o.twOpen.minusMinutes(1)) || nowTime.isEqual(o.twOpen.minusMinutes(1))) &&
+                (arrivalTime.isBefore(o.twClose.minusMinutes(o.unloadTime)) || arrivalTime.isEqual(o.twClose.minusMinutes(o.unloadTime)));
         if (valid && closestMaintenance != null) {
             int returnTime = calculateTravelTime(matrix, idx, 0);
             valid = arrivalTime.plusSeconds(returnTime).isBefore(closestMaintenance);
