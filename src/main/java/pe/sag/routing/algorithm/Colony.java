@@ -245,23 +245,35 @@ public class Colony extends Graph {
         while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
             if (currentTruck.capacity >= 25.0) {
                 feasibleEdges = evaluate(truckIdx, orderMap.get(25));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
                 if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
             } else if (currentTruck.capacity >= 15.0) {
                 feasibleEdges = evaluate(truckIdx, orderMap.get(15));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
                 if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
             } else if (currentTruck.capacity >= 10.0) {
                 feasibleEdges = evaluate(truckIdx, orderMap.get(10));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
                 if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(5)));
             } else {
                 feasibleEdges = evaluate(truckIdx, orderMap.get(5));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
-                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
+//                if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(10)));
+                feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(15)));
                 if (feasibleEdges.isEmpty()) feasibleEdges.addAll(evaluate(truckIdx, orderMap.get(25)));
             }
             if (feasibleEdges.isEmpty()) {
