@@ -408,6 +408,13 @@ public class RouteController {
                 .body(routeService.getFuelConsumedPerDay(request.startDate, request.endDate));
     }
 
+    @PostMapping(path = "/glpRefilled")
+    public ResponseEntity<?> getGlpRefilled(@RequestBody FuelConsumedRequest request) {
+        return ResponseEntity
+                .status(HttpStatus.I_AM_A_TEAPOT)
+                .body(routeService.getGlpRefilledPerDay(request.startDate, request.endDate));
+    }
+
     @RequestMapping(path = "/reportOilSpending")
     @ResponseBody
     public void reportOilSpendingIntoDate(@RequestBody FuelConsumedRequest request, HttpServletResponse response) throws  Exception, JRException {

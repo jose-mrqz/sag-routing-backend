@@ -3,6 +3,7 @@ package pe.sag.routing.core.service;
 import org.springframework.stereotype.Service;
 import pe.sag.routing.core.model.*;
 import pe.sag.routing.data.parser.RouteParser;
+import pe.sag.routing.data.repository.DepotRepository;
 import pe.sag.routing.data.repository.RouteRepository;
 import pe.sag.routing.shared.dto.RouteDto;
 
@@ -17,9 +18,11 @@ import static java.time.temporal.ChronoUnit.*;
 @Service
 public class RouteService {
     private final RouteRepository routeRepository;
+    private final DepotRepository depotRepository;
 
-    public RouteService(RouteRepository routeRepository) {
+    public RouteService(RouteRepository routeRepository, DepotRepository depotRepository) {
         this.routeRepository = routeRepository;
+        this.depotRepository = depotRepository;
     }
 
     public Route save(Route route) {
@@ -151,6 +154,25 @@ public class RouteService {
         }
         if(totalFuel > 0) fuelConsumes.add(new FuelConsume(actualDate, totalFuel));
         return fuelConsumes;
+    }
+
+    public List<GlpRefill> getGlpRefilledPerDay(LocalDateTime startDate, LocalDateTime endDate){
+        List<GlpRefill> glpRefills = new ArrayList<>();
+        List<Depot> depots = depotRepository.findAll();
+        List<Route> routes = routeRepository.findByFinishDateBetweenAndMonitoringAndCancelled(startDate, endDate.plusDays(1), true, false);
+
+        String depotName;
+        for(Route r : routes){
+            if(r.getDepots().size() > 0){
+                for(Route.Depot d : r.getDepots()){
+                    if(d.getX() == depots.get(0).getX()) depotName = depots.get(0).getName();
+                    else depotName = depots.get(1).getName();
+
+                    glpRefills.add(new GlpRefill(d.getRefillDate(), depotName, d.getRefilledGlp(), r.getTruckCode()));
+                }
+            }
+        }
+        return glpRefills;
     }
 }
 
