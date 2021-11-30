@@ -374,7 +374,7 @@ public class OrderController {
         System.out.println(map);
         System.out.println(compileReportEmpty);
         JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
-        //JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
+
         byte[] data = JasperExportManager.exportReportToPdf(report);
 
         response.setContentType("application/pdf");
