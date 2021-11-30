@@ -354,9 +354,9 @@ public class OrderController {
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
         //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
-//        File file  = ResourceUtils.getFile("classpath:reportes/ReportePedidos.jrxml");
 //        File file  = ResourceUtils.getFile("/home/arch/reportes/ReportePedidos.jrxml");
-        InputStream resource = getClass().getResourceAsStream("/ReportePedidos.jrxml");
+//        InputStream resource = getClass().getResourceAsStream("/ReportePedidos.jrxml");
+        InputStream resource = new ClassPathResource("/ReportePedidos.jrxml").getInputStream();
 //        URL jarUrl = new URL("jar:file:/home/arch/sag-routing-backend/target/routing-0.0.1-SNAPSHOT.jar!/BOOT-INF/classes!/reportes/ReportePedidos.jrxml");
 //        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
         JasperReport compileReport = JasperCompileManager.compileReport(resource);
@@ -371,6 +371,9 @@ public class OrderController {
         map.put("fechaFinal", fechaFinal);
         map.put("dataSetPedidos", beanCollectionDataSource);
 
+        System.out.println(compileReport);
+        System.out.println(map);
+        System.out.println(compileReportEmpty);
         JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
         //JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
         byte[] data = JasperExportManager.exportReportToPdf(report);
