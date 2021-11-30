@@ -48,14 +48,14 @@ public class Planner {
         List<Order> orders = new ArrayList<>();
         List<Depot> solutionDepots = null;
 
-//        modelTrucks = modelTrucks.stream()
-//                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity))
-//                .collect(Collectors.toList());
-
         modelTrucks = modelTrucks.stream()
-                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)
-                        .thenComparing(pe.sag.routing.core.model.Truck::getModelCapacity).reversed())
+                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity))
                 .collect(Collectors.toList());
+
+//        modelTrucks = modelTrucks.stream()
+//                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)
+//                        .thenComparing(pe.sag.routing.core.model.Truck::getModelCapacity).reversed())
+//                .collect(Collectors.toList());
 
 //        modelOrders = modelOrders.stream()
 //                .sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDemandGLP)
