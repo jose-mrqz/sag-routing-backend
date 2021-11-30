@@ -243,16 +243,18 @@ public class RouteController {
         public void run() {
             SimulationData simulationData = RouteController.simulationData;
             while(true) {
-                int wtf = 0;
+//                int wtf = 0;
                 LocalDateTime start = RouteController.simulationHelper.getStartDate();
                 LocalDateTime end;
+                LocalDateTime aux;
                 List<Order> pendingOrders;
                 while (true) {
                     end = start.plusMinutes(30);
                     pendingOrders = orderService.getByDateSimulation(start, end);
                     if (pendingOrders.size() != 0) break;
-                    wtf++;
+//                    wtf++;
 //                    if (wtf == 100) break;
+                    aux = start;
                     start = end;
                 }
 //                List<Order> pendingOrders = orderService.getBatchedByStatusMonitoring(OrderStatus.PENDIENTE, false);
@@ -273,7 +275,8 @@ public class RouteController {
                         LocalDateTime endTime = lastRoute.getFinishDate();
                         truck.setLastRouteEndTime(endTime);
                     }
-                    else truck.setLastRouteEndTime(startDateReal);
+//                    else truck.setLastRouteEndTime(startDateReal);
+                    else truck.setLastRouteEndTime(start);
                 }
 
                 if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
