@@ -22,7 +22,8 @@ public class Roadblock {
 
     public boolean validateDates(LocalDateTime startDateMin,LocalDateTime endDateMin){
         //[startDateMin;endDateMin] y [startDate;endDate]
-        if( ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ){
+        return ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ;
+        /*if( ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ){
             return true;
         }
         for(int sec = 1; sec <= 36; sec++){
@@ -30,7 +31,7 @@ public class Roadblock {
                 return true;
             }
         }
-        return false;
+        return false;*/
     }
 
     public void printRoadblock(){
