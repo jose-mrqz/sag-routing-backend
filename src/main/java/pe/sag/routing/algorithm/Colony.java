@@ -113,7 +113,7 @@ public class Colony extends Graph {
 
     public void run()  {
         double bestSolution = Double.MIN_VALUE;
-        double bestCost = Double.MIN_VALUE;
+        double bestCost = Double.MAX_VALUE;
         for(int i = 0; i < ITERATOR; i++) {
             solve();
             int attendedCustomers = 0;
@@ -133,10 +133,13 @@ public class Colony extends Graph {
             double quality = visited;
             int total = validateRoutes();
 //            if (quality > bestSolution || (quality == bestSolution && total < bestCost)) {
-            if (quality > bestSolution || (quality == bestSolution && totalGLP > bestCost)) {
+            if (totalGLP > bestSolution || (totalGLP == bestSolution && totalConsumption < bestCost)) {
+//            if (quality > bestSolution || (quality == bestSolution && totalGLP > bestCost)) {
                 if (total != -1) {
-                    bestSolution = quality;
-                    bestCost = total;
+                    bestSolution = totalGLP;
+                    bestCost = totalConsumption;
+//                    bestCost = total;
+//                    bestCost = totalGLP;
                     saveBestSolution();
 //                    if (i >= 50 && bestSolution > 30) {
 //                        resetStep();
@@ -236,7 +239,7 @@ public class Colony extends Graph {
                         feasibleEdges.add(new Pair<>(trucks[truckIdx].nowIdx, nodeIdx));
                     }
                 }
-                if (onlyDepot) feasibleEdges.clear();
+//                if (onlyDepot) feasibleEdges.clear();
                 if (feasibleEdges.isEmpty()) {
                     if (trucks[truckIdx].nowIdx != 0) trucks[truckIdx].addNode(nodes[0], distanceMatrix, nodes); //return to main depot
                     else trucks[truckIdx].nowTime = trucks[truckIdx].nowTime.plusMinutes(15); // wait at main depot
