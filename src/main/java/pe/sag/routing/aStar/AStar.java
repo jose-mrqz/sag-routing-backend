@@ -56,10 +56,10 @@ public class AStar {
 
         //Carga de bloqueos en mapa
         //System.out.println("Bloqueos:");
-        /*for(Roadblock rb : roadblocks) {
+        for(Roadblock rb : roadblocks) {
             //rb.printRoadblock();
             map.setRoadblocks(rb.getX(), rb.getY());
-        }*/
+        }
         //System.out.println("");
         //Imprimir mapa completo
         //map.printMap();
