@@ -16,12 +16,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Colony extends Graph {
     private static final Double INIT_PHERO = 1.0;
     private static final Double EVAP_RATE = 0.85;
-    private static final Double ALPHA = 3.0;
-    private static final Double BETA = 5.0;
+//    private static final Double ALPHA = 3.0;
+//    private static final Double BETA = 5.0;
+    private static final Double ALPHA = 0.5;
+    private static final Double BETA = 3.0;
     private static final Double Q = 1.0;
-    private static final Double DECAY_RATE = 0.95;
+    private static final Double DECAY_RATE = 0.75;
     private static final int INF = Integer.MAX_VALUE;
-    private static final int ITERATOR = 100;
+    private static final int ITERATOR = 3000;
     private Double threshold;
     private Double[][] pheromoneMatrix;
     private Double[][] ethaMatrix;
