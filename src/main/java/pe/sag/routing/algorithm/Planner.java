@@ -54,7 +54,7 @@ public class Planner {
 
         modelTrucks = modelTrucks.stream()
                 .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)
-                        .thenComparing(pe.sag.routing.core.model.Truck::getModelCapacity))
+                        .thenComparing(pe.sag.routing.core.model.Truck::getModelCapacity).reversed())
                 .collect(Collectors.toList());
 
 //        modelOrders = modelOrders.stream()
