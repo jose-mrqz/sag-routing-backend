@@ -357,8 +357,7 @@ public class RouteController {
             end = start.plusMinutes(30);
             pendingOrders = orderService.getByDateSimulation(start, end);
             if (pendingOrders.size() != 0) break;
-            wtf++;
-            if (wtf == 100) break;
+            if (++wtf == 100) break;
             start = end;
         }
 

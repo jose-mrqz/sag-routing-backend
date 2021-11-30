@@ -154,7 +154,6 @@ public class OrderController {
                 .finished(false)
                 .build();
         RouteController.simulationHelper = new SimulationHelper(request.isColapse());
-        RouteController.simulationHelper.setStartDate(startDateReal);
 
         if (ordersDto.size() == 0) {
             RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Todos los pedidos se encuentran bloqueados.");
@@ -170,6 +169,7 @@ public class OrderController {
                 startDateReal = LocalDateTime.of(order.getRegistrationDate().toLocalDate(),order.getRegistrationDate().toLocalTime());
             }
         }
+        RouteController.simulationHelper.setStartDate(startDateReal);
 
         simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();
