@@ -26,7 +26,7 @@ public class Roadblock {
         if( ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ){
             return true;
         }
-        int maxsec = 2;//36;
+        int maxsec = 18;//36;
         for(int sec = 1; sec <= maxsec; sec++){
             if( !( endDateMin.plusSeconds(sec).isBefore(startDate) || endDate.plusSeconds(sec).isBefore(startDateMin) ) ){
                 return true;
