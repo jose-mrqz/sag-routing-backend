@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import pe.sag.routing.algorithm.Depot;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,6 +18,7 @@ public class SimulationHelper {
      private int count = 0;
      private int truckCount = 0;
      private boolean collapse = false;
+     private LocalDateTime startDate;
 
      public SimulationHelper(boolean collapse) {
           breakdowns = new HashMap<>();
@@ -25,3 +27,4 @@ public class SimulationHelper {
           count = 0;
      }
 }
+

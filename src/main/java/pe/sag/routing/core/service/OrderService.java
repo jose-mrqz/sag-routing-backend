@@ -151,6 +151,10 @@ public class OrderService {
         } else return null;
     }
 
+    public List<Order> getByDateSimulation(LocalDateTime startDate, LocalDateTime endDate) {
+        return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetween(OrderStatus.PENDIENTE, false, startDate, endDate);
+    }
+
     public Order edit(Order order, NewOrderRequest request) {
         order.setX(request.getX());
         order.setY(request.getY());
