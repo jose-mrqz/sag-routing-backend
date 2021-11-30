@@ -2,6 +2,7 @@ package pe.sag.routing.api.controller;
 
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
+import net.sf.jasperreports.engine.util.JRSaver;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 
 import java.time.format.DateTimeFormatter;
@@ -425,9 +427,14 @@ public class RouteController {
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(oilSpending);
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
-        //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") +"/reportes/ReporteConsumoPetroleoDiario.jrxml"));
-        File file  = ResourceUtils.getFile("classpath:reportes/ReporteConsumoPetroleoDiario.jrxml");
-        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
+
+
+        //File file  = ResourceUtils.getFile("classpath:reportes/ReporteConsumoPetroleoDiario.jrxml");
+        //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
+
+        InputStream resource = getClass().getResourceAsStream("/ReporteConsumoPetroleoDiario.jrxml");
+        JasperReport compileReport = JasperCompileManager.compileReport(resource);
+        JRSaver.saveObject(compileReport, "ReporteConsumoPetroleoDiario.jasper");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         String fechaInicial = request.getStartDate().format(formatter);
@@ -439,7 +446,7 @@ public class RouteController {
         map.put("dataSetPetroleoDiario", beanCollectionDataSource);
 
         JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
-        //JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
+
         byte[] data = JasperExportManager.exportReportToPdf(report);
 
         response.setContentType("application/pdf");
@@ -451,5 +458,45 @@ public class RouteController {
         bos.close();
         response.flushBuffer();
 
+    }
+
+    @RequestMapping(path = "/reportGLPSpending")
+    @ResponseBody
+    public void reportGLPSpendingIntoDate(@RequestBody FuelConsumedRequest request, HttpServletResponse response) throws  Exception, JRException {
+
+        List<GlpRefill> glpSpending = routeService.getGlpRefilledPerDay(request.getStartDate(), request.getEndDate());
+
+        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(glpSpending);
+
+        JRDataSource compileReportEmpty = new JREmptyDataSource(1);
+
+        //File file  = ResourceUtils.getFile("classpath:reportes/ReporteConsumoGLP.jrxml");
+        //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
+
+        InputStream resource = getClass().getResourceAsStream("/ReporteConsumoGLP.jrxml");
+        JasperReport compileReport = JasperCompileManager.compileReport(resource);
+        JRSaver.saveObject(compileReport, "ReporteConsumoGLP.jasper");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String fechaInicial = request.getStartDate().format(formatter);
+        String fechaFinal = request.getEndDate().format(formatter);
+
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("fechaInicial", fechaInicial);
+        map.put("fechaFinal", fechaFinal);
+        map.put("dataSetGLPConsumo", beanCollectionDataSource);
+
+        JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
+
+        byte[] data = JasperExportManager.exportReportToPdf(report);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=reporteConsumoGLP.pdf");
+        response.setHeader("Content-Transfer-Encoding", "binary");
+
+        BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+        bos.write(data,0,data.length);
+        bos.close();
+        response.flushBuffer();
     }
 }

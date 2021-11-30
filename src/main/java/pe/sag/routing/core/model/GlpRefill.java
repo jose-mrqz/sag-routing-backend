@@ -19,5 +19,25 @@ public class GlpRefill {
     private String depotName;
     private double glpRefilled;
     private String truckCode;
+
+    public String getDateString(){
+        if(date == null){
+            return "--/--/--";
+        }else{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            return date.format(formatter);
+        }
+
+    }
+
+    public String getTimeString(){
+        if(date == null){
+            return "--:--";
+        }else{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            return date.format(formatter);
+        }
+
+    }
 }
 
