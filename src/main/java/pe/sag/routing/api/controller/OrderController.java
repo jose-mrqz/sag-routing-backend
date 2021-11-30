@@ -357,8 +357,6 @@ public class OrderController {
 //        File file  = ResourceUtils.getFile("classpath:reportes/ReportePedidos.jrxml");
 //        File file  = ResourceUtils.getFile("/home/arch/reportes/ReportePedidos.jrxml");
         InputStream resource = getClass().getResourceAsStream("/ReportePedidos.jrxml");
-//        URL jarUrl = new URL("jar:file:/home/arch/sag-routing-backend/target/routing-0.0.1-SNAPSHOT.jar!/BOOT-INF/classes!/reportes/ReportePedidos.jrxml");
-//        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
         JasperReport compileReport = JasperCompileManager.compileReport(resource);
         JRSaver.saveObject(compileReport, "ReportePedidos.jasper");
 
@@ -372,7 +370,7 @@ public class OrderController {
         map.put("dataSetPedidos", beanCollectionDataSource);
 
         JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
-        //JasperExportManager.exportReportToPdfFile(report, "reportePedidos.pdf");
+
         byte[] data = JasperExportManager.exportReportToPdf(report);
 
         response.setContentType("application/pdf");
