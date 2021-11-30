@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Created with Jaspersoft Studio version 6.16.0.final using JasperReports Library version 6.16.0-48579d909b7943b64690c65c71e07e0b80981928  -->
-<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReporteConsumoGLP" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7657d35a-6aad-4015-9f20-7f4531f63c00">
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="ReporteConsumoGLP" pageWidth="595" pageHeight="842" whenNoDataType="AllSectionsNoDetail" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="7657d35a-6aad-4015-9f20-7f4531f63c00">
 	<style name="Table_TH" mode="Opaque" backcolor="#F0F8FF">
 		<box>
 			<pen lineWidth="0.5" lineColor="#000000"/>
@@ -35,9 +35,9 @@
 		</queryString>
 		<field name="dateString" class="java.lang.String"/>
 		<field name="timeString" class="java.lang.String"/>
-		<field name="namePlanta" class="java.lang.String"/>
-		<field name="consumo" class="java.lang.Double"/>
-		<field name="idPedido" class="java.lang.String"/>
+		<field name="depotName" class="java.lang.String"/>
+		<field name="glpRefilled" class="java.lang.Double"/>
+		<field name="truckCode" class="java.lang.String"/>
 	</subDataset>
 	<parameter name="fechaInicial" class="java.lang.String"/>
 	<parameter name="fechaFinal" class="java.lang.String"/>
@@ -185,7 +185,7 @@
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{namePlanta}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$F{depotName}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
@@ -206,8 +206,7 @@
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
-								<textFieldExpression><![CDATA[new BigDecimal($F{consumo}).setScale(2, BigDecimal.ROUND_CEILING)
-]]></textFieldExpression>
+								<textFieldExpression><![CDATA[new BigDecimal($F{glpRefilled}).setScale(2, BigDecimal.ROUND_CEILING)]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
@@ -219,7 +218,7 @@
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="13" isBold="true"/>
 								</textElement>
-								<text><![CDATA[Pedido]]></text>
+								<text><![CDATA[Camión]]></text>
 							</staticText>
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
@@ -228,7 +227,7 @@
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
-								<textFieldExpression><![CDATA[$F{idPedido}]]></textFieldExpression>
+								<textFieldExpression><![CDATA[$F{truckCode}]]></textFieldExpression>
 							</textField>
 						</jr:detailCell>
 					</jr:column>
