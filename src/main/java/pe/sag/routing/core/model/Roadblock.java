@@ -20,18 +20,19 @@ public class Roadblock {
     LocalDateTime endDate;
     boolean monitoring = true;
 
+    //[startDateMin;endDateMin] y [startDate;endDate]
     public boolean validateDates(LocalDateTime startDateMin,LocalDateTime endDateMin){
-        //[startDateMin;endDateMin] y [startDate;endDate]
-        return ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ;
-        /*if( ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ){
+        //return ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ;
+        if( ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ){
             return true;
         }
-        for(int sec = 1; sec <= 36; sec++){
+        int maxsec = 2;//36;
+        for(int sec = 1; sec <= maxsec; sec++){
             if( !( endDateMin.plusSeconds(sec).isBefore(startDate) || endDate.plusSeconds(sec).isBefore(startDateMin) ) ){
                 return true;
             }
         }
-        return false;*/
+        return false;
     }
 
     public void printRoadblock(){
