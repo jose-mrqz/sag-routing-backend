@@ -212,8 +212,8 @@ public class MapMatrix {
             }//fin del else
 
             ///////evaluar cuantos nodos se han recorrdo y actualizar bloqueos
-            numberNodes++;
-            if(numberNodes == NUMBER_NODES_EVALUATION || contCiclos == 0) {
+            //numberNodes++;
+            //if(numberNodes == NUMBER_NODES_EVALUATION || contCiclos == 0) {
                 fechaMin1 = LocalDateTime.of(fechaMin2.toLocalDate(),fechaMin2.toLocalTime());
                 fechaMin2 = fechaMin2.plusSeconds(TIME_PER_CICLE);
                 //Reiniciar mapa
@@ -226,9 +226,9 @@ public class MapMatrix {
                 }
                 //System.out.println(contCiclos);
                 //imprimeMatriz();
-                numberNodes = 0;
+                //numberNodes = 0;
                 contCiclos++;
-            }
+            //}
 
             actual = openList.deleteLeastCost();
 

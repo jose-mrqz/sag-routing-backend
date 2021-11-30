@@ -33,7 +33,7 @@ public class OrderDto {
     public boolean inRoadblocks(List<Roadblock> roadblocks) {
         for (Roadblock r : roadblocks) {
             if (r.getX() == x && r.getY() == y) {
-                if (!(deadlineDate.isBefore(r.getStartDate()) || registrationDate.isAfter(r.getEndDate())))
+                if ( !( deadlineDate.isBefore(r.getStartDate()) || registrationDate.isAfter(r.getEndDate()) ) )
                     return true;
             }
         }
