@@ -20,9 +20,9 @@ public class Roadblock {
     LocalDateTime endDate;
     boolean monitoring = true;
 
-    public boolean validateDates(LocalDateTime dateMin1,LocalDateTime dateMin2){
-        //fechaMin1 dentro de [fecha1;fecha2] (despreciar fechaMin2 dentro de ese rango)
-        return dateMin1.isAfter(startDate) && dateMin1.isBefore(endDate);
+    public boolean validateDates(LocalDateTime startDateMin,LocalDateTime endDateMin){
+        //[startDateMin;endDateMin] y [startDate;endDate]
+        return !endDateMin.plusSeconds(60).isBefore(startDate) && !endDate.plusSeconds(60).isBefore(startDateMin);
     }
 
     public void printRoadblock(){

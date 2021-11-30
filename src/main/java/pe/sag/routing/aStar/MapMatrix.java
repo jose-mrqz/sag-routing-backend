@@ -9,8 +9,8 @@ import java.util.List;
 
 public class MapMatrix {
     //Parametros para revision de bloqueos a tiempo real
-    public static final int NUMBER_NODES_EVALUATION = 10; //esto equivale a 12 min
-    public static final int TIME_PER_CICLE = 60*12;
+    public static final int NUMBER_NODES_EVALUATION = 1;//10; //esto equivale a 12 min
+    public static final int TIME_PER_CICLE = 72;//60*12;
 
     int[][] matrix;
     int cordX,cordY;
