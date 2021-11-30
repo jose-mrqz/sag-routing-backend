@@ -21,13 +21,23 @@ public class GlpRefill {
     private String truckCode;
 
     public String getDateString(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return date.format(formatter);
+        if(date == null){
+            return "--/--/--";
+        }else{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            return date.format(formatter);
+        }
+
     }
 
     public String getTimeString(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        return date.format(formatter);
+        if(date == null){
+            return "--:--";
+        }else{
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            return date.format(formatter);
+        }
+
     }
 }
 

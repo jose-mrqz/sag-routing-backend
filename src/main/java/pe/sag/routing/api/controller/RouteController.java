@@ -428,6 +428,7 @@ public class RouteController {
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
 
+
         //File file  = ResourceUtils.getFile("classpath:reportes/ReporteConsumoPetroleoDiario.jrxml");
         //JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
 
@@ -464,10 +465,6 @@ public class RouteController {
     public void reportGLPSpendingIntoDate(@RequestBody FuelConsumedRequest request, HttpServletResponse response) throws  Exception, JRException {
 
         List<GlpRefill> glpSpending = routeService.getGlpRefilledPerDay(request.getStartDate(), request.getEndDate());
-
-        for(int i = 0; i < glpSpending.size(); i++) {
-            System.out.print(glpSpending.get(i));
-        }
 
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(glpSpending);
 
