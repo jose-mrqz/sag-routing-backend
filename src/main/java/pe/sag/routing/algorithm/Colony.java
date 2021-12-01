@@ -233,11 +233,12 @@ public class Colony extends Graph {
 //            while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder) && !trucks[truckIdx].finished) {
             while (feasibleEdges.isEmpty() && (trucks[truckIdx].nowTime).isBefore(lastOrder)) {
                 onlyDepot = true;
-                for (int nodeIdx = 1; nodeIdx < nNode; nodeIdx++) {
+                for (int nodeIdx = 0; nodeIdx < nNode; nodeIdx++) {
                     if (nodes[nodeIdx] instanceof Order && ((Order)nodes[nodeIdx]).visited) continue;
 //                    if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix)) {
                     if (trucks[truckIdx].evaluateNode(nodes[nodeIdx], distanceMatrix, nodes)) {
                         if (onlyDepot && nodes[nodeIdx] instanceof Order) onlyDepot = false;
+                        if (trucks[truckIdx].nowIdx == 0 && nodeIdx == 0) continue;
                         feasibleEdges.add(new Pair<>(trucks[truckIdx].nowIdx, nodeIdx));
                     }
                 }

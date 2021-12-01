@@ -92,14 +92,15 @@ public class RouteDto {
                     .build();
             this.route.add(newNode);
         }
-        Collections.reverse(this.route);
+//        Collections.reverse(this.route);
         int index = 0;
         for (RouteDto.Order order : this.orders) {
             for (; index < this.route.size(); index++) {
                 if (order.getY() == route.get(index).getY() &&
                     order.getX() == route.get(index).getX()) {
                     order.setIndexRoute(index);
-//                    break;
+                    index++;
+                    break;
                 }
             }
         }
