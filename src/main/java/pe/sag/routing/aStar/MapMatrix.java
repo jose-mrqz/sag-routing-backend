@@ -38,7 +38,7 @@ public class MapMatrix {
 
     ///////METODO PARA ESTABLECER LAS PAREDES EL EL LABERINTO///////////////////
     public void setRoadblocks( int x, int y ){
-        if(matrix[x][y] == 8 || matrix[x][y] == 9) return;
+        //if(matrix[x][y] == 8 || matrix[x][y] == 9) return;
         this.matrix[x][y] = 1;
     }
 
