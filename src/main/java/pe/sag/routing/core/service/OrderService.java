@@ -135,8 +135,8 @@ public class OrderService {
     }
 
     public List<Order> getBatchedByStatusMonitoring(OrderStatus status, boolean isMonitoring) {
-        if (isMonitoring) return orderRepository.findFirst10ByStatusAndMonitoringAndDeadlineDateAfterOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring, LocalDateTime.now());
-        return orderRepository.findFirst300ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
+        if (isMonitoring) return orderRepository.findFirst80ByStatusAndMonitoringAndDeadlineDateAfterOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring, LocalDateTime.now());
+        return orderRepository.findFirst50ByStatusAndMonitoringOrderByRegistrationDateAscDeadlineDateAsc(status, isMonitoring);
     }
 
     public Order cancelOrder(String id, double amount) {
