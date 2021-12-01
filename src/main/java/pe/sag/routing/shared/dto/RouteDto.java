@@ -99,7 +99,7 @@ public class RouteDto {
                 if (order.getY() == route.get(index).getY() &&
                     order.getX() == route.get(index).getX()) {
                     order.setIndexRoute(index);
-//                    break;
+                    break;
                 }
             }
         }
