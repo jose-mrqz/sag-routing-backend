@@ -109,7 +109,9 @@ public class Planner {
             Colony colony = new Colony(orders, trucks, solutionDepots, roadblocks);
             colony.run();
 
-            if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0) break;
+            if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0 ||
+                    colony.solutionOrders == null || colony.solutionOrders.size() == 0 ||
+                    colony.solutionDepots == null || colony.solutionDepots.size() == 0) break;
 
             List<Route> solutionRoutes = colony.getSolutionRoutes();
             AStar astar = new AStar();
