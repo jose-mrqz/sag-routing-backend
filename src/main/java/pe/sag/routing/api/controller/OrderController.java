@@ -115,6 +115,9 @@ public class OrderController {
 
     @PostMapping(path = "/historic")
     public ResponseEntity<?> insertHistoricOrders(@RequestBody SimulationInputRequest request) throws IllegalAccessException {
+        if (RouteController.simulationThread != null && RouteController.simulationThread.isAlive())
+            RouteController.simulationThread.interrupt();
+
         orderService.deleteByMonitoring(false);
         roadblockService.deleteByMonitoring(false);
         RouteController.simulationSpeed = request.getSpeed();

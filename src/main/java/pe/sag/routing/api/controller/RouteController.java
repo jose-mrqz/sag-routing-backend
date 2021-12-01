@@ -47,7 +47,7 @@ public class RouteController {
     private final SimulationInfoRepository simulationInfoRepository;
     private final RoadblockService roadblockService;
 
-    private static Thread simulationThread = null;
+    public static Thread simulationThread = null;
     public static SimulationData simulationData = null;
     public static SimulationInfo simulationInfo = null;
     public static SimulationHelper simulationHelper = null;
@@ -344,7 +344,6 @@ public class RouteController {
     @PostMapping(path = "/simulationAlgorithm")
     public ResponseEntity<?> scheduleRoutesSimulation(LocalDateTime startDateReal) {
         if (simulationThread != null && simulationThread.isAlive()) simulationThread.interrupt();
-
         routeService.deleteByMonitoring(false);
         truckService.updateAvailablesSimulation();
         List<Roadblock> roadblocks = roadblockService.findSimulation();
