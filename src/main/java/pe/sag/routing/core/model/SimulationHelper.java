@@ -19,6 +19,7 @@ public class SimulationHelper {
      private int truckCount = 0;
      private boolean collapse = false;
      private LocalDateTime startDate;
+     private LocalDateTime lastDate;
 
      public SimulationHelper(boolean collapse) {
           breakdowns = new HashMap<>();
@@ -26,5 +27,6 @@ public class SimulationHelper {
           this.collapse = collapse;
           count = 0;
      }
+
 }
 

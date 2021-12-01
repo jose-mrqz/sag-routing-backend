@@ -255,12 +255,13 @@ public class RouteController {
                 LocalDateTime end;
                 LocalDateTime aux;
                 List<Order> pendingOrders;
+                LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
                 while (true) {
                     end = start.plusMinutes(30);
                     pendingOrders = orderService.getByDateSimulation(start, end);
                     aux = start;
                     start = end;
-                    if (pendingOrders.size() != 0) break;
+                    if (pendingOrders.size() != 0 || (end.isAfter(lastOrder) || end.isEqual(lastOrder))) break;
 //                    wtf++;
 //                    if (wtf == 100) break;
                 }
@@ -360,14 +361,12 @@ public class RouteController {
         LocalDateTime start = RouteController.simulationHelper.getStartDate();
         LocalDateTime end;
         List<Order> pendingOrders;
-
-        int wtf = 0;
+        LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
         while (true) {
             end = start.plusMinutes(30);
             pendingOrders = orderService.getByDateSimulation(start, end);
-            if (pendingOrders.size() != 0) break;
-            if (++wtf == 100) break;
             start = end;
+            if (pendingOrders.size() != 0 || (end.isAfter(lastOrder) || end.isEqual(lastOrder))) break;
         }
 
         List<Truck> availableTrucks = truckService.findByMonitoringAndStatus(false, TruckStatus.DISPONIBLE);

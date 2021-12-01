@@ -152,7 +152,8 @@ public class OrderService {
     }
 
     public List<Order> getByDateSimulation(LocalDateTime startDate, LocalDateTime endDate) {
-        return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetweenOrderByRegistrationDateAscDeadlineDateAsc(OrderStatus.PENDIENTE, false, startDate, endDate);
+        return orderRepository.findByMonitoringAndStatusAndRegistrationDateGreaterThanEqualAndRegistrationDateLessThanEqualOrderByRegistrationDateAscDeadlineDateAsc(OrderStatus.PENDIENTE, false, startDate, endDate);
+//        return orderRepository.findByStatusAndMonitoringAndRegistrationDateBetweenOrderByRegistrationDateAscDeadlineDateAsc(OrderStatus.PENDIENTE, false, startDate, endDate);
     }
 
     public Order edit(Order order, NewOrderRequest request) {

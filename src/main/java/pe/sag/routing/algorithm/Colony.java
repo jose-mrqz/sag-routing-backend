@@ -137,7 +137,7 @@ public class Colony extends Graph {
 //            if (quality > bestSolution || (quality == bestSolution && total < bestCost)) {
             if (totalGLP > bestSolution || (totalGLP == bestSolution && totalConsumption < bestCost)) {
 //            if (quality > bestSolution || (quality == bestSolution && totalGLP > bestCost)) {
-                if (total != -1) {
+//                if (total != -1) {
                     bestSolution = totalGLP;
                     bestCost = totalConsumption;
 //                    bestCost = total;
@@ -147,7 +147,7 @@ public class Colony extends Graph {
 //                        resetStep();
 //                        break;
 //                    }
-                }
+//                }
             }
             updateThreshold();
             resetStep();

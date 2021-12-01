@@ -180,7 +180,14 @@ public class OrderController {
                 startDateReal = LocalDateTime.of(order.getRegistrationDate().toLocalDate(),order.getRegistrationDate().toLocalTime());
             }
         }
+        LocalDateTime lastOrderDate = LocalDateTime.MIN;
+        if (ordersRegistered.size() > 0) {
+            for (Order o : ordersRegistered) {
+                if (o.getRegistrationDate().isAfter(lastOrderDate)) lastOrderDate = o.getRegistrationDate();
+            }
+        }
         RouteController.simulationHelper.setStartDate(startDateReal);
+        RouteController.simulationHelper.setLastDate(lastOrderDate);
 
         simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();
