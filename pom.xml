@@ -49,6 +49,11 @@
 <!--            <scope>system</scope>-->
 <!--            <systemPath>${project.basedir}/libs/jasperreports-6.18.1.jar</systemPath>-->
 <!--        </dependency>-->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports</artifactId>
+            <version>6.18.1</version>
+        </dependency>
 <!--        <dependency>-->
 <!--            <groupId>net.sf.jasperreports</groupId>-->
 <!--            <artifactId>jasperreports</artifactId>-->
