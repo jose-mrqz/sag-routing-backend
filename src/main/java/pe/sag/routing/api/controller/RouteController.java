@@ -214,6 +214,11 @@ public class RouteController {
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
                     Route r = new Route(sr);
                     routeService.save(r);
+                    if(r.getDepots().size() > 0){
+                        for(Route.Depot d : r.getDepots()){
+                            depotService.scheduleStatusChange(d.getX(), d.getRefilledGlp(), d.getRefillDate());
+                        }
+                    }
                 }
             }
         }

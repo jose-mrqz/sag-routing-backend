@@ -25,4 +25,6 @@ public class DepotDto {
     private double glpCapacity;
     @NotBlank
     private double currentGlp;
+    @NotBlank
+    private double currentGlpReal;
 }

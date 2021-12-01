@@ -18,6 +18,7 @@ public class Depot extends Node {
     private String name;
     private double glpCapacity;
     private double currentGlp = 0.0;
+    private double currentGlpReal = 0.0;
     private boolean active = true;
 }
 
