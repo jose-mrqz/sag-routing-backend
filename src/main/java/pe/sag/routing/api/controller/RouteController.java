@@ -83,6 +83,7 @@ public class RouteController {
                 .sorted(Comparator.comparing(Route::getStartDate))
                 .collect(Collectors.toList());
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
+        routeService.deleteList(activeRoutes);
         ArrayList<RouteDto> routesDtoFiltered = new ArrayList<>();
         ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
 
@@ -113,6 +114,7 @@ public class RouteController {
         simulationData.setLastRouteEndTime(last);
         SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDtoFiltered, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
+        routeService.deleteList(activeRoutes);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
