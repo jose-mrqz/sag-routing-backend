@@ -176,7 +176,7 @@ public class Planner {
                     Order order = orders.get(i);
                     if (order.visited) order.shouldReset = false;
                     else {
-                        if (order.demand == 0) {
+                        if (order.demand <= 0) {
                             order.shouldReset = false;
                             order.visited = true;
                         }
