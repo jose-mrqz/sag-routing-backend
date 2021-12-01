@@ -210,7 +210,9 @@ public class Colony extends Graph {
 
     private void saveBestSolution() {
         solutionOrders = new ArrayList<>();
-        solutionDepots = List.of(new Depot((Depot)nodes[1]), new Depot((Depot)nodes[2]));
+        solutionDepots = new ArrayList<>();
+        solutionDepots.add(new Depot((Depot)nodes[1]));
+        solutionDepots.add(new Depot((Depot)nodes[2]));
         for (Node node : nodes) {
             if (node instanceof Order) {
                 Order order = (Order)node;
