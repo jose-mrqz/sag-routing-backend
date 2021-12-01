@@ -32,6 +32,7 @@ public class Depot extends Node {
     }
 
     public Depot(Depot d) {
+        this.idx = d.getIdx();
         this.x = d.x;
         this.y = d.y;
         this.isMain = d.isMain;

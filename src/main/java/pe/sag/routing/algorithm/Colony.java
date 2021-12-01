@@ -61,7 +61,6 @@ public class Colony extends Graph {
                 else ethaMatrix[j][i] += 1.50;
             }
         }
-        System.out.println("const");
     }
 
     public Double calculateProbability(int nowNodeIdx, int nextNodeIdx) {
