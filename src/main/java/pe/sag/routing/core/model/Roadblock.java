@@ -22,11 +22,10 @@ public class Roadblock {
 
     //[startDateMin;endDateMin] y [startDate;endDate]
     public boolean validateDates(LocalDateTime startDateMin,LocalDateTime endDateMin){
-        int cantSec = 30*60;
+        int cantSec = 40*60;
         return (startDate.minusSeconds(cantSec).isBefore(endDateMin) && endDateMin.isBefore(endDate.plusSeconds(cantSec)))
                 || startDate.minusSeconds(cantSec).isEqual(endDateMin) || endDateMin.isEqual(endDate.plusSeconds(cantSec));
 
-        //return ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ;
         /*if( ! (endDateMin.isBefore(startDate) || endDate.isBefore(startDateMin) ) ){
             return true;
         }
