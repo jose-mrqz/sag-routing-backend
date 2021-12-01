@@ -141,7 +141,9 @@ public class Planner {
                 }
             }
 
-            solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
+            if (colony.solutionOrders != null) {
+                solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
+            }
 
             orders = orders.stream().filter(o -> !o.visited).collect(Collectors.toList());
             for (int i = 0; i < orders.size(); i++) {
