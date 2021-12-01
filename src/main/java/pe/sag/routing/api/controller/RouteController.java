@@ -374,8 +374,8 @@ public class RouteController {
         for (Truck truck : availableTrucks) {
             Route lastRoute = routeService.getLastRouteByTruckMonitoring(truck, false);
             if (lastRoute != null) truck.setLastRouteEndTime(lastRoute.getFinishDate());
-            else truck.setLastRouteEndTime(startDateReal);
-//            else truck.setLastRouteEndTime(end);
+//            else truck.setLastRouteEndTime(startDateReal);
+            else truck.setLastRouteEndTime(RouteController.simulationHelper.getStartDate());
         }
 
         if (pendingOrders.size() != 0 && availableTrucks.size() != 0) {
