@@ -3,6 +3,7 @@ package pe.sag.routing.algorithm;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Scope;
 import org.springframework.http.HttpStatus;
 import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.api.controller.RouteController;
@@ -20,6 +21,7 @@ import java.util.stream.Collectors;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Scope("prototype")
 public class Planner {
     private List<pe.sag.routing.core.model.Truck> modelTrucks;
     private List<pe.sag.routing.core.model.Order> modelOrders;

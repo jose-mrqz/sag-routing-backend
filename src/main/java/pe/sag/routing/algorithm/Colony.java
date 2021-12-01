@@ -1,6 +1,7 @@
 package pe.sag.routing.algorithm;
 
 import lombok.*;
+import org.springframework.context.annotation.Scope;
 import pe.sag.routing.aStar.AStar;
 import pe.sag.routing.core.model.Roadblock;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
+@Scope("prototype")
 public class Colony extends Graph {
     private static final Double INIT_PHERO = 1.0;
     private static final Double EVAP_RATE = 0.85;
