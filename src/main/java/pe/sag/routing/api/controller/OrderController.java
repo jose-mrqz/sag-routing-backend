@@ -365,23 +365,10 @@ public class OrderController {
     @RequestMapping(path = "/reportOrders")
     @ResponseBody
     public void reportOrdersIntoDate(@RequestBody ListOrderRequest request, HttpServletResponse response ) throws  Exception, JRException {
-        //List<OrderDto> ordersDto = orderService.list("todos",request.getStartDate(), request.getEndDate());
-        //List<Order> orders = ordersDto.stream().map(OrderParser::fromDto).collect(Collectors.toList());
-
         List<Order> orders = orderService.findByDateRange(request.getStartDate(), request.getEndDate());
-        
-
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
-        //JRBeanArrayDataSource beanCollectionDataSource = new JRBeanArrayDataSource(orders.toArray());
-
         JRDataSource compileReportEmpty = new JREmptyDataSource();
-//        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(System.getProperty("user.dir") + "/reportes/ReportePedidos.jrxml"));
-//        File file  = ResourceUtils.getFile("/home/arch/reportes/ReportePedidos.jrxml");
         InputStream resource = getClass().getResourceAsStream("/ReportePedidos.jrxml");
-//        URL jarUrl = new URL("jar:file:/home/arch/sag-routing-backend/target/routing-0.0.1-SNAPSHOT.jar!/BOOT-INF/classes!/reportes/ReportePedidos.jrxml");
-//        JasperReport compileReport = JasperCompileManager.compileReport(new FileInputStream(file.getAbsolutePath()));
-//        JasperReport compileReport = JasperCompileManager.compileReport(resource);
-//        JasperReport compileReport = JasperCompileManager.compileReport(getClass().getResourceAsStream("/reportes/ReportePedidos.jrmlx"));
         JasperReport compileReport = JasperCompileManager.compileReport(resource);
         JRSaver.saveObject(compileReport, "ReportePedidos.jasper");
 
@@ -394,12 +381,6 @@ public class OrderController {
         map.put("fechaFinal", fechaFinal);
         map.put("dataSetPedidos", beanCollectionDataSource);
 
-        System.out.println("###JASPER###");
-        System.out.println(resource);
-        System.out.println(compileReport);
-        System.out.println(map);
-        System.out.println(compileReportEmpty);
-        System.out.println("###");
         JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
 
         byte[] data = JasperExportManager.exportReportToPdf(report);

@@ -45,6 +45,10 @@ public class RouteService {
         return routeRepository.findByMonitoring(monitoring);
     }
 
+    public void deleteList(List<Route> toDelete) {
+        routeRepository.deleteAll(toDelete);
+    }
+
     public Route getLastRouteByTruckMonitoring(Truck truck, boolean monitoring) {
         Optional<Route> route = routeRepository.
                 findTopByTruckIdAndMonitoringOrderByFinishDateDesc(truck.get_id(), monitoring);
