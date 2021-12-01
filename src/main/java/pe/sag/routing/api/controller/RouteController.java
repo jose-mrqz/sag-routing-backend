@@ -259,7 +259,7 @@ public class RouteController {
                 List<Order> pendingOrders;
                 LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
                 while (true) {
-                    end = start.plusMinutes(60);
+                    end = start.plusMinutes(120);
                     pendingOrders = orderService.getByDateSimulation(start, end);
                     aux = start;
                     start = end;
@@ -362,7 +362,7 @@ public class RouteController {
         List<Order> pendingOrders;
         LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
         while (true) {
-            end = start.plusMinutes(60);
+            end = start.plusMinutes(120);
             pendingOrders = orderService.getByDateSimulation(start, end);
             start = end;
             if (pendingOrders.size() != 0 || (end.isAfter(lastOrder) || end.isEqual(lastOrder))) break;
