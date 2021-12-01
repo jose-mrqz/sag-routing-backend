@@ -105,13 +105,8 @@ public class Planner {
                 }
             }
 
-
             Colony colony = new Colony(orders, trucks, solutionDepots, roadblocks);
             colony.run();
-
-//            if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0 ||
-//                    colony.solutionOrders == null || colony.solutionOrders.size() == 0 ||
-//                    colony.solutionDepots == null || colony.solutionDepots.size() == 0) break;
 
             if (colony.solutionRoutes == null || colony.solutionRoutes.size() == 0) break;
 
@@ -141,16 +136,12 @@ public class Planner {
                 }
             }
 
-            if (colony.solutionOrders != null) {
-                solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
-            }
+            solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
 
-            if (orders != null) {
-                orders = orders.stream().filter(o -> !o.visited).collect(Collectors.toList());
-                for (int i = 0; i < orders.size(); i++) {
-                    Order order = orders.get(i);
-                    order.setIdx(i);
-                }
+            orders = orders.stream().filter(o -> !o.visited).collect(Collectors.toList());
+            for (int i = 0; i < orders.size(); i++) {
+                Order order = orders.get(i);
+                order.setIdx(i);
             }
 
             if (solutionRoutes != null && solutionRoutes.size() != 0) {
