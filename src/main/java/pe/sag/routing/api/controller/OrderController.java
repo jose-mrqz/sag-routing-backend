@@ -394,9 +394,12 @@ public class OrderController {
         map.put("fechaFinal", fechaFinal);
         map.put("dataSetPedidos", beanCollectionDataSource);
 
+        System.out.println("###JASPER###");
+        System.out.println(resource);
         System.out.println(compileReport);
         System.out.println(map);
         System.out.println(compileReportEmpty);
+        System.out.println("###");
         JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
 
         byte[] data = JasperExportManager.exportReportToPdf(report);
