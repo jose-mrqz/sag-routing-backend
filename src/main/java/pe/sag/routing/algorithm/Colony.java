@@ -23,7 +23,7 @@ public class Colony extends Graph {
     private static final Double Q = 1.0;
     private static final Double DECAY_RATE = 0.75;
     private static final int INF = Integer.MAX_VALUE;
-    private static final int ITERATOR = 3000;
+    private static final int ITERATOR = 1500;
     private Double threshold;
     private Double[][] pheromoneMatrix;
     private Double[][] ethaMatrix;
@@ -61,6 +61,7 @@ public class Colony extends Graph {
                 else ethaMatrix[j][i] += 1.50;
             }
         }
+        System.out.println("const");
     }
 
     public Double calculateProbability(int nowNodeIdx, int nextNodeIdx) {
