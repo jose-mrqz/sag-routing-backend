@@ -138,6 +138,9 @@ public class Planner {
                 }
             }
 
+            if (colony.solutionOrders == null) {
+                System.out.println("ga");
+            }
             solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
 
             orders = orders.stream().filter(o -> !o.visited).collect(Collectors.toList());
@@ -173,9 +176,14 @@ public class Planner {
                     Order order = orders.get(i);
                     if (order.visited) order.shouldReset = false;
                     else {
+                        if (order.demand == 0) {
+                            order.shouldReset = false;
+                            order.visited = true;
+                        }
                         order.resetDemand = order.demand;
                     }
                 }
+                System.out.println("re");
             } else {
                 break;
             }
