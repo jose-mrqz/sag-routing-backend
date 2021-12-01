@@ -11,10 +11,7 @@ import org.springframework.util.ResourceUtils;
 import org.springframework.web.bind.annotation.*;
 import pe.sag.routing.api.request.*;
 import pe.sag.routing.api.response.RestResponse;
-import pe.sag.routing.core.model.Order;
-import pe.sag.routing.core.model.Roadblock;
-import pe.sag.routing.core.model.SimulationHelper;
-import pe.sag.routing.core.model.SimulationInfo;
+import pe.sag.routing.core.model.*;
 import pe.sag.routing.core.service.FileService;
 import pe.sag.routing.core.service.OrderService;
 import pe.sag.routing.core.service.RoadblockService;
@@ -34,6 +31,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -131,7 +129,20 @@ public class OrderController {
         LocalDateTime startDateReal = LocalDateTime.of(2100,1,1,1,0,0);
         ArrayList<OrderDto> ordersDto = new ArrayList<>();
         int inserted = 0;
-        for(SimulationInputRequest.SimulationOrder r : request.getOrders()){
+
+        //para 3 dias
+        List<SimulationInputRequest.SimulationOrder> ordersRequest = request.getOrders().stream()
+                .sorted(Comparator.comparing(SimulationInputRequest.SimulationOrder::getDate))
+                .collect(Collectors.toList());
+        LocalDateTime startDateOrders = ordersRequest.get(0).getDate();
+        LocalDateTime endDateOrders = null;
+        if(!request.isColapse()) endDateOrders = startDateOrders.plusDays(3);
+
+        for(SimulationInputRequest.SimulationOrder r : ordersRequest){
+            if(!request.isColapse() && endDateOrders != null){
+                if(r.getDate().isAfter(endDateOrders)) break;
+            }
+
             OrderDto orderDto = OrderDto.builder()
                     .x(r.getX())
                     .y(r.getY())
