@@ -79,7 +79,9 @@ public class RouteController {
     @PostMapping(path = "/simulation")
     protected ResponseEntity<?> getActiveSimulation(@RequestBody SimulationRequest request) {
         List<Route> activeRoutes = routeService.findByMonitoring(false);
-        activeRoutes.sort(Comparator.comparing(Route::getStartDate));
+        activeRoutes = activeRoutes.stream()
+                .sorted(Comparator.comparing(Route::getStartDate))
+                .collect(Collectors.toList());
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
         ArrayList<RouteDto> routesDtoFiltered = new ArrayList<>();
         ArrayList<RouteDto> routesTransformedDto = new ArrayList<>();
