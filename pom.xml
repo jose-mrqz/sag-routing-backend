@@ -42,12 +42,17 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>net.sf.jasperreports</groupId>-->
+<!--            <artifactId>jasperreports</artifactId>-->
+<!--            <version>6.18.1</version>-->
+<!--            <scope>system</scope>-->
+<!--            <systemPath>${project.basedir}/libs/jasperreports-6.18.1.jar</systemPath>-->
+<!--        </dependency>-->
         <dependency>
             <groupId>net.sf.jasperreports</groupId>
             <artifactId>jasperreports</artifactId>
             <version>6.18.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/jasperreports-6.18.1.jar</systemPath>
         </dependency>
 <!--        <dependency>-->
 <!--            <groupId>net.sf.jasperreports</groupId>-->
