@@ -126,6 +126,9 @@ public class Planner {
                     Depot clone = new Depot(d);
                     sh.getDepots().add(clone);
                 }
+            } else {
+                System.out.println("no_route");
+                System.out.println(solutionRoutes.size());
             }
 
             if (isSimulation) {
