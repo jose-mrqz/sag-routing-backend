@@ -1,5 +1,6 @@
 package pe.sag.routing.api.controller;
 
+import org.apache.commons.collections.ArrayStack;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -99,19 +100,25 @@ public class BreakdownController {
                         .build();
                 currentRoute.setCancelled(true); // cancel current route
                 routeService.save(currentRoute);
-                breakdownService.save(breakdown);
                 truckService.registerBreakdown(truck, now);
                 if (nextOrder != null) { // cancel not delivered
                     List<Route.Order> pendingOrders = routeOrders.subList(routeOrders.indexOf(nextOrder), routeOrders.size());
                     int nCancelled = 0;
+                    List<Breakdown.Order> cancelledOrders = new ArrayList<>();
                     for (Route.Order order : pendingOrders) {
                         orderService.cancelOrder(order.get_id(), order.getDeliveredGlp());
                         nCancelled++;
+
+                        cancelledOrders.add(new Breakdown.Order(
+                                order.get_id(), order.getX(), order.getY(), order.getDeliveryDate(), order.getDeadlineDate(), order.getDeliveredGlp()
+                        ));
                     }
+                    breakdown.setOrders(cancelledOrders);
                     response = new RestResponse(HttpStatus.OK, "Se registro la averia correctamente, se cancelaron: " + nCancelled + " pedidos de la ruta actual.");
                 } else {
                     response = new RestResponse(HttpStatus.OK, "Se registro la averia correctamente, pedidos de la ruta completados de la ruta actual.");
                 }
+                breakdownService.save(breakdown);
             }
         }
         return ResponseEntity.status(response.getStatus()).body(response);

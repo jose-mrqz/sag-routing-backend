@@ -8,6 +8,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Document
 @NoArgsConstructor
@@ -15,6 +16,18 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class Breakdown {
+    @Data
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class Order {
+        String _id;
+        int x;
+        int y;
+        LocalDateTime deliveryDate;
+        LocalDateTime deadlineDate;
+        double deliveredGlp;
+    }
+
     @Id
     private String _id;
     private int x;
@@ -23,6 +36,7 @@ public class Breakdown {
     private String routeId;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private List<Breakdown.Order> orders;
 
     public Breakdown(Breakdown breakdown) {
         this._id = breakdown._id;
@@ -32,5 +46,6 @@ public class Breakdown {
         this.routeId = breakdown.routeId;
         this.startDate = breakdown.getStartDate();
         this.endDate = breakdown.getEndDate();
+        this.orders = breakdown.getOrders();
     }
 }
