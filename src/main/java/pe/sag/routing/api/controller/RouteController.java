@@ -552,7 +552,7 @@ public class RouteController {
         String fechaColapso = request.getLastOrder().getRegistrationDate().format(formatter);
         String horaColapso = request.getLastOrder().getRegistrationDate().format(formatTime);
         String ubicacion = "(" + request.getLastOrder().getX() + " - " + request.getLastOrder().getY() + ")";
-        String dateRegisr = fechaColapso + " " + horaColapso;
+        String dateRegisr = fechaColapso + " - " + horaColapso;
         String dateDeadLine = request.getLastOrder().getDeadlineDate().format(formatter) + " - " + request.getLastOrder().getDeadlineDate().format(formatTime);
 
         HashMap<String,Object> map = new HashMap<>();
