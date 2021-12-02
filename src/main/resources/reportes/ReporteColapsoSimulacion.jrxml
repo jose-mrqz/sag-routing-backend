@@ -124,14 +124,7 @@
 				<text><![CDATA[Pedido que genera el colapso:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="30" y="240" width="190" height="20" uuid="418abdd0-fe14-41fd-a289-d5cdc5337490"/>
-				<textElement verticalAlignment="Middle">
-					<font size="11" isBold="true"/>
-				</textElement>
-				<text><![CDATA[Código:]]></text>
-			</staticText>
-			<staticText>
-				<reportElement x="30" y="268" width="190" height="20" uuid="a1bf19c2-2658-46a5-bbd5-21e81b0cecd1"/>
+				<reportElement x="30" y="241" width="190" height="20" uuid="a1bf19c2-2658-46a5-bbd5-21e81b0cecd1"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
@@ -143,49 +136,44 @@
 				</reportElement>
 			</line>
 			<staticText>
-				<reportElement x="30" y="297" width="190" height="20" uuid="6c2685b8-6150-4007-8a01-0bf1f4428116"/>
+				<reportElement x="30" y="270" width="190" height="20" uuid="6c2685b8-6150-4007-8a01-0bf1f4428116"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Demanda:]]></text>
 			</staticText>
 			<staticText>
-				<reportElement x="30" y="327" width="190" height="20" uuid="9d495a35-0d8f-4e63-9482-e670b8c790f0"/>
+				<reportElement x="30" y="300" width="190" height="20" uuid="9d495a35-0d8f-4e63-9482-e670b8c790f0"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Fecha de registro:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="300" y="239" width="130" height="22" uuid="fd47a7d8-01f2-4042-99c2-88477765aa83"/>
-				<textElement textAlignment="Left" verticalAlignment="Middle"/>
-				<textFieldExpression><![CDATA[$P{idPedido}]]></textFieldExpression>
-			</textField>
-			<textField>
-				<reportElement x="300" y="267" width="130" height="22" uuid="e80920a9-f13b-4729-a25e-f9d9d9950c90"/>
+				<reportElement x="300" y="240" width="130" height="22" uuid="e80920a9-f13b-4729-a25e-f9d9d9950c90"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{ubication}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="300" y="326" width="180" height="22" uuid="d10d9940-3ad2-43c5-b841-bca3bb8bd080"/>
+				<reportElement x="300" y="299" width="180" height="22" uuid="d10d9940-3ad2-43c5-b841-bca3bb8bd080"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{dateRegisterPC}]]></textFieldExpression>
 			</textField>
 			<textField>
-				<reportElement x="300" y="296" width="130" height="22" uuid="8cedfa15-3e24-4f00-bb2b-f1fabb2a7791"/>
+				<reportElement x="300" y="269" width="130" height="22" uuid="8cedfa15-3e24-4f00-bb2b-f1fabb2a7791"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[new BigDecimal($P{demanda}).setScale(2, BigDecimal.ROUND_CEILING)
 ]]></textFieldExpression>
 			</textField>
 			<staticText>
-				<reportElement x="30" y="358" width="190" height="20" uuid="f37480b4-c74f-4788-8e82-24ae8626270d"/>
+				<reportElement x="30" y="331" width="190" height="20" uuid="f37480b4-c74f-4788-8e82-24ae8626270d"/>
 				<textElement verticalAlignment="Middle">
 					<font size="11" isBold="true"/>
 				</textElement>
 				<text><![CDATA[Fecha limite de entrega:]]></text>
 			</staticText>
 			<textField>
-				<reportElement x="300" y="357" width="180" height="22" uuid="a1ed37de-6a12-4266-9417-2ab0a5645a1d"/>
+				<reportElement x="300" y="330" width="180" height="22" uuid="a1ed37de-6a12-4266-9417-2ab0a5645a1d"/>
 				<textElement textAlignment="Left" verticalAlignment="Middle"/>
 				<textFieldExpression><![CDATA[$P{dateDeadLine}]]></textFieldExpression>
 			</textField>

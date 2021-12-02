@@ -560,7 +560,6 @@ public class RouteController {
         map.put("orderDone", request.getNScheduled());
         map.put("colapseDate", fechaColapso);
         map.put("colapseTime", horaColapso);
-        map.put("idPedido", request.getLastOrder().get_id());
         map.put("ubication", ubicacion);
         map.put("demanda", request.getLastOrder().getDemand());
         map.put("dateRegisterPC", dateRegisr);
