@@ -533,4 +533,52 @@ public class RouteController {
         bos.close();
         response.flushBuffer();
     }
+
+
+    @RequestMapping(path = "/reportColapseSimulation")
+    @ResponseBody
+    public void reportColapseSimution(@RequestBody SimulationData request, HttpServletResponse response) throws  Exception, JRException {
+
+
+        JRDataSource compileReportEmpty = new JREmptyDataSource(1);
+
+        InputStream resource = getClass().getResourceAsStream("/ReporteColapsoSimulacion.jrxml");
+        JasperReport compileReport = JasperCompileManager.compileReport(resource);
+        JRSaver.saveObject(compileReport, "ReporteColapsoSimulacion.jasper");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatTime = DateTimeFormatter.ofPattern("HH:mm");
+
+        String fechaColapso = request.getLastOrder().getRegistrationDate().format(formatter);
+        String horaColapso = request.getLastOrder().getRegistrationDate().format(formatTime);
+        String ubicacion = "(" + request.getLastOrder().getX() + " - " + request.getLastOrder().getY() + ")";
+        String dateRegisr = fechaColapso + " " + horaColapso;
+        String dateDeadLine = request.getLastOrder().getDeadlineDate().format(formatter) + " - " + request.getLastOrder().getDeadlineDate().format(formatTime);
+
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("orderRegister", request.getNOrders());
+        map.put("orderDone", request.getNScheduled());
+        map.put("colapseDate", fechaColapso);
+        map.put("colapseTime", horaColapso);
+        map.put("idPedido", request.getLastOrder().get_id());
+        map.put("ubication", ubicacion);
+        map.put("demanda", request.getLastOrder().getDemand());
+        map.put("dateRegisterPC", dateRegisr);
+        map.put("dateDeadLine", dateDeadLine);
+
+
+
+        JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
+
+        byte[] data = JasperExportManager.exportReportToPdf(report);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=reporteColapsoSimulation.pdf");
+        response.setHeader("Content-Transfer-Encoding", "binary");
+
+        BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+        bos.write(data,0,data.length);
+        bos.close();
+        response.flushBuffer();
+    }
 }

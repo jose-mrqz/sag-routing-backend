@@ -190,11 +190,11 @@
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="140" uuid="e1c40322-fb15-4c5c-9491-579e8df657b1">
+					<jr:column width="120" uuid="e1c40322-fb15-4c5c-9491-579e8df657b1">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column4"/>
 						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="140" height="30" uuid="c78c94a0-085d-4676-a0e7-b96c213a5bf1"/>
+								<reportElement x="0" y="0" width="120" height="30" uuid="c78c94a0-085d-4676-a0e7-b96c213a5bf1"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="13" isBold="true"/>
 								</textElement>
@@ -203,7 +203,7 @@
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
 							<textField>
-								<reportElement x="0" y="0" width="140" height="30" uuid="ad5f8756-a2c8-4c45-88bd-e4f9f3bd77b2"/>
+								<reportElement x="0" y="0" width="120" height="30" uuid="ad5f8756-a2c8-4c45-88bd-e4f9f3bd77b2"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
@@ -211,11 +211,11 @@
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="120" uuid="99965239-d6db-4b32-9b0e-b41fc770cd44">
+					<jr:column width="110" uuid="99965239-d6db-4b32-9b0e-b41fc770cd44">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column5"/>
 						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="120" height="30" uuid="36b49c29-cd68-4e54-855d-59be357777fd"/>
+								<reportElement x="0" y="0" width="110" height="30" uuid="36b49c29-cd68-4e54-855d-59be357777fd"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="13" isBold="true"/>
 								</textElement>
@@ -224,7 +224,7 @@
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
 							<textField>
-								<reportElement x="0" y="0" width="120" height="30" uuid="dd11b22a-f28f-43ea-994f-fe536b0ae348"/>
+								<reportElement x="0" y="0" width="110" height="30" uuid="dd11b22a-f28f-43ea-994f-fe536b0ae348"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
@@ -232,11 +232,11 @@
 							</textField>
 						</jr:detailCell>
 					</jr:column>
-					<jr:column width="80" uuid="70c2366e-47cc-42bb-84de-9bbd52d56693">
+					<jr:column width="110" uuid="70c2366e-47cc-42bb-84de-9bbd52d56693">
 						<property name="com.jaspersoft.studio.components.table.model.column.name" value="Column6"/>
 						<jr:columnHeader style="Table_CH" height="30" rowSpan="1">
 							<staticText>
-								<reportElement x="0" y="0" width="80" height="30" uuid="ca02f9ac-6cda-4311-84f4-02b10f2073f7"/>
+								<reportElement x="0" y="0" width="110" height="30" uuid="ca02f9ac-6cda-4311-84f4-02b10f2073f7"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="13" isBold="true"/>
 								</textElement>
@@ -245,7 +245,7 @@
 						</jr:columnHeader>
 						<jr:detailCell style="Table_TD" height="30">
 							<textField>
-								<reportElement x="0" y="0" width="80" height="30" uuid="bdf816bf-b46c-4a75-bb7f-f35663418a8a"/>
+								<reportElement x="0" y="0" width="110" height="30" uuid="bdf816bf-b46c-4a75-bb7f-f35663418a8a"/>
 								<textElement textAlignment="Center" verticalAlignment="Middle">
 									<font size="11"/>
 								</textElement>
