@@ -122,7 +122,11 @@ public class MapMatrix {
 
             //si el actual es el primer nodo y la anterior ruta tenia un pedido en un bloqueo
             if(actual.cordX == startNode.cordX && actual.cordY == startNode.cordY && orderBlocked){
-                actual = lastNode;
+                NodeList adyac = new NodeList(lastNode.cordX, lastNode.cordY);
+                adyac = setValores( actual, adyac );
+                adyac.father = actual;
+                openList.addNode( adyac );
+                actual = openList.deleteLeastCost();
                 orderBlocked = false;
                 continue;
             }
