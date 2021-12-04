@@ -130,9 +130,11 @@ public class RouteDto {
 //        }
         int index = 0;
         LocalDateTime start = this.getStartDate();
+        Order order;
+        LocalDateTime curr;
         for (int i = 0; i < this.orders.size(); i++) {
-            Order order = this.orders.get(i);
-            LocalDateTime curr = order.getDeliveryDate();
+            order = this.orders.get(i);
+            curr = order.getDeliveryDate();
             long seconds = Duration.between(start, curr).toSeconds();
             index += seconds/72;
             curr = curr.plusMinutes(10);
@@ -144,7 +146,7 @@ public class RouteDto {
                     nextOrder.getY() == order.getY() &&
                     nextOrder.getDeliveryDate().isAfter(order.getDeliveryDate().plusMinutes(7)) &&
                     nextOrder.getDeliveryDate().isBefore(order.getDeliveryDate().plusMinutes(13))) {
-                    order.setIndexRoute(index);
+                    nextOrder.setIndexRoute(index);
                     start = start.plusMinutes(10);
                     i++;
                     continue;
