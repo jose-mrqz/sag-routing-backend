@@ -100,7 +100,7 @@ public class RouteController {
             for(RouteDto r : routesDto) {
                 RouteDto rt = r.transformRoute(simulationInfo);
                 rt = rt.transformRouteSpeed(simulationInfo, request.getSpeed());
-                if(true/*r.inDateRange(filterDateReal)*/){
+                if(true){
                     routesDtoFiltered.add(r);
                     routesTransformedDto.add(rt);
                 }
@@ -111,7 +111,7 @@ public class RouteController {
         for (RouteDto route : routesTransformedDto) {
             if (route.getEndDate().isAfter(last)) last = route.getEndDate();
         }
-        simulationData.setLastRouteEndTime(last);
+        if (!last.isEqual(LocalDateTime.MIN)) simulationData.setLastRouteEndTime(last);
         SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDtoFiltered, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         routeService.deleteList(activeRoutes);
@@ -257,9 +257,9 @@ public class RouteController {
                 LocalDateTime end;
                 LocalDateTime aux;
 //                List<Order> pendingOrders;
-                LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
+//                LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
 //                while (true) {
-//                    end = start.plusMinutes(30);
+//                    end = start.plusMinutes(60);
 //                    pendingOrders = orderService.getByDateSimulation(start, end);
 //                    aux = start;
 //                    start = end;
@@ -360,9 +360,9 @@ public class RouteController {
         LocalDateTime start = RouteController.simulationHelper.getStartDate();
         LocalDateTime end;
 //        List<Order> pendingOrders;
-        LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
+//        LocalDateTime lastOrder = RouteController.simulationHelper.getLastDate();
 //        while (true) {
-//            end = start.plusMinutes(30);
+//            end = start.plusMinutes(60);
 //            pendingOrders = orderService.getByDateSimulation(start, end);
 //            start = end;
 //            if (pendingOrders.size() != 0 || (end.isAfter(lastOrder) || end.isEqual(lastOrder))) break;
@@ -526,6 +526,53 @@ public class RouteController {
 
         response.setContentType("application/pdf");
         response.setHeader("Content-Disposition", "attachment; filename=reporteConsumoGLP.pdf");
+        response.setHeader("Content-Transfer-Encoding", "binary");
+
+        BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());
+        bos.write(data,0,data.length);
+        bos.close();
+        response.flushBuffer();
+    }
+
+
+    @RequestMapping(path = "/reportColapseSimulation")
+    @ResponseBody
+    public void reportColapseSimution(@RequestBody SimulationData request, HttpServletResponse response) throws  Exception, JRException {
+
+
+        JRDataSource compileReportEmpty = new JREmptyDataSource(1);
+
+        InputStream resource = getClass().getResourceAsStream("/ReporteColapsoSimulacion.jrxml");
+        JasperReport compileReport = JasperCompileManager.compileReport(resource);
+        JRSaver.saveObject(compileReport, "ReporteColapsoSimulacion.jasper");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        DateTimeFormatter formatTime = DateTimeFormatter.ofPattern("HH:mm");
+
+        String fechaColapso = request.getLastOrder().getRegistrationDate().format(formatter);
+        String horaColapso = request.getLastOrder().getRegistrationDate().format(formatTime);
+        String ubicacion = "(" + request.getLastOrder().getX() + " - " + request.getLastOrder().getY() + ")";
+        String dateRegisr = fechaColapso + " - " + horaColapso;
+        String dateDeadLine = request.getLastOrder().getDeadlineDate().format(formatter) + " - " + request.getLastOrder().getDeadlineDate().format(formatTime);
+
+        HashMap<String,Object> map = new HashMap<>();
+        map.put("orderRegister", request.getNOrders());
+        map.put("orderDone", request.getNScheduled());
+        map.put("colapseDate", fechaColapso);
+        map.put("colapseTime", horaColapso);
+        map.put("ubication", ubicacion);
+        map.put("demanda", request.getLastOrder().getDemand());
+        map.put("dateRegisterPC", dateRegisr);
+        map.put("dateDeadLine", dateDeadLine);
+
+
+
+        JasperPrint report = JasperFillManager.fillReport(compileReport, map, compileReportEmpty);
+
+        byte[] data = JasperExportManager.exportReportToPdf(report);
+
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=reporteColapsoSimulation.pdf");
         response.setHeader("Content-Transfer-Encoding", "binary");
 
         BufferedOutputStream bos = new BufferedOutputStream(response.getOutputStream());

@@ -127,9 +127,6 @@ public class Planner {
                     Depot clone = new Depot(d);
                     sh.getDepots().add(clone);
                 }
-            } else {
-                System.out.println("no_route");
-                System.out.println(solutionRoutes.size());
             }
 
 //            if (isSimulation) {
@@ -138,9 +135,6 @@ public class Planner {
 //                }
 //            }
 
-            if (colony.solutionOrders == null) {
-                System.out.println("ga");
-            }
             solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
 
             orders = orders.stream().filter(o -> !o.visited).collect(Collectors.toList());
@@ -183,7 +177,6 @@ public class Planner {
                         order.resetDemand = order.demand;
                     }
                 }
-                System.out.println("re");
             } else {
                 break;
             }
