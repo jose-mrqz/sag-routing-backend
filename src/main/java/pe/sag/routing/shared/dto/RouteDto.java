@@ -19,12 +19,11 @@ import static java.time.temporal.ChronoUnit.*;
 @NoArgsConstructor
 @Builder
 public class RouteDto {
-    @EqualsAndHashCode(callSuper = true)
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Order extends Coord{
+    public static class Order {
         int x;
         int y;
         int indexRoute;
@@ -34,23 +33,15 @@ public class RouteDto {
         double delivered;
     }
 
-    @EqualsAndHashCode(callSuper = true)
     @Data
     @AllArgsConstructor
     @NoArgsConstructor
     @Builder
-    public static class Depot extends Coord{
+    public static class Depot {
         int x;
         int y;
         double refilledGlp;
         LocalDateTime refillDate;
-    }
-
-    @Data
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Builder
-    public static class Coord {
     }
 
     @Data
