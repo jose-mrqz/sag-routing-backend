@@ -137,9 +137,8 @@ public class RouteDto {
             curr = order.getDeliveryDate();
             long seconds = Duration.between(start, curr).toSeconds();
             index += seconds/72;
-            curr = curr.plusMinutes(10);
-            start = curr;
-            if (index <= this.route.size()-4) index = this.route.size()-1;
+            start = order.getLeftDate();
+            if (index >= this.route.size()-4) index = this.route.size()-1;
             if (i != this.orders.size()-1) {
                 Order nextOrder = this.orders.get(i+1);
                 if (nextOrder.getX() == order.getX() &&
