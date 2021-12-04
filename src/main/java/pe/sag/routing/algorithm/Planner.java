@@ -102,11 +102,11 @@ public class Planner {
         }
 
         while (!allVisited(orders)) {
-//            if (isSimulation) {
-//                if (!RouteController.simulationHelper.isCollapse()) {
-//                    checkBreakdowns(trucks);
-//                }
-//            }
+            if (isSimulation) {
+                if (!RouteController.simulationHelper.isCollapse()) {
+                    checkBreakdowns(trucks);
+                }
+            }
 
             Colony colony = new Colony(orders, trucks, solutionDepots, roadblocks);
             colony.run();
@@ -130,11 +130,11 @@ public class Planner {
                 }
             }
 
-//            if (isSimulation) {
-//                if (!RouteController.simulationHelper.isCollapse()) {
-//                    createBreakdowns(solutionRoutes, orders, solutionDepots);
-//                }
-//            }
+            if (isSimulation) {
+                if (!RouteController.simulationHelper.isCollapse()) {
+                    createBreakdowns(solutionRoutes, orders, solutionDepots);
+                }
+            }
 
             solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
 
@@ -220,44 +220,26 @@ public class Planner {
 
     private void createBreakdowns(List<Route> routes, List<Order> orders, List<Depot> depots) {
         SimulationHelper sh = RouteController.simulationHelper;
-        boolean flageroni = false;
-        int flagerino = 0;
         if (sh.isFirst() && sh.isSecond()) return;
+        sh.getRoutes().addAll(routes);
         if (!sh.isFirst()) { //second truck
-            if (sh.getTruckCount() + routes.size() < 2) { //metida de ratinha
-                sh.setTruckCount(sh.getTruckCount() + routes.size());
-                return;
-            }
-            Route route = routes.get(sh.getTruckCount() == 0 ? 1 : 0);
-            flageroni = true;
-            flagerino = 2 - sh.getTruckCount();
-            if (Duration.between(route.getStartDate(), route.getFinishDate()).toMinutes() <= 120) {
-                sh.setTruckCount(2);
-                sh.setFirst(true);
-                return;
-            }
+            if (sh.getRoutes().size() < 2) return;
+            Route route = sh.getRoutes().get(1);
             sh.setFirst(true);
-            Breakdown breakdown = cancelRoute(route, 120, orders, depots);
-            sh.getBreakdowns().put(route.getTruckId(), breakdown);
+            if (Duration.between(route.getStartDate(), route.getFinishDate()).toSeconds() > 120*60) {
+                sh.setTruckCount(2);
+                Breakdown breakdown = cancelRoute(route, 120, orders, depots);
+                sh.getBreakdowns().put(route.getTruckId(), breakdown);
+            }
         }
         if (!sh.isSecond()) { //fourth truck
-            if (flageroni) {
-                if (sh.getTruckCount() + routes.size() - flagerino < 4) {
-                    sh.setTruckCount(sh.getTruckCount() + routes.size() - flagerino);
-                }
-            } else {
-                if (sh.getTruckCount() + routes.size() < 4) {
-                    sh.setTruckCount(sh.getTruckCount() + routes.size());
-                }
-            }
-            Route route = routes.get(4 - sh.getTruckCount() - 1);
-            if (Duration.between(route.getStartDate(), route.getFinishDate()).toMinutes() <= 180) {
-                sh.setSecond(true);
-                return;
-            }
+            if (sh.getRoutes().size() < 4) return;
+            Route route = sh.getRoutes().get(3);
             sh.setSecond(true);
-            Breakdown breakdown = cancelRoute(route, 180, orders, depots);
-            sh.getBreakdowns().put(route.getTruckId(), breakdown);
+            if (Duration.between(route.getStartDate(), route.getFinishDate()).toSeconds() > 180*60) {
+                Breakdown breakdown = cancelRoute(route, 180, orders, depots);
+                sh.getBreakdowns().put(route.getTruckId(), breakdown);
+            }
         }
     }
 
