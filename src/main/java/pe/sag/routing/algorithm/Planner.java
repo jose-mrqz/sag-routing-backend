@@ -50,15 +50,15 @@ public class Planner {
         List<Order> orders = new ArrayList<>();
         List<Depot> solutionDepots = null;
 
-        modelTrucks = modelTrucks.stream()
-                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)
-                    .thenComparing(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)))
-                .collect(Collectors.toList());
-
 //        modelTrucks = modelTrucks.stream()
 //                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)
-//                        .thenComparing(pe.sag.routing.core.model.Truck::getModelCapacity).reversed())
+//                    .thenComparing(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)))
 //                .collect(Collectors.toList());
+
+        modelTrucks = modelTrucks.stream()
+                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)
+                        .thenComparing(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)))
+                .collect(Collectors.toList());
 
 //        modelOrders = modelOrders.stream()
 //                .sorted(Comparator.comparing(pe.sag.routing.core.model.Order::getDemandGLP)
@@ -227,7 +227,6 @@ public class Planner {
             Route route = sh.getRoutes().get(1);
             sh.setFirst(true);
             if (Duration.between(route.getStartDate(), route.getFinishDate()).toSeconds() > 120*60) {
-                sh.setTruckCount(2);
                 Breakdown breakdown = cancelRoute(route, 120, orders, depots);
                 sh.getBreakdowns().put(route.getTruckId(), breakdown);
             }
