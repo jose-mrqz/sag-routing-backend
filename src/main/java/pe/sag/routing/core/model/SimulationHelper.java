@@ -17,6 +17,8 @@ public class SimulationHelper {
      private ArrayList<Depot> depots;
      private int count = 0;
      private int truckCount = 0;
+     private boolean first = false;
+     private boolean second = false;
      private boolean collapse = false;
      private LocalDateTime startDate;
      private LocalDateTime lastDate;

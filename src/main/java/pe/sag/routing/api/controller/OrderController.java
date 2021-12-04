@@ -191,6 +191,9 @@ public class OrderController {
         }
         RouteController.simulationHelper.setStartDate(startDateReal);
         RouteController.simulationHelper.setLastDate(lastOrderDate);
+        RouteController.simulationHelper.setFirst(false);
+        RouteController.simulationHelper.setSecond(false);
+
 
         simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();
