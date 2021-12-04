@@ -121,7 +121,7 @@ public class MapMatrix {
             closeList.addNode( extra );
 
             //si el actual es el primer nodo y la anterior ruta tenia un pedido en un bloqueo
-            if(actual.cordX == startNode.cordX && actual.cordY == startNode.cordY){
+            if(actual.cordX == startNode.cordX && actual.cordY == startNode.cordY && orderBlocked){
                 actual = lastNode;
                 orderBlocked = false;
                 continue;
@@ -241,7 +241,7 @@ public class MapMatrix {
                     }
                 }
                 //guardar el ultimo nodo antes de llegar a la meta
-                lastNode = new NodeList(actual.father.cordX, actual.father.cordY);
+                if(orderBlocked) lastNode = new NodeList(actual.father.cordX, actual.father.cordY);
 
                 while( extra2 != null ){
                     extra2.next = null;
