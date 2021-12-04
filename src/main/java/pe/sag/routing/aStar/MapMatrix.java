@@ -120,6 +120,10 @@ public class MapMatrix {
             extra.next = null;
             closeList.addNode( extra );
 
+            //si el actual es igual al destino
+            if( ( ( actual.cordX == goalNode.cordX ) && ( actual.cordY == goalNode.cordY )  ) )//|| openList.isEmpty() )
+                break;//terminamos
+
             //si el actual es el primer nodo y la anterior ruta tenia un pedido en un bloqueo
             if(actual.cordX == startNode.cordX && actual.cordY == startNode.cordY && orderBlocked){
                 NodeList adyac = new NodeList(lastNode.cordX, lastNode.cordY);
@@ -130,11 +134,6 @@ public class MapMatrix {
                 orderBlocked = false;
                 continue;
             }
-
-            //si el actual es igual al destino
-            if( ( ( actual.cordX == goalNode.cordX ) && ( actual.cordY == goalNode.cordY )  ) )//|| openList.isEmpty() )
-                break;//terminamos
-
             else{
                 //obtengo adyacentes
                 int x = 0, y = 0,w = 0,w2 = 0;
