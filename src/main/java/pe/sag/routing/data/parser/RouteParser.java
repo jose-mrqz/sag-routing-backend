@@ -10,6 +10,7 @@ public class RouteParser {
         routeDto.setEndDate(route.getFinishDate());
         routeDto.setTruckCode(route.getTruckCode());
         routeDto.setOrders(route.getOrders());
+        routeDto.setDepots(route.getDepots());
         routeDto.setNodes(route.getNodes());
         return routeDto;
     }
