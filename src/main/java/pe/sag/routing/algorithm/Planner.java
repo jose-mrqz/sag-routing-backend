@@ -230,12 +230,13 @@ public class Planner {
             }
             Route route = routes.get(sh.getTruckCount() == 0 ? 1 : 0);
             flageroni = true;
-            flagerino = sh.getTruckCount();
+            flagerino = 2 - sh.getTruckCount();
             if (Duration.between(route.getStartDate(), route.getFinishDate()).toMinutes() <= 120) {
                 sh.setTruckCount(2);
                 sh.setFirst(true);
                 return;
             }
+            sh.setFirst(true);
             Breakdown breakdown = cancelRoute(route, 120, orders, depots);
             sh.getBreakdowns().put(route.getTruckId(), breakdown);
         }
@@ -251,11 +252,10 @@ public class Planner {
             }
             Route route = routes.get(4 - sh.getTruckCount() - 1);
             if (Duration.between(route.getStartDate(), route.getFinishDate()).toMinutes() <= 180) {
-                sh.setCount(2);
                 sh.setSecond(true);
                 return;
             }
-            sh.setCount(2);
+            sh.setSecond(true);
             Breakdown breakdown = cancelRoute(route, 180, orders, depots);
             sh.getBreakdowns().put(route.getTruckId(), breakdown);
         }
