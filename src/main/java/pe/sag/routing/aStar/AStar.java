@@ -83,7 +83,6 @@ public class AStar {
 
             //Inicializar arrivalDate con fecha inicio de ruta
             LocalDateTime arrivalDate = LocalDateTime.of(route.getStartDate().toLocalDate(),route.getStartDate().toLocalTime());
-
             for (int j = 0; j < nodes.size()-1; j++) {
                 nodeStart = new NodeList(nodes.get(j));
                 nodeGoal = new NodeList(nodes.get(j+1));
