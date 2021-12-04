@@ -138,6 +138,7 @@ public class RouteDto {
             long seconds = Duration.between(start, curr).toSeconds();
             index += seconds/72;
             start = order.getLeftDate();
+            order.setIndexRoute(index);
             if (index >= this.route.size()-4) index = this.route.size()-1;
             if (i != this.orders.size()-1) {
                 Order nextOrder = this.orders.get(i+1);
@@ -148,10 +149,9 @@ public class RouteDto {
                     nextOrder.setIndexRoute(index);
                     start = start.plusMinutes(10);
                     i++;
-                    continue;
+//                    continue;
                 }
             }
-            order.setIndexRoute(index);
         }
 
     }
