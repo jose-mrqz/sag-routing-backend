@@ -203,7 +203,6 @@ public class RouteService {
             truckCodes.add(r.getTruckCode());
             routesFiltered.add(r);
         }
-        System.out.println(routesFiltered.size());
         return routesFiltered;
     }
 }
