@@ -19,12 +19,13 @@ public class OrderLost {
     private double demandGLP;
     private LocalDateTime deliveryDate;
 
-    public OrderLost(RouteDto route, long timeSec) {
+    public OrderLost(RouteDto route, long timeSec, int speed) {
         truckCode = route.getTruckCode();
 
         LocalDateTime startDate = route.getStartDate();
 
-        double distancia = 50*timeSec/3600;
+
+        double distancia = 50.0*timeSec*speed/3600;
         int dist = (int)distancia;
 
         RouteDto.Node ubic = route.getRoute().get(dist);

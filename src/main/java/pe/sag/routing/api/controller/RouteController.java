@@ -572,8 +572,9 @@ public class RouteController {
         String timeInitialSimulation= simulationInfo.getStartDateTransformed().format(formatter) + " - "+ simulationInfo.getStartDateTransformed().format(formatTime);
 
          simulationInfo.getStartDateTransformed().format(formatter);
-        Duration duration = Duration.between(request.getInfo().getLastOrder().getRegistrationDate(), simulationInfo.getStartDateTransformed());
+        Duration duration = Duration.between(request.getInfo().getLastOrder().getRegistrationDateTransformed(), simulationInfo.getStartDateTransformed());
         String timeSimulation= String.valueOf(duration.toMinutes());
+
         long timeSec = duration.toSeconds();
 
         List<RouteDto> routes = routeService.getLastRoutesColapse(request.getRoutesReal());
@@ -581,7 +582,7 @@ public class RouteController {
         List<OrderLost> orders = new ArrayList<OrderLost>();
 
         for (RouteDto route :routes){
-            OrderLost ordLst = new OrderLost(route, timeSec);
+            OrderLost ordLst = new OrderLost(route, timeSec, simulationInfo.getSpeed());
             orders.add(ordLst);
         }
 
