@@ -31,7 +31,21 @@ public class OrderLost {
         positionTruck = '(' + Integer.toString(ubic.getX()) + " , " + Integer.toString(ubic.getY()) + ')';
 
         //siquiente ruta
-        
+        int cont = 0;
+         for (RouteDto.Order order: route.getOrders()){
+             if(order.getIndexRoute()  > dist){
+                 cont = 1;
+                 ubication = '(' + Integer.toString(order.getX()) + " , " + Integer.toString(order.getY()) + ')';
+                 demandGLP = order.getDelivered();
+                 deliveryDate = order.getDeliveryDate();
+                 break;
+             }
+         }
+         if(cont == 0){
+             ubication = "planta principal";
+             demandGLP = 0;
+             deliveryDate = null;
+         }
 
     }
 
