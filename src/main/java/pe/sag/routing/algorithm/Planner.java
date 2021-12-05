@@ -264,7 +264,7 @@ public class Planner {
                 .startDate(now)
                 .endDate(now.plusMinutes(60))
                 .build();
-        List<Pair<Integer,Integer>> realPath = route.getPath().subList(0, traveledNodes);
+        List<Pair<Integer,Integer>> realPath = route.getPath().subList(0, traveledNodes+1);
         ArrayList<Pair<Integer,Integer>> real = new ArrayList<>();
         realPath.forEach(n -> real.add(new Pair<>(n.getX(), n.getY())));
         route.setPath(new ArrayList<>(real));
