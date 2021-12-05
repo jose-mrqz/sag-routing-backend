@@ -250,13 +250,12 @@ public class Planner {
                 .filter(n -> n.arrivalTime.isAfter(now))
                 .findFirst()
                 .orElse(null);
-        int nOrders = 0;
-        for (NodeInfo ni : route.getNodesInfo()) {
-            if (ni instanceof OrderInfo) nOrders++;
-        }
+        int nOrders = (int) route.getNodesInfo().stream().filter(n -> n instanceof OrderInfo)
+                .map(n -> (OrderInfo)n).filter(n -> n.getArrivalTime().isBefore(now) || n.getArrivalTime().isEqual(now)).count();
         int traveledNodes = (int) ((Duration.between(route.getStartDate(), now).toSeconds() - nOrders*10*60) / 72); // wtf
         if (traveledNodes < 0) traveledNodes = 0;
         if (traveledNodes >= route.getPath().size()) traveledNodes = route.getPath().size()-1;
+        if (traveledNodes == route.getPath().size()-1) traveledNodes = route.getPath().size()-2;
         Breakdown breakdown = Breakdown.builder()
                 .x(route.getPath().get(traveledNodes).getX())
                 .y(route.getPath().get(traveledNodes).getY())
@@ -266,6 +265,8 @@ public class Planner {
                 .endDate(now.plusMinutes(60))
                 .build();
         List<Pair<Integer,Integer>> realPath = route.getPath().subList(0, traveledNodes);
+        ArrayList<Pair<Integer,Integer>> real = new ArrayList<>();
+        realPath.forEach(n -> );
         route.setPath(new ArrayList<>(realPath));
         if (nextNode != null) {
             List<NodeInfo> pendingNodes = route.getNodesInfo().subList(route.getNodesInfo().indexOf(nextNode), route.getNodesInfo().size());
