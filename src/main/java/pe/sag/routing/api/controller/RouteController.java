@@ -574,11 +574,18 @@ public class RouteController {
          simulationInfo.getStartDateTransformed().format(formatter);
         Duration duration = Duration.between(request.getInfo().getLastOrder().getRegistrationDate(), simulationInfo.getStartDateTransformed());
         String timeSimulation= String.valueOf(duration.toMinutes());
+        long timeSec = duration.toSeconds();
 
-        List<RouteDto> routes = request.getRoutesReal();
+        List<RouteDto> routes = routeService.getLastRoutesColapse(request.getRoutesReal());
 
+        List<OrderLost> orders = new ArrayList<OrderLost>();
 
-        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(routes);
+        for (RouteDto route :routes){
+            OrderLost ordLst = new OrderLost(route, timeSec);
+            orders.add(ordLst);
+        }
+
+        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
 
         HashMap<String,Object> map = new HashMap<>();
         map.put("orderRegister", request.getInfo().getNOrders());
