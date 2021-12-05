@@ -178,5 +178,33 @@ public class RouteService {
         }
         return glpRefills;
     }
+
+    public List<RouteDto> getLastRoutesColapse(List<RouteDto> routesReal){
+        boolean truckCodesRepeated;
+        List<String> truckCodes = new ArrayList<>();
+        List<RouteDto> routesFiltered = new ArrayList<>();
+        for(RouteDto r : routesReal){
+            truckCodesRepeated = false;
+            for(String tc : truckCodes){
+                if(tc.compareTo(r.getTruckCode()) == 0){
+                    truckCodesRepeated = true;
+                    break;
+                }
+            }
+            if(truckCodesRepeated){
+                //quitar duplicado
+                for(RouteDto rf : routesFiltered){
+                    if(rf.getTruckCode().compareTo(r.getTruckCode()) == 0){
+                        routesFiltered.remove(rf);
+                        break;
+                    }
+                }
+            }
+            truckCodes.add(r.getTruckCode());
+            routesFiltered.add(r);
+        }
+        System.out.println(routesFiltered.size());
+        return routesFiltered;
+    }
 }
 
