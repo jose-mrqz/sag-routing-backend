@@ -35,6 +35,10 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import java.util.stream.Collectors;
+import java.text.SimpleDateFormat;
+
+
+import java.time.Duration;
 
 @RestController
 @RequestMapping("/route")
@@ -537,7 +541,7 @@ public class RouteController {
 
     @RequestMapping(path = "/reportColapseSimulation")
     @ResponseBody
-    public void reportColapseSimution(@RequestBody SimulationData request, HttpServletResponse response) throws  Exception, JRException {
+    public void reportColapseSimution(@RequestBody SimulationResponse request, HttpServletResponse response) throws  Exception, JRException {
 
 
         JRDataSource compileReportEmpty = new JREmptyDataSource(1);
@@ -549,21 +553,38 @@ public class RouteController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         DateTimeFormatter formatTime = DateTimeFormatter.ofPattern("HH:mm");
 
-        String fechaColapso = request.getLastOrder().getRegistrationDate().format(formatter);
-        String horaColapso = request.getLastOrder().getRegistrationDate().format(formatTime);
-        String ubicacion = "(" + request.getLastOrder().getX() + " - " + request.getLastOrder().getY() + ")";
+        String fechaColapso = request.getInfo().getLastOrder().getRegistrationDate().format(formatter);
+        String horaColapso = request.getInfo().getLastOrder().getRegistrationDate().format(formatTime);
+        String ubicacion = "(" + request.getInfo().getLastOrder().getX() + " - " + request.getInfo().getLastOrder().getY() + ")";
         String dateRegisr = fechaColapso + " - " + horaColapso;
-        String dateDeadLine = request.getLastOrder().getDeadlineDate().format(formatter) + " - " + request.getLastOrder().getDeadlineDate().format(formatTime);
+        String dateDeadLine = request.getInfo().getLastOrder().getDeadlineDate().format(formatter) + " - " + request.getInfo().getLastOrder().getDeadlineDate().format(formatTime);
+
+
+        List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
+        SimulationInfo simulationInfo = listSimulationInfo.get(0);
+        String timeInitialSimulation= simulationInfo.getStartDateTransformed().format(formatter) + " - "+ simulationInfo.getStartDateTransformed().format(formatTime);
+
+         simulationInfo.getStartDateTransformed().format(formatter);
+        Duration duration = Duration.between(request.getInfo().getLastOrder().getRegistrationDate(), simulationInfo.getStartDateTransformed());
+        String timeSimulation= String.valueOf(duration.toMinutes());
+
+        List<RouteDto> routes = request.getRoutesReal();
+
+
+        JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(routes);
 
         HashMap<String,Object> map = new HashMap<>();
-        map.put("orderRegister", request.getNOrders());
-        map.put("orderDone", request.getNScheduled());
+        map.put("orderRegister", request.getInfo().getNOrders());
+        map.put("orderDone", request.getInfo().getNScheduled());
         map.put("colapseDate", fechaColapso);
         map.put("colapseTime", horaColapso);
         map.put("ubication", ubicacion);
-        map.put("demanda", request.getLastOrder().getDemand());
+        map.put("demanda", request.getInfo().getLastOrder().getDemand());
         map.put("dateRegisterPC", dateRegisr);
         map.put("dateDeadLine", dateDeadLine);
+        map.put("simulationIniDate", timeInitialSimulation);
+        map.put("simulationTime", timeSimulation);
+        map.put("dataSetOrders", beanCollectionDataSource);
 
 
 
