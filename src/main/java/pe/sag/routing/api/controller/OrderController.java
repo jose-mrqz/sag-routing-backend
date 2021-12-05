@@ -155,7 +155,7 @@ public class OrderController {
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
             //Revisar si nodo de pedido se encuentra bloqueado
-            if(/*true*/!orderDto.inRoadblocks(roadblocks)){
+            if(true/*!orderDto.inRoadblocks(roadblocks)*/){
                 ordersDto.add(orderDto);
                 inserted++;
             }
@@ -191,6 +191,9 @@ public class OrderController {
         }
         RouteController.simulationHelper.setStartDate(startDateReal);
         RouteController.simulationHelper.setLastDate(lastOrderDate);
+        RouteController.simulationHelper.setFirst(false);
+        RouteController.simulationHelper.setSecond(false);
+
 
         simulationInfoRepository.deleteAll();
         SimulationInfo simulationInfo = new SimulationInfo();

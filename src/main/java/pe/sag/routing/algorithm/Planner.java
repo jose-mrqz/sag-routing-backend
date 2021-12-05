@@ -51,12 +51,13 @@ public class Planner {
         List<Depot> solutionDepots = null;
 
 //        modelTrucks = modelTrucks.stream()
-//                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity))
+//                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)
+//                    .thenComparing(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)))
 //                .collect(Collectors.toList());
 
         modelTrucks = modelTrucks.stream()
-                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)
-                        .thenComparing(pe.sag.routing.core.model.Truck::getModelCapacity).reversed())
+                .sorted(Comparator.comparing(pe.sag.routing.core.model.Truck::getModelCapacity)
+                        .thenComparing(Comparator.comparing(pe.sag.routing.core.model.Truck::getLastRouteEndTime)))
                 .collect(Collectors.toList());
 
 //        modelOrders = modelOrders.stream()
@@ -101,11 +102,11 @@ public class Planner {
         }
 
         while (!allVisited(orders)) {
-//            if (isSimulation) {
-//                if (!RouteController.simulationHelper.isCollapse()) {
-//                    checkBreakdowns(trucks);
-//                }
-//            }
+            if (isSimulation) {
+                if (!RouteController.simulationHelper.isCollapse()) {
+                    checkBreakdowns(trucks);
+                }
+            }
 
             Colony colony = new Colony(orders, trucks, solutionDepots, roadblocks);
             colony.run();
@@ -121,19 +122,21 @@ public class Planner {
             SimulationHelper sh = RouteController.simulationHelper;
 
 
-            if (solutionDepots != null) {
-                sh.setDepots(new ArrayList<>());
-                for (Depot d : solutionDepots) {
-                    Depot clone = new Depot(d);
-                    sh.getDepots().add(clone);
+            if (isSimulation) {
+                if (solutionDepots != null) {
+                    sh.setDepots(new ArrayList<>());
+                    for (Depot d : solutionDepots) {
+                        Depot clone = new Depot(d);
+                        sh.getDepots().add(clone);
+                    }
                 }
             }
 
-//            if (isSimulation) {
-//                if (!RouteController.simulationHelper.isCollapse()) {
-//                    createBreakdowns(solutionRoutes, orders, solutionDepots);
-//                }
-//            }
+            if (isSimulation) {
+                if (!RouteController.simulationHelper.isCollapse()) {
+                    createBreakdowns(solutionRoutes, orders, solutionDepots);
+                }
+            }
 
             solutionOrders.addAll(colony.solutionOrders.stream().filter(o -> o.visited).collect(Collectors.toList()));
 
@@ -219,36 +222,26 @@ public class Planner {
 
     private void createBreakdowns(List<Route> routes, List<Order> orders, List<Depot> depots) {
         SimulationHelper sh = RouteController.simulationHelper;
-        if (sh.getCount() >= 2) return;
-        if (sh.getCount() == 0) { //second truck
-            if (routes.size() < 2 && sh.getTruckCount() < 1) { //metida de ratinha
-                sh.setCount(1);
-                return;
+        if (sh.isFirst() && sh.isSecond()) return;
+        sh.getRoutes().addAll(routes);
+        if (!sh.isFirst()) { //second truck
+            if (sh.getRoutes().size() < 2) return;
+            Route route = sh.getRoutes().get(1);
+            sh.setFirst(true);
+            if (Duration.between(route.getStartDate(), route.getFinishDate()).toSeconds() > 120*60) {
+                Breakdown breakdown = cancelRoute(route, 120, orders, depots);
+                sh.getBreakdowns().put(route.getTruckId(), breakdown);
             }
-            Route route = routes.get(1);
-            if (Duration.between(route.getStartDate(), route.getFinishDate()).toMinutes() <= 120) {
-                sh.setCount(1);
-                return;
-            }
-            sh.setCount(1);
-            Breakdown breakdown = cancelRoute(route, 120, orders, depots);
-            sh.getBreakdowns().put(route.getTruckId(), breakdown);
         }
-        if (sh.getCount() == 1) { //fourth truck
-            if (routes.size() < 4 || (sh.getTruckCount() + routes.size() < 4)) { //metida de ratinha
-                sh.setCount(2);
-                return;
+        if (!sh.isSecond()) { //fourth truck
+            if (sh.getRoutes().size() < 4) return;
+            Route route = sh.getRoutes().get(3);
+            sh.setSecond(true);
+            if (Duration.between(route.getStartDate(), route.getFinishDate()).toSeconds() > 180*60) {
+                Breakdown breakdown = cancelRoute(route, 180, orders, depots);
+                sh.getBreakdowns().put(route.getTruckId(), breakdown);
             }
-            Route route = routes.get(3);
-            if (Duration.between(route.getStartDate(), route.getFinishDate()).toMinutes() <= 180) {
-                sh.setCount(2);
-                return;
-            }
-            sh.setCount(2);
-            Breakdown breakdown = cancelRoute(route, 180, orders, depots);
-            sh.getBreakdowns().put(route.getTruckId(), breakdown);
         }
-        sh.setTruckCount(sh.getTruckCount() + routes.size());
     }
 
     private Breakdown cancelRoute(Route route, int minutes, List<Order> orders, List<Depot> depots) {

@@ -21,6 +21,10 @@ public class MapMatrix {
     ListStructure closeList;
     ListStructure solutionList;
 
+    //para pedidos bloqueados
+    boolean orderBlocked;
+    NodeList lastNode;
+
     public MapMatrix( int sizeX, int sizeY ){
         openList = new ListStructure();
         closeList = new ListStructure();
@@ -34,11 +38,15 @@ public class MapMatrix {
         startNode = null;
         goalNode = null;
 
+        orderBlocked = false;
     }
 
     ///////METODO PARA ESTABLECER LAS PAREDES EL EL LABERINTO///////////////////
     public void setRoadblocks( int x, int y ){
-        //if(matrix[x][y] == 8 || matrix[x][y] == 9) return;
+        if( (x == startNode.cordX && y == startNode.cordY) ||
+                (x == goalNode.cordX && y == goalNode.cordY)){
+            return;
+        }
         this.matrix[x][y] = 1;
     }
 
@@ -46,8 +54,8 @@ public class MapMatrix {
     public void setInitialNodes( int x_ini, int y_ini, int x_fin, int y_fin){
         startNode = new NodeList(x_ini,y_ini);
         goalNode = new NodeList(x_fin,y_fin);
-        matrix[x_ini][y_ini] = 8;
-        matrix[x_fin][y_fin] = 9;
+        //matrix[x_ini][y_ini] = 8;
+        //matrix[x_fin][y_fin] = 9;
     }
 
     ///////METODO QUE INICIALIZA LOS VALORES DE LA MATRIZ///////////////////////
@@ -99,9 +107,9 @@ public class MapMatrix {
         //Reiniciar mapa
         initializedMatrix();
         //Obtener bloqueos dentro de rango [timeMin1;timeMin2]
-        ArrayList<Roadblock> initialRoadblocks = asignRoadblocks(roadblocks,fechaMin1,fechaMin2);
+        ArrayList<Roadblock> asignedRoadblocks = asignRoadblocks(roadblocks,fechaMin1,fechaMin2);
         //Pintar bloqueos en mapa
-        for(Roadblock rb : initialRoadblocks) {
+        for(Roadblock rb : asignedRoadblocks) {
             setRoadblocks(rb.getX(), rb.getY());
         }
         //System.out.println(contCiclos);
@@ -116,6 +124,16 @@ public class MapMatrix {
             if( ( ( actual.cordX == goalNode.cordX ) && ( actual.cordY == goalNode.cordY )  ) )//|| openList.isEmpty() )
                 break;//terminamos
 
+            //si el actual es el primer nodo y la anterior ruta tenia un pedido en un bloqueo
+            if(actual.cordX == startNode.cordX && actual.cordY == startNode.cordY && orderBlocked){
+                NodeList adyac = new NodeList(lastNode.cordX, lastNode.cordY);
+                adyac = setValores( actual, adyac );
+                adyac.father = actual;
+                openList.addNode( adyac );
+                actual = openList.deleteLeastCost();
+                orderBlocked = false;
+                continue;
+            }
             else{
                 //obtengo adyacentes
                 int x = 0, y = 0,w = 0,w2 = 0;
@@ -212,7 +230,32 @@ public class MapMatrix {
 
             }//fin del else
 
-            ///////evaluar cuantos nodos se han recorrdo y actualizar bloqueos
+            actual = openList.deleteLeastCost();
+
+            //preguntamos si ya encontro el solutionList para mostrarlo
+            if( ( actual.cordX == goalNode.cordX ) &&  ( actual.cordY == goalNode.cordY ) ){
+                NodeList extra2 = actual;
+
+                //revisar si el pedido estaba bloqueado
+                for(Roadblock rb : asignedRoadblocks) {
+                    if( rb.getX() == goalNode.cordX  && rb.getY() == goalNode.cordY ){
+                        orderBlocked = true;
+                        break;
+                    }
+                }
+                //guardar el ultimo nodo antes de llegar a la meta
+                if(orderBlocked) lastNode = new NodeList(actual.father.cordX, actual.father.cordY);
+
+                while( extra2 != null ){
+                    extra2.next = null;
+                    solutionList.addNode(extra2);
+                    extra2 = extra2.father;
+                }
+
+                continue;//break;?
+            }
+
+            ///////evaluar cuantos nodos se han recorrdo y actualizar bloqueos para el siguiente nodo
             numberNodes++;
             if(numberNodes == NUMBER_NODES_EVALUATION || contCiclos == 0) {
                 fechaMin1 = LocalDateTime.of(fechaMin2.toLocalDate(),fechaMin2.toLocalTime());
@@ -220,7 +263,7 @@ public class MapMatrix {
                 //Reiniciar mapa
                 initializedMatrix();
                 //Obtener bloqueos dentro de rango [timeMin1;timeMin2]
-                ArrayList<Roadblock> asignedRoadblocks = asignRoadblocks(roadblocks,fechaMin1,fechaMin2);
+                asignedRoadblocks = asignRoadblocks(roadblocks,fechaMin1,fechaMin2);
                 //Pintar bloqueos en mapa
                 for(Roadblock rb : asignedRoadblocks) {
                     setRoadblocks(rb.getX(), rb.getY());
@@ -229,19 +272,6 @@ public class MapMatrix {
                 //imprimeMatriz();
                 numberNodes = 0;
                 contCiclos++;
-            }
-
-            actual = openList.deleteLeastCost();
-
-            //preguntamos si ya encontro el solutionList para mostrarlo
-            if( ( actual.cordX == goalNode.cordX ) &&  ( actual.cordY == goalNode.cordY ) ){
-                NodeList extra2 = actual;
-
-                while( extra2 != null ){
-                    extra2.next = null;
-                    solutionList.addNode(extra2);
-                    extra2 = extra2.father;
-                }
             }
         }//fin del for
     }

@@ -56,10 +56,10 @@ public class AStar {
 
         //Carga de bloqueos en mapa
         //System.out.println("Bloqueos:");
-        for(Roadblock rb : roadblocks) {
+        /*for(Roadblock rb : roadblocks) {
             //rb.printRoadblock();
             map.setRoadblocks(rb.getX(), rb.getY());
-        }
+        }*/
         //System.out.println("");
         //Imprimir mapa completo
         //map.printMap();
@@ -83,7 +83,6 @@ public class AStar {
 
             //Inicializar arrivalDate con fecha inicio de ruta
             LocalDateTime arrivalDate = LocalDateTime.of(route.getStartDate().toLocalDate(),route.getStartDate().toLocalTime());
-
             for (int j = 0; j < nodes.size()-1; j++) {
                 nodeStart = new NodeList(nodes.get(j));
                 nodeGoal = new NodeList(nodes.get(j+1));
