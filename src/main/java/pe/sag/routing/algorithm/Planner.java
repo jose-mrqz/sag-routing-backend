@@ -122,11 +122,13 @@ public class Planner {
             SimulationHelper sh = RouteController.simulationHelper;
 
 
-            if (solutionDepots != null) {
-                sh.setDepots(new ArrayList<>());
-                for (Depot d : solutionDepots) {
-                    Depot clone = new Depot(d);
-                    sh.getDepots().add(clone);
+            if (isSimulation) {
+                if (solutionDepots != null) {
+                    sh.setDepots(new ArrayList<>());
+                    for (Depot d : solutionDepots) {
+                        Depot clone = new Depot(d);
+                        sh.getDepots().add(clone);
+                    }
                 }
             }
 
