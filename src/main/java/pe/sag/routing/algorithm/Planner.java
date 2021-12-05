@@ -266,8 +266,8 @@ public class Planner {
                 .build();
         List<Pair<Integer,Integer>> realPath = route.getPath().subList(0, traveledNodes);
         ArrayList<Pair<Integer,Integer>> real = new ArrayList<>();
-        realPath.forEach(n -> );
-        route.setPath(new ArrayList<>(realPath));
+        realPath.forEach(n -> real.add(new Pair<>(n.getX(), n.getY())));
+        route.setPath(new ArrayList<>(real));
         if (nextNode != null) {
             List<NodeInfo> pendingNodes = route.getNodesInfo().subList(route.getNodesInfo().indexOf(nextNode), route.getNodesInfo().size());
             for (NodeInfo ni : pendingNodes) {
