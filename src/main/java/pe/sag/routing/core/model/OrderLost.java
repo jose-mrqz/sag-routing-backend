@@ -8,6 +8,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+import static java.time.temporal.ChronoUnit.NANOS;
+
 @Document
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,15 +22,17 @@ public class OrderLost {
     private double demandGLP;
     private LocalDateTime deliveryDate;
 
-    public OrderLost(RouteDto route, LocalDateTime timeEnd, int speed) {
+    public OrderLost(RouteDto route, LocalDateTime timeEnd, int speed, SimulationInfo simulationInfo) {
         truckCode = route.getTruckCode();
 
         LocalDateTime startDate = route.getStartDate();
 
-        Duration duration = Duration.between(startDate,timeEnd);
+        LocalDateTime startDateTransf = transformDate(simulationInfo,speed,startDate);
+
+        Duration duration = Duration.between(startDateTransf,timeEnd);
         long secTme = duration.toSeconds();
 
-        double distancia = 50.0*secTme*speed/3600;
+        double distancia = (50.0*secTme)/(3600*speed);
         int dist = (int)distancia;
 
         RouteDto.Node ubic = route.getRoute().get(dist);
@@ -62,5 +66,18 @@ public class OrderLost {
             return deliveryDate.format(formatter);
         }
 
+    }
+    public LocalDateTime transformDate(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
+        LocalDateTime simulationStartReal = simulationInfo.getStartDateReal();
+        LocalDateTime simulationStartTransform = simulationInfo.getStartDateTransformed();
+
+        long differenceTransformReal = NANOS.between(simulationStartReal, simulationStartTransform);
+        dateToConvert = dateToConvert.plusNanos(differenceTransformReal);
+
+        long amountNanos = NANOS.between(simulationStartTransform, dateToConvert);
+        amountNanos /= speed;
+        LocalDateTime transformedDate = LocalDateTime.of(simulationStartTransform.toLocalDate(),simulationStartTransform.toLocalTime());
+        transformedDate = transformedDate.plusNanos(amountNanos);
+        return transformedDate;
     }
 }

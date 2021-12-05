@@ -582,7 +582,7 @@ public class RouteController {
         List<OrderLost> orders = new ArrayList<OrderLost>();
 
         for (RouteDto route :routes){
-            OrderLost ordLst = new OrderLost(route, request.getInfo().getLastOrder().getRegistrationDateTransformed(), simulationInfo.getSpeed());
+            OrderLost ordLst = new OrderLost(route, request.getInfo().getLastOrder().getRegistrationDateTransformed(), simulationInfo.getSpeed(), simulationInfo);
             orders.add(ordLst);
         }
 
