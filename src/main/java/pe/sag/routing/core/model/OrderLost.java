@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 import pe.sag.routing.shared.dto.RouteDto;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -19,13 +20,15 @@ public class OrderLost {
     private double demandGLP;
     private LocalDateTime deliveryDate;
 
-    public OrderLost(RouteDto route, long timeSec, int speed) {
+    public OrderLost(RouteDto route, LocalDateTime timeEnd, int speed) {
         truckCode = route.getTruckCode();
 
         LocalDateTime startDate = route.getStartDate();
 
+        Duration duration = Duration.between(startDate,timeEnd);
+        long secTme = duration.toSeconds();
 
-        double distancia = 50.0*timeSec*speed/3600;
+        double distancia = 50.0*secTme*speed/3600;
         int dist = (int)distancia;
 
         RouteDto.Node ubic = route.getRoute().get(dist);
