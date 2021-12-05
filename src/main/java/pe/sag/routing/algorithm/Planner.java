@@ -245,12 +245,16 @@ public class Planner {
     }
 
     private Breakdown cancelRoute(Route route, int minutes, List<Order> orders, List<Depot> depots) {
-        LocalDateTime now = route.getStartDate().plusMinutes(minutes);
+        LocalDateTime now = route.getStartDate().plusSeconds(minutes * 60);
         NodeInfo nextNode = route.getNodesInfo().stream()
                 .filter(n -> n.arrivalTime.isAfter(now))
                 .findFirst()
                 .orElse(null);
-        int traveledNodes = (int) (Duration.between(route.getStartDate(), now).toSeconds() / 0b1001000); // wtf
+        int nOrders = 0;
+        for (NodeInfo ni : route.getNodesInfo()) {
+            if (ni instanceof OrderInfo) nOrders++;
+        }
+        int traveledNodes = (int) ((Duration.between(route.getStartDate(), now).toSeconds() - nOrders*10*60) / 72); // wtf
         if (traveledNodes < 0) traveledNodes = 0;
         if (traveledNodes >= route.getPath().size()) traveledNodes = route.getPath().size()-1;
         Breakdown breakdown = Breakdown.builder()
@@ -295,7 +299,7 @@ public class Planner {
             if (order._id.compareTo(id) == 0) {
                 order.deliveryTime = null;
                 order.visited = false;
-                order.demand -= glp;
+                order.demand += glp;
                 order.resetDemand = order.demand;
             }
         }
