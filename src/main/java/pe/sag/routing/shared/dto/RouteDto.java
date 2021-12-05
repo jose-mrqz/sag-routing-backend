@@ -112,7 +112,7 @@ public class RouteDto {
             RouteDto.Node newNode = Node.builder()
                     .x(node.getX())
                     .y(node.getY())
-                    .order(isOrder)
+                    .order(false)
                     .build();
             this.route.add(newNode);
         }
@@ -139,6 +139,7 @@ public class RouteDto {
             index += seconds/72;
             start = order.getLeftDate();
             order.setIndexRoute(index);
+            this.getRoute().get(index).setOrder(true);
             if (index >= this.route.size()-4) index = this.route.size()-1;
             if (i != this.orders.size()-1) {
                 Order nextOrder = this.orders.get(i+1);
@@ -147,6 +148,7 @@ public class RouteDto {
                     nextOrder.getDeliveryDate().isAfter(order.getDeliveryDate().plusMinutes(7)) &&
                     nextOrder.getDeliveryDate().isBefore(order.getDeliveryDate().plusMinutes(13))) {
                     nextOrder.setIndexRoute(index);
+                    this.getRoute().get(index).setOrder(true);
                     start = start.plusMinutes(10);
                     i++;
 //                    continue;
