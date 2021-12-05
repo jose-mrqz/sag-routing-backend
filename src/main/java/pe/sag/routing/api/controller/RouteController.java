@@ -567,6 +567,7 @@ public class RouteController {
          simulationInfo.getStartDateTransformed().format(formatter);
         Duration duration = Duration.between(request.getInfo().getLastOrder().getRegistrationDate(), simulationInfo.getStartDateTransformed());
         String timeSimulation= String.valueOf(duration.toMinutes());
+        long timeSec = duration.toSeconds();
 
         List<RouteDto> routes = request.getRoutesReal();
 
