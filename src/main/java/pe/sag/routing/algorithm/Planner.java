@@ -245,14 +245,17 @@ public class Planner {
     }
 
     private Breakdown cancelRoute(Route route, int minutes, List<Order> orders, List<Depot> depots) {
-        LocalDateTime now = route.getStartDate().plusMinutes(minutes);
+        LocalDateTime now = route.getStartDate().plusSeconds(minutes * 60);
         NodeInfo nextNode = route.getNodesInfo().stream()
                 .filter(n -> n.arrivalTime.isAfter(now))
                 .findFirst()
                 .orElse(null);
-        int traveledNodes = (int) (Duration.between(route.getStartDate(), now).toSeconds() / 0b1001000); // wtf
+        int nOrders = (int) route.getNodesInfo().stream().filter(n -> n instanceof OrderInfo)
+                .map(n -> (OrderInfo)n).filter(n -> n.getArrivalTime().isBefore(now) || n.getArrivalTime().isEqual(now)).count();
+        int traveledNodes = (int) ((Duration.between(route.getStartDate(), now).toSeconds() - nOrders*10*60) / 72); // wtf
         if (traveledNodes < 0) traveledNodes = 0;
         if (traveledNodes >= route.getPath().size()) traveledNodes = route.getPath().size()-1;
+        if (traveledNodes == route.getPath().size()-1) traveledNodes = route.getPath().size()-2;
         Breakdown breakdown = Breakdown.builder()
                 .x(route.getPath().get(traveledNodes).getX())
                 .y(route.getPath().get(traveledNodes).getY())
@@ -261,8 +264,10 @@ public class Planner {
                 .startDate(now)
                 .endDate(now.plusMinutes(60))
                 .build();
-        List<Pair<Integer,Integer>> realPath = route.getPath().subList(0, traveledNodes);
-        route.setPath(new ArrayList<>(realPath));
+        List<Pair<Integer,Integer>> realPath = route.getPath().subList(0, traveledNodes+1);
+        ArrayList<Pair<Integer,Integer>> real = new ArrayList<>();
+        realPath.forEach(n -> real.add(new Pair<>(n.getX(), n.getY())));
+        route.setPath(new ArrayList<>(real));
         if (nextNode != null) {
             List<NodeInfo> pendingNodes = route.getNodesInfo().subList(route.getNodesInfo().indexOf(nextNode), route.getNodesInfo().size());
             for (NodeInfo ni : pendingNodes) {
@@ -295,7 +300,7 @@ public class Planner {
             if (order._id.compareTo(id) == 0) {
                 order.deliveryTime = null;
                 order.visited = false;
-                order.demand -= glp;
+                order.demand += glp;
                 order.resetDemand = order.demand;
             }
         }
