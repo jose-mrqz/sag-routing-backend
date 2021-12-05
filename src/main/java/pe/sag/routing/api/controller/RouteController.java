@@ -566,14 +566,16 @@ public class RouteController {
         String dateRegisr = fechaColapso + " - " + horaColapso;
         String dateDeadLine = request.getInfo().getLastOrder().getDeadlineDate().format(formatter) + " - " + request.getInfo().getLastOrder().getDeadlineDate().format(formatTime);
 
-
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         SimulationInfo simulationInfo = listSimulationInfo.get(0);
         String timeInitialSimulation= simulationInfo.getStartDateTransformed().format(formatter) + " - "+ simulationInfo.getStartDateTransformed().format(formatTime);
 
-         simulationInfo.getStartDateTransformed().format(formatter);
+        simulationInfo.getStartDateTransformed().format(formatter);
         Duration duration = Duration.between(simulationInfo.getStartDateTransformed(),request.getInfo().getLastOrder().getRegistrationDateTransformed());
         String timeSimulation= String.valueOf(duration.toSeconds());
+
+        /*
+
 
         List<RouteDto> routes = routeService.getLastRoutesColapse(request.getRoutesReal());
 
@@ -591,6 +593,9 @@ public class RouteController {
 
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
 
+ */
+
+
         HashMap<String,Object> map = new HashMap<>();
         map.put("orderRegister", request.getInfo().getNOrders());
         map.put("orderDone", request.getInfo().getNScheduled());
@@ -602,7 +607,7 @@ public class RouteController {
         map.put("dateDeadLine", dateDeadLine);
         map.put("simulationIniDate", timeInitialSimulation);
         map.put("simulationTime", timeSimulation);
-        map.put("dataSetOrders", beanCollectionDataSource);
+        //map.put("dataSetOrders", beanCollectionDataSource);
 
 
 
