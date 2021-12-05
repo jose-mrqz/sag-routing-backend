@@ -32,7 +32,7 @@ public class OrderLost {
         Duration duration = Duration.between(startDateTransf,timeEnd);
         long secTme = duration.toSeconds();
 
-        double distancia = (50.0*secTme)/(3600*speed);
+        double distancia = (50.0*secTme)/(3600);
         int dist = (int)distancia;
 
         RouteDto.Node ubic = route.getRoute().get(dist);
