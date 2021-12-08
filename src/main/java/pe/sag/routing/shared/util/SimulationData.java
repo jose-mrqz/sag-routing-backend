@@ -34,6 +34,7 @@ public class SimulationData {
     private boolean finished;
     private Order lastOrder;
     private LocalDateTime lastRouteEndTime = null;
+    private LocalDateTime firstRouteStartTime = null;
 
     public void setOrder(pe.sag.routing.algorithm.Order order, LocalDateTime transformedDate) {
         this.lastOrder = Order.builder()

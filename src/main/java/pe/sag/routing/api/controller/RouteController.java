@@ -404,14 +404,17 @@ public class RouteController {
             }
             RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
 
+            LocalDateTime firstRouteStartTime = LocalDateTime.MAX;
             if (solutionRoutes != null) {
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
+                    if (sr.getStartDate().isBefore(firstRouteStartTime)) firstRouteStartTime = sr.getStartDate();
                     Route r = new Route(sr);
                     r.setMonitoring(false);
                     //r = routeService.transformRoute(r, simulationInfo);
                     routeService.save(r);
                 }
             }
+            RouteController.simulationData.setFirstRouteStartTime(firstRouteStartTime);
 
             if (planner.getNOrders() != planner.getNScheduled()) {
                 RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
