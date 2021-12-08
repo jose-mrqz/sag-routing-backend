@@ -317,6 +317,7 @@ public class RouteController {
                             orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                         }
                     }
+                    RouteController.simulationHelper.addOrders(pendingOrders, solutionOrders);
 
                     RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
 
@@ -353,7 +354,7 @@ public class RouteController {
         List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() == 0) {
-            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no registrar SimulationInfo");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no registrar SimulationInfo.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -402,6 +403,7 @@ public class RouteController {
                     orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                 }
             }
+            RouteController.simulationHelper.addOrders(pendingOrders, solutionOrders);
             RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
 
             LocalDateTime firstRouteStartTime = LocalDateTime.MAX;
