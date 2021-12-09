@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import pe.sag.routing.algorithm.Order;
 import pe.sag.routing.core.model.SimulationInfo;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 
 @Data
 @AllArgsConstructor
@@ -34,6 +36,9 @@ public class SimulationData {
     private boolean finished;
     private Order lastOrder;
     private LocalDateTime lastRouteEndTime = null;
+    private LocalDateTime firstRouteStartTime = null;
+    private HashMap<LocalDate, Double> indicators = new HashMap<>();
+    private HashMap<LocalDate, Double> maxIndicators = new HashMap<>();
 
     public void setOrder(pe.sag.routing.algorithm.Order order, LocalDateTime transformedDate) {
         this.lastOrder = Order.builder()

@@ -116,6 +116,8 @@ public class RouteController {
             if (route.getEndDate().isAfter(last)) last = route.getEndDate();
         }
         if (!last.isEqual(LocalDateTime.MIN)) simulationData.setLastRouteEndTime(last);
+        simulationData.setIndicators(RouteController.simulationHelper.getIndicators());
+        simulationData.setMaxIndicators(RouteController.simulationHelper.getMaxIndicators());
         SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDtoFiltered, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         routeService.deleteList(activeRoutes);
@@ -318,6 +320,7 @@ public class RouteController {
                             orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                         }
                     }
+                    RouteController.simulationHelper.addOrders(pendingOrders, solutionOrders);
 
                     RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
 
@@ -354,7 +357,7 @@ public class RouteController {
         List<Roadblock> roadblocks = roadblockService.findSimulation();
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         if (listSimulationInfo.size() == 0) {
-            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no registrar SimulationInfo");
+            RestResponse response = new RestResponse(HttpStatus.BAD_REQUEST, "Error por no registrar SimulationInfo.");
             return ResponseEntity
                     .status(response.getStatus())
                     .body(response);
@@ -403,16 +406,20 @@ public class RouteController {
                     orderService.updateStatus(o, OrderStatus.PROGRAMADO);
                 }
             }
+            RouteController.simulationHelper.addOrders(pendingOrders, solutionOrders);
             RouteController.simulationData.setNScheduled(RouteController.simulationData.getNScheduled() + planner.getNScheduled());
 
+            LocalDateTime firstRouteStartTime = LocalDateTime.MAX;
             if (solutionRoutes != null) {
                 for(pe.sag.routing.algorithm.Route sr : solutionRoutes){
+                    if (sr.getStartDate().isBefore(firstRouteStartTime)) firstRouteStartTime = sr.getStartDate();
                     Route r = new Route(sr);
                     r.setMonitoring(false);
                     //r = routeService.transformRoute(r, simulationInfo);
                     routeService.save(r);
                 }
             }
+            RouteController.simulationData.setFirstRouteStartTime(firstRouteStartTime);
 
             if (planner.getNOrders() != planner.getNScheduled()) {
                 RestResponse response = new RestResponse(HttpStatus.OK, "Pedidos sin planificar primera corrida.");
@@ -567,27 +574,35 @@ public class RouteController {
         String dateRegisr = fechaColapso + " - " + horaColapso;
         String dateDeadLine = request.getInfo().getLastOrder().getDeadlineDate().format(formatter) + " - " + request.getInfo().getLastOrder().getDeadlineDate().format(formatTime);
 
-
         List<SimulationInfo> listSimulationInfo = simulationInfoRepository.findAll();
         SimulationInfo simulationInfo = listSimulationInfo.get(0);
         String timeInitialSimulation= simulationInfo.getStartDateTransformed().format(formatter) + " - "+ simulationInfo.getStartDateTransformed().format(formatTime);
 
         simulationInfo.getStartDateTransformed().format(formatter);
         Duration duration = Duration.between(simulationInfo.getStartDateTransformed(),request.getInfo().getLastOrder().getRegistrationDateTransformed());
-        String timeSimulation= String.valueOf(duration.toMinutes());
+        String timeSimulation= String.valueOf(duration.toSeconds());
 
-        long timeSec = duration.toSeconds();
+        /*
+
 
         List<RouteDto> routes = routeService.getLastRoutesColapse(request.getRoutesReal());
+
+
+        routes = routes.stream()
+                .sorted(Comparator.comparing(RouteDto::getTruckCode))
+                .collect(Collectors.toList());
 
         List<OrderLost> orders = new ArrayList<OrderLost>();
 
         for (RouteDto route :routes){
-            OrderLost ordLst = new OrderLost(route, request.getInfo().getLastOrder().getRegistrationDateTransformed(), simulationInfo.getSpeed(), simulationInfo);
+            OrderLost ordLst = new OrderLost(route, request.getInfo().getLastOrder().getRegistrationDate());
             orders.add(ordLst);
         }
 
         JRBeanCollectionDataSource beanCollectionDataSource = new JRBeanCollectionDataSource(orders);
+
+ */
+
 
         HashMap<String,Object> map = new HashMap<>();
         map.put("orderRegister", request.getInfo().getNOrders());
@@ -600,7 +615,7 @@ public class RouteController {
         map.put("dateDeadLine", dateDeadLine);
         map.put("simulationIniDate", timeInitialSimulation);
         map.put("simulationTime", timeSimulation);
-        map.put("dataSetOrders", beanCollectionDataSource);
+        //map.put("dataSetOrders", beanCollectionDataSource);
 
 
 

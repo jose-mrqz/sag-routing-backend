@@ -22,17 +22,17 @@ public class OrderLost {
     private double demandGLP;
     private LocalDateTime deliveryDate;
 
-    public OrderLost(RouteDto route, LocalDateTime timeEnd, int speed, SimulationInfo simulationInfo) {
+    public OrderLost(RouteDto route, LocalDateTime timeEnd) {
         truckCode = route.getTruckCode();
 
         LocalDateTime startDate = route.getStartDate();
 
-        LocalDateTime startDateTransf = transformDate(simulationInfo,speed,startDate);
+        //LocalDateTime startDateTransf = transformDate(simulationInfo,speed,startDate);
 
-        Duration duration = Duration.between(startDateTransf,timeEnd);
+        Duration duration = Duration.between(startDate,timeEnd);
         long secTme = duration.toSeconds();
 
-        double distancia = (50.0*secTme)/(3600*speed);
+        double distancia = (50.0*secTme)/(3600);
         int dist = (int)distancia;
 
         RouteDto.Node ubic = route.getRoute().get(dist);
@@ -50,7 +50,7 @@ public class OrderLost {
              }
          }
          if(cont == 0){
-             ubication = "planta principal";
+             ubication = "PLANTA PRINCIPAL";
              demandGLP = 0;
              deliveryDate = null;
          }
