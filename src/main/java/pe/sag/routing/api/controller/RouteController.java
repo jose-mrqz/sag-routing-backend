@@ -143,6 +143,7 @@ public class RouteController {
 
             for(RouteDto r : routesDto) {
                 if(true/*r.inDateRange(filterDateReal)*/){
+                    r.generateCornerNodes();
                     routesDtoFiltered.add(r);
                 }
             }
@@ -571,7 +572,7 @@ public class RouteController {
         SimulationInfo simulationInfo = listSimulationInfo.get(0);
         String timeInitialSimulation= simulationInfo.getStartDateTransformed().format(formatter) + " - "+ simulationInfo.getStartDateTransformed().format(formatTime);
 
-         simulationInfo.getStartDateTransformed().format(formatter);
+        simulationInfo.getStartDateTransformed().format(formatter);
         Duration duration = Duration.between(simulationInfo.getStartDateTransformed(),request.getInfo().getLastOrder().getRegistrationDateTransformed());
         String timeSimulation= String.valueOf(duration.toMinutes());
 

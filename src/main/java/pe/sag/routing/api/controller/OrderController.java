@@ -54,7 +54,6 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<?> register(@RequestBody NewOrderRequest request) throws IllegalAccessException {
-        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
         OrderDto orderDto = OrderDto.builder()
                 .x(request.getX())
                 .y(request.getY())
@@ -64,10 +63,7 @@ public class OrderController {
                 .deadlineDate(LocalDateTime.now().plusHours(request.getSlack()))
                 .build();
 
-        Order order;
-        //Revisar si nodo de pedido se encuentra bloqueado
-        if(!orderDto.inRoadblocks(roadblocks)) order = orderService.register(orderDto, true);
-        else order = null;
+        Order order = orderService.register(orderDto, true);
 
         RestResponse response;
         if (order == null) response = new RestResponse(HttpStatus.BAD_REQUEST, "Error al agregar nuevo pedido.");
@@ -79,7 +75,6 @@ public class OrderController {
 
     @PostMapping("/many")
     public ResponseEntity<?> registerMany(@RequestBody ManyOrdersRequest request) throws IllegalAccessException {
-        List<Roadblock> roadblocks = roadblockService.findAllByMonitoring(true);
         ArrayList<OrderDto> ordersDto = new ArrayList<>();
         for (ManyOrdersRequest.Order req : request.getOrders()) {
             OrderDto orderDto = OrderDto.builder()
@@ -90,10 +85,7 @@ public class OrderController {
                     .registrationDate(LocalDateTime.now())
                     .deadlineDate(LocalDateTime.now().plusHours(req.getSlack()))
                     .build();
-            //Revisar si nodo de pedido se encuentra bloqueado
-            if(!orderDto.inRoadblocks(roadblocks)){
-                ordersDto.add(orderDto);
-            }
+            ordersDto.add(orderDto);
         }
 
         if (ordersDto.size() == 0) {
@@ -154,11 +146,9 @@ public class OrderController {
                     .registrationDate(r.getDate())
                     .deadlineDate(r.getDate().plusHours(r.getSlack()))
                     .build();
-            //Revisar si nodo de pedido se encuentra bloqueado
-            if(true/*!orderDto.inRoadblocks(roadblocks)*/){
-                ordersDto.add(orderDto);
-                inserted++;
-            }
+
+            ordersDto.add(orderDto);
+            inserted++;
         }
 
         RouteController.simulationData = SimulationData.builder()

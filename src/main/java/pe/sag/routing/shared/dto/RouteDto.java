@@ -52,6 +52,10 @@ public class RouteDto {
         int x;
         int y;
         boolean order;
+
+        public boolean isDepot(){
+            return (x == 12 && y == 8) || (x == 42 && y == 42) || (x == 63 && y == 3);
+        }
     }
 
     @NotBlank
@@ -70,6 +74,7 @@ public class RouteDto {
     private List<Depot> depots;
     @NotBlank
     private List<Node> route;
+    private List<Node> cornerNodes;
 
     public void setOrders(List<Route.Order> orders) {
         this.orders = new ArrayList<>();
@@ -248,5 +253,43 @@ public class RouteDto {
         LocalDateTime filterDateRangeStart = filterDate.minusDays(1);
         LocalDateTime filterDateRangeEnd = filterDate.plusDays(1);
         return !filterDateRangeEnd.isBefore(startDate) && !endDate.isBefore(filterDateRangeStart);
+    }
+
+    public void generateCornerNodes(){
+        cornerNodes = new ArrayList<>();
+        Node nodeBefore = null;
+        boolean horiz = false;
+        for(Node node : route){
+            if(node.isDepot() || node.isOrder()){
+                cornerNodes.add(new Node(node.x, node.y, true));
+                nodeBefore = null;
+            }
+            else{
+                if(nodeBefore == null){
+                    if(node.x == 12) horiz = false;
+                    else if(node.y == 8) horiz = true;
+                    else System.out.println("fallo horiz");
+                }
+                else{
+                    //rumbo nuevo: vert
+                    if(node.x == nodeBefore.x){
+                        //cambio de rumbo: horiz -> vert
+                        if(horiz){
+                            cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
+                            horiz = false;
+                        }
+                    }
+                    //rumbo nuevo: horiz
+                    else if(node.y == nodeBefore.y){
+                        //cambio de rumbo: vert -> horiz
+                        if(!horiz){
+                            cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
+                            horiz = true;
+                        }
+                    }
+                }
+                nodeBefore = new Node(node.x, node.y, node.order);
+            }
+        }
     }
 }
