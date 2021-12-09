@@ -261,9 +261,11 @@ public class RouteDto {
         Node nodeBefore = null;
         boolean horiz = false;
         for(Node node : route){
-            if(node.isDepot() || node.isOrder()){
+            if(node.isDepot()){
+                cornerNodes.add(new Node(node.x, node.y, false));
+            }
+            else if(node.isOrder()){
                 cornerNodes.add(new Node(node.x, node.y, true));
-                nodeBefore = null;
             }
             else{
                 if(nodeBefore == null){

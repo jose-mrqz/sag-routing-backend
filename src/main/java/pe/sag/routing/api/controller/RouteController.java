@@ -75,9 +75,20 @@ public class RouteController {
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
+        //Listar modelos de camiones
+        List<TruckModelDto> truckModels = truckModelService.list();
+
         List<Route> activeRoutes = routeService.getActiveRoutes(LocalDateTime.now(),true);
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        RestResponse response = new RestResponse(HttpStatus.OK, routesDto);
+        List<RouteDto> routesDtoFiltered = new ArrayList<>();
+
+        for(RouteDto r : routesDto){
+            r.generateTruckGlpCapacity(truckModels);
+            r.generateCornerNodes();
+            routesDtoFiltered.add(r);
+        }
+
+        RestResponse response = new RestResponse(HttpStatus.OK, routesDtoFiltered);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
