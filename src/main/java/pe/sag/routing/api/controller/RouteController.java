@@ -116,6 +116,7 @@ public class RouteController {
             if (route.getEndDate().isAfter(last)) last = route.getEndDate();
         }
         if (!last.isEqual(LocalDateTime.MIN)) simulationData.setLastRouteEndTime(last);
+        simulationData.setIndicators(RouteController.simulationHelper.getIndicators());
         SimulationResponse simulationResponse = new SimulationResponse(simulationData, routesDtoFiltered, routesTransformedDto);
         RestResponse response = new RestResponse(HttpStatus.OK, simulationResponse);
         routeService.deleteList(activeRoutes);
