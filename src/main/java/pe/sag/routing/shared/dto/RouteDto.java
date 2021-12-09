@@ -260,40 +260,54 @@ public class RouteDto {
         cornerNodes = new ArrayList<>();
         Node nodeBefore = null;
         boolean horiz = false;
+        boolean orderOrDepotBefore = false;
+        int cant = 0;
         for(Node node : route){
-            if(node.isDepot()){
+            if(node.isDepot() && cant == 0){
                 cornerNodes.add(new Node(node.x, node.y, false));
+                orderOrDepotBefore = true;
+                cant++;
+                continue;
+            }
+
+            if(nodeBefore == null){
+                if(node.x == 12) horiz = false;
+                else if(node.y == 8) horiz = true;
+                else System.out.println("fallo nodeBefore == null");
+            }
+            else{
+                //rumbo nuevo: vert
+                if(node.x == nodeBefore.x){
+                    //cambio de rumbo: horiz -> vert
+                    if(horiz){
+                        if(orderOrDepotBefore) orderOrDepotBefore = false;
+                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
+                        horiz = false;
+                    }
+                }
+                //rumbo nuevo: horiz
+                else if(node.y == nodeBefore.y){
+                    //cambio de rumbo: vert -> horiz
+                    if(!horiz){
+                        if(orderOrDepotBefore) orderOrDepotBefore = false;
+                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
+                        horiz = true;
+                    }
+                }
+                else System.out.println("fallo nodeBefore != null");
+            }
+            nodeBefore = new Node(node.x, node.y, node.order);
+            if(orderOrDepotBefore) orderOrDepotBefore = false;
+
+            if(node.isDepot() && cant > 0){
+                cornerNodes.add(new Node(node.x, node.y, false));
+                orderOrDepotBefore = true;
             }
             else if(node.isOrder()){
                 cornerNodes.add(new Node(node.x, node.y, true));
+                orderOrDepotBefore = true;
             }
-            else{
-                if(nodeBefore == null){
-                    if(node.x == 12) horiz = false;
-                    else if(node.y == 8) horiz = true;
-                    else System.out.println("fallo nodeBefore == null");
-                }
-                else{
-                    //rumbo nuevo: vert
-                    if(node.x == nodeBefore.x){
-                        //cambio de rumbo: horiz -> vert
-                        if(horiz){
-                            cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
-                            horiz = false;
-                        }
-                    }
-                    //rumbo nuevo: horiz
-                    else if(node.y == nodeBefore.y){
-                        //cambio de rumbo: vert -> horiz
-                        if(!horiz){
-                            cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
-                            horiz = true;
-                        }
-                    }
-                    else System.out.println("fallo nodeBefore != null");
-                }
-                nodeBefore = new Node(node.x, node.y, node.order);
-            }
+            cant++;
         }
     }
 
