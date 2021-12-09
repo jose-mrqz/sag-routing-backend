@@ -68,6 +68,7 @@ public class RouteDto {
     private double velocity = 250.0/18;
     @NotBlank
     private String truckCode;
+    private double truckGlpCapacity;
     @NotBlank
     private List<Order> orders;
     @NotBlank
@@ -268,7 +269,7 @@ public class RouteDto {
                 if(nodeBefore == null){
                     if(node.x == 12) horiz = false;
                     else if(node.y == 8) horiz = true;
-                    else System.out.println("fallo horiz");
+                    else System.out.println("fallo nodeBefore == null");
                 }
                 else{
                     //rumbo nuevo: vert
@@ -287,8 +288,19 @@ public class RouteDto {
                             horiz = true;
                         }
                     }
+                    else System.out.println("fallo nodeBefore != null");
                 }
                 nodeBefore = new Node(node.x, node.y, node.order);
+            }
+        }
+    }
+
+    public void generateTruckGlpCapacity(List<TruckModelDto> truckModels){
+        String truckModelActual = this.truckCode.substring(0,2);
+        for(TruckModelDto tmd : truckModels){
+            if(tmd.getCode().compareTo(truckModelActual) == 0){
+                truckGlpCapacity = tmd.getCapacity();
+                break;
             }
         }
     }
