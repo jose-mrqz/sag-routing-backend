@@ -31,12 +31,14 @@ public class SimulationHelper {
      private List<Route> routes;
      private HashMap<LocalDate, List<Double>> ratios;
      private HashMap<LocalDate, Double> indicators;
+     private HashMap<LocalDate, Double> maxIndicators;
 
      public SimulationHelper(boolean collapse) {
           breakdowns = new HashMap<>();
           depots = new ArrayList<>();
           ratios = new HashMap<>();
           indicators = new HashMap<>();
+          maxIndicators = new HashMap<>();
           this.collapse = collapse;
           this.routes = new ArrayList<>();
           count = 0;
@@ -68,6 +70,10 @@ public class SimulationHelper {
                    value = v.stream().reduce(0.0, Double::sum)/v.size();
                }
                indicators.put(k, value);
+               double max = maxIndicators.getOrDefault(k, 0.0);
+               if (value > max) {
+                    maxIndicators.put(k, value);
+               }
           });
      }
 }

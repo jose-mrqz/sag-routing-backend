@@ -38,6 +38,7 @@ public class SimulationData {
     private LocalDateTime lastRouteEndTime = null;
     private LocalDateTime firstRouteStartTime = null;
     private HashMap<LocalDate, Double> indicators = new HashMap<>();
+    private HashMap<LocalDate, Double> maxIndicators = new HashMap<>();
 
     public void setOrder(pe.sag.routing.algorithm.Order order, LocalDateTime transformedDate) {
         this.lastOrder = Order.builder()
