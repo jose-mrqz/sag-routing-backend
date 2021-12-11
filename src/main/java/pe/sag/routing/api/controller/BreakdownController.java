@@ -81,6 +81,8 @@ public class BreakdownController {
             Route currentRoute = routeService.getCurrentByTruckId(truck.get_id(), true);
             if (currentRoute == null) {
                 response = new RestResponse(HttpStatus.BAD_REQUEST, "El camion no se encuentra en ruta en este momento.");
+                List<Route> toCancel = routeService.getRoutesAfter(truck.get_id(), LocalDateTime.now());
+                cancelRoutes(truck, toCancel);
             } else {
                 List<Route.Order> routeOrders = currentRoute.getOrders();
                 Route.Order nextOrder = routeOrders.stream()
@@ -119,8 +121,13 @@ public class BreakdownController {
                     response = new RestResponse(HttpStatus.OK, "Se registro la averia correctamente, pedidos de la ruta completados de la ruta actual.");
                 }
                 breakdownService.save(breakdown);
+                List<Route> toCancel = routeService.getRoutesAfter(truck.get_id(), currentRoute.getStartDate().plusMinutes(1));
+                cancelRoutes(truck, toCancel);
             }
         }
         return ResponseEntity.status(response.getStatus()).body(response);
+    }
+
+    private void cancelRoutes(Truck truck, List<Route> toCancel) {
     }
 }

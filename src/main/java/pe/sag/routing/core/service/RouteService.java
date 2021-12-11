@@ -205,5 +205,9 @@ public class RouteService {
         }
         return routesFiltered;
     }
+
+    public List<Route> getRoutesAfter(String truckId, LocalDateTime time) {
+        return routeRepository.findByTruckIdAndStartDateAfterAndCancelled(truckId, time.plusMinutes(1), false);
+    }
 }
 
