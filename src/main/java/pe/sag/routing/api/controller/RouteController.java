@@ -20,6 +20,7 @@ import pe.sag.routing.core.service.*;
 import pe.sag.routing.data.parser.RouteParser;
 import pe.sag.routing.data.repository.SimulationInfoRepository;
 import pe.sag.routing.shared.dto.RouteDto;
+import pe.sag.routing.shared.dto.TruckModelDto;
 import pe.sag.routing.shared.util.SimulationData;
 import pe.sag.routing.shared.util.enums.OrderStatus;
 import pe.sag.routing.shared.util.enums.TruckStatus;
@@ -48,6 +49,7 @@ public class RouteController {
     private final OrderService orderService;
     private final DepotService depotService;
     private final MaintenanceService maintenanceService;
+    private final TruckModelService truckModelService;
     private final SimulationInfoRepository simulationInfoRepository;
     private final RoadblockService roadblockService;
 
@@ -60,7 +62,7 @@ public class RouteController {
     public RouteController(RouteService routeService, TruckService truckService,
                            OrderService orderService, DepotService depotService,
                            MaintenanceService maintenanceService, SimulationInfoRepository simulationInfoRepository,
-                           RoadblockService roadblockService) {
+                           RoadblockService roadblockService, TruckModelService truckModelService) {
         this.routeService = routeService;
         this.truckService = truckService;
         this.orderService = orderService;
@@ -68,13 +70,25 @@ public class RouteController {
         this.maintenanceService = maintenanceService;
         this.simulationInfoRepository = simulationInfoRepository;
         this.roadblockService = roadblockService;
+        this.truckModelService = truckModelService;
     }
 
     @GetMapping
     protected ResponseEntity<?> getActive() {
+        //Listar modelos de camiones
+        List<TruckModelDto> truckModels = truckModelService.list();
+
         List<Route> activeRoutes = routeService.getActiveRoutes(LocalDateTime.now(),true);
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
-        RestResponse response = new RestResponse(HttpStatus.OK, routesDto);
+        List<RouteDto> routesDtoFiltered = new ArrayList<>();
+
+        for(RouteDto r : routesDto){
+            r.generateTruckGlpCapacity(truckModels);
+            r.generateCornerNodes();
+            routesDtoFiltered.add(r);
+        }
+
+        RestResponse response = new RestResponse(HttpStatus.OK, routesDtoFiltered);
         return ResponseEntity
                 .status(response.getStatus())
                 .body(response);
@@ -128,6 +142,9 @@ public class RouteController {
 
     @PostMapping(path = "/routeTableSimulation")
     protected ResponseEntity<?> getRouteTableSimulation() {
+        //Listar modelos de camiones
+        List<TruckModelDto> truckModels = truckModelService.list();
+
         List<Route> activeRoutes = routeService.findByMonitoring(false);
         activeRoutes.sort(Comparator.comparing(Route::getStartDate));
         List<RouteDto> routesDto = activeRoutes.stream().map(RouteParser::toDto).collect(Collectors.toList());
@@ -145,6 +162,8 @@ public class RouteController {
 
             for(RouteDto r : routesDto) {
                 if(true/*r.inDateRange(filterDateReal)*/){
+                    r.generateTruckGlpCapacity(truckModels);
+                    r.generateCornerNodes();
                     routesDtoFiltered.add(r);
                 }
             }
