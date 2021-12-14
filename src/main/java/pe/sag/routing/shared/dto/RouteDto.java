@@ -40,6 +40,7 @@ public class RouteDto {
     public static class Depot {
         int x;
         int y;
+        int indexRoute;
         double refilledGlp;
         LocalDateTime refillDate;
     }
@@ -52,11 +53,11 @@ public class RouteDto {
         int x;
         int y;
         boolean order;
+        boolean depot;
         double glp;
-
-        public boolean isDepot(){
+        /*public boolean isDepot(){
             return (x == 12 && y == 8) || (x == 42 && y == 42) || (x == 63 && y == 3);
-        }
+        }*/
     }
 
     @NotBlank
@@ -164,7 +165,6 @@ public class RouteDto {
                 }
             }
         }
-
     }
 
     public LocalDateTime transformDateSpeed(SimulationInfo simulationInfo, int speed, LocalDateTime dateToConvert){
@@ -258,6 +258,49 @@ public class RouteDto {
     }
 
     public void generateCornerNodes(){
+        //identificar depots con index
+        this.getRoute().get(0).setDepot(true);
+        this.getRoute().get(this.getRoute().size()-1).setDepot(true);
+
+        int index = 0;
+        LocalDateTime start = this.getStartDate(), curr;
+        Depot depot;
+        for (int i = 0; i < this.depots.size(); i++) {
+            depot = this.depots.get(i);
+            curr = depot.getRefillDate();
+            long seconds = Duration.between(start, curr).toSeconds();
+
+            int cantOrders = 0;
+            for (Order o : this.orders) {
+                if (o.deliveryDate.isAfter(depot.getRefillDate())) break;
+                cantOrders++;
+            }
+            index = (int) ((seconds - cantOrders * 10 * 60.0) / 72);
+            int x = this.getRoute().get(index).x, y = this.getRoute().get(index).y;
+            if (!((x == 12 && y == 8) || (x == 42 && y == 42) || (x == 63 && y == 3))) {
+                System.out.println("Planta mal identificada");
+                continue;
+            }
+            depot.setIndexRoute(index);
+            if (index < this.getRoute().size())
+                this.getRoute().get(index).setDepot(true);
+            /*if (index >= this.route.size()-4) index = this.route.size()-1;
+            if (i != this.depots.size()-1) {
+                Order nextOrder = this.orders.get(i+1);
+                if (nextOrder.getX() == order.getX() &&
+                        nextOrder.getY() == order.getY() &&
+                        nextOrder.getDeliveryDate().isAfter(order.getDeliveryDate().plusMinutes(7)) &&
+                        nextOrder.getDeliveryDate().isBefore(order.getDeliveryDate().plusMinutes(13))) {
+                    nextOrder.setIndexRoute(index);
+                    if (index < this.getRoute().size())
+                        this.getRoute().get(index).setOrder(true);
+                    start = start.plusMinutes(10);
+                    i++;
+//                    continue;
+                }
+            }*/
+        }
+
         //añadir glp a nodos si es pedido o planta intermedia
         int cantDepots = 0, cantOrders = 0;
         for(Node node : route){
@@ -282,7 +325,7 @@ public class RouteDto {
         int cant = 0;
         for(Node node : route){
             if(node.isDepot() && cant == 0){
-                cornerNodes.add(new Node(node.x, node.y, false, node.glp));
+                cornerNodes.add(new Node(node.x, node.y, false, true, node.glp));
                 orderOrDepotBefore = true;
                 cant++;
                 continue;
@@ -299,7 +342,7 @@ public class RouteDto {
                     //cambio de rumbo: horiz -> vert
                     if(horiz){
                         if(orderOrDepotBefore) orderOrDepotBefore = false;
-                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false, node.glp));
+                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false, false, node.glp));
                         horiz = false;
                     }
                 }
@@ -308,21 +351,21 @@ public class RouteDto {
                     //cambio de rumbo: vert -> horiz
                     if(!horiz){
                         if(orderOrDepotBefore) orderOrDepotBefore = false;
-                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false, node.glp));
+                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false, false, node.glp));
                         horiz = true;
                     }
                 }
                 else System.out.println("fallo nodeBefore != null");
             }
-            nodeBefore = new Node(node.x, node.y, node.order, node.glp);
+            nodeBefore = new Node(node.x, node.y, node.order, node.depot, node.glp);
             if(orderOrDepotBefore) orderOrDepotBefore = false;
 
             if(node.isDepot() && cant > 0){
-                cornerNodes.add(new Node(node.x, node.y, false, node.glp));
+                cornerNodes.add(new Node(node.x, node.y, false, true, node.glp));
                 orderOrDepotBefore = true;
             }
             else if(node.isOrder()){
-                cornerNodes.add(new Node(node.x, node.y, true, node.glp));
+                cornerNodes.add(new Node(node.x, node.y, true, false, node.glp));
                 orderOrDepotBefore = true;
             }
             cant++;
