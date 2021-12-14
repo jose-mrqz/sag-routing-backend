@@ -52,6 +52,7 @@ public class RouteDto {
         int x;
         int y;
         boolean order;
+        double glp;
 
         public boolean isDepot(){
             return (x == 12 && y == 8) || (x == 42 && y == 42) || (x == 63 && y == 3);
@@ -257,6 +258,23 @@ public class RouteDto {
     }
 
     public void generateCornerNodes(){
+        //añadir glp a nodos si es pedido o planta intermedia
+        int cantDepots = 0, cantOrders = 0;
+        for(Node node : route){
+            //planta intermedia
+            if(node.isDepot() && node.x != 12){
+                node.setGlp(depots.get(cantDepots).refilledGlp);
+                cantDepots++;
+                continue;
+            }
+            //order
+            if(node.isOrder()){
+                node.setGlp(orders.get(cantOrders).getDelivered());
+                cantOrders++;
+            }
+        }
+
+        //generar nodos esquina
         cornerNodes = new ArrayList<>();
         Node nodeBefore = null;
         boolean horiz = false;
@@ -264,7 +282,7 @@ public class RouteDto {
         int cant = 0;
         for(Node node : route){
             if(node.isDepot() && cant == 0){
-                cornerNodes.add(new Node(node.x, node.y, false));
+                cornerNodes.add(new Node(node.x, node.y, false, node.glp));
                 orderOrDepotBefore = true;
                 cant++;
                 continue;
@@ -281,7 +299,7 @@ public class RouteDto {
                     //cambio de rumbo: horiz -> vert
                     if(horiz){
                         if(orderOrDepotBefore) orderOrDepotBefore = false;
-                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
+                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false, node.glp));
                         horiz = false;
                     }
                 }
@@ -290,21 +308,21 @@ public class RouteDto {
                     //cambio de rumbo: vert -> horiz
                     if(!horiz){
                         if(orderOrDepotBefore) orderOrDepotBefore = false;
-                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false));
+                        else cornerNodes.add(new Node(nodeBefore.x, nodeBefore.y, false, node.glp));
                         horiz = true;
                     }
                 }
                 else System.out.println("fallo nodeBefore != null");
             }
-            nodeBefore = new Node(node.x, node.y, node.order);
+            nodeBefore = new Node(node.x, node.y, node.order, node.glp);
             if(orderOrDepotBefore) orderOrDepotBefore = false;
 
             if(node.isDepot() && cant > 0){
-                cornerNodes.add(new Node(node.x, node.y, false));
+                cornerNodes.add(new Node(node.x, node.y, false, node.glp));
                 orderOrDepotBefore = true;
             }
             else if(node.isOrder()){
-                cornerNodes.add(new Node(node.x, node.y, true));
+                cornerNodes.add(new Node(node.x, node.y, true, node.glp));
                 orderOrDepotBefore = true;
             }
             cant++;
