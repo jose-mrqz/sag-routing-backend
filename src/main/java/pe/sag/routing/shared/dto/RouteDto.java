@@ -260,7 +260,9 @@ public class RouteDto {
     public void generateCornerNodes(){
         //identificar depots con index
         this.getRoute().get(0).setDepot(true);
-        this.getRoute().get(this.getRoute().size()-1).setDepot(true);
+        if(this.getRoute().get(this.getRoute().size()-1).x == 12 &&
+                this.getRoute().get(this.getRoute().size()-1).y == 8)
+            this.getRoute().get(this.getRoute().size()-1).setDepot(true);
 
         int index = 0;
         LocalDateTime start = this.getStartDate(), curr;
@@ -278,7 +280,9 @@ public class RouteDto {
             index = (int) ((seconds - cantOrders * 10 * 60.0) / 72);
             int x = this.getRoute().get(index).x, y = this.getRoute().get(index).y;
             if (!((x == 12 && y == 8) || (x == 42 && y == 42) || (x == 63 && y == 3))) {
-                System.out.println("Planta mal identificada: "+i);
+                System.out.println("Planta mal identificada");
+                System.out.println("start="+start+", curr="+curr+", index="+index);
+                System.out.println("i="+i+", seconds="+seconds+", cantOrders="+cantOrders);
                 continue;
             }
             depot.setIndexRoute(index);
