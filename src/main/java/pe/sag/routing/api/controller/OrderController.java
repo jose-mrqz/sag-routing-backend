@@ -173,13 +173,16 @@ public class OrderController {
                 startDateReal = LocalDateTime.of(order.getRegistrationDate().toLocalDate(),order.getRegistrationDate().toLocalTime());
             }
         }
+
         LocalDateTime lastOrderDate = LocalDateTime.MIN;
+        LocalDateTime firstOrderDate = LocalDateTime.MAX;
         if (ordersRegistered.size() > 0) {
             for (Order o : ordersRegistered) {
-                if (o.getRegistrationDate().isAfter(lastOrderDate)) lastOrderDate = o.getRegistrationDate();
+                if (o.getRegistrationDate().isBefore(firstOrderDate)) firstOrderDate = o.getRegistrationDate();
+                if (o.getRegistrationDate().isAfter(lastOrderDate)) lastOrderDate = o.getDeadlineDate();
             }
         }
-        RouteController.simulationHelper.setStartDate(startDateReal);
+        RouteController.simulationHelper.setStartDate(firstOrderDate);
         RouteController.simulationHelper.setLastDate(lastOrderDate);
         RouteController.simulationHelper.setFirst(false);
         RouteController.simulationHelper.setSecond(false);
