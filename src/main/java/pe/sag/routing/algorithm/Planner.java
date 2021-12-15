@@ -153,9 +153,12 @@ public class Planner {
                     depot.getRemainingGlp().forEach((key, val) -> depot.originalState.put(key, val));
                 }
 
+                this.solutionRoutes.addAll(solutionRoutes);
+
                 for (int i = 0; i < trucks.size(); i++) {
                     Truck truck = trucks.get(i);
                     truck.reset();
+                    truck.setFinishDate(LocalDateTime.MIN);
                     for (Route route : solutionRoutes) {
                         if (route.truckId.compareTo(truck.get_id()) == 0) {
                             if (truck.getFinishDate().isBefore(route.getFinishDate())) {
@@ -167,8 +170,6 @@ public class Planner {
                         }
                     }
                 }
-
-                this.solutionRoutes.addAll(solutionRoutes);
 
                 for (int i = 0; i < orders.size(); i++) {
                     Order order = orders.get(i);
