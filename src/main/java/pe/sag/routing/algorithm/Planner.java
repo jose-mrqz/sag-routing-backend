@@ -162,7 +162,6 @@ public class Planner {
                             truck.startDate = route.getFinishDate();
                             truck.startingDate = route.getFinishDate();
                             truck.finished = false;
-                            break;
                         }
                     }
                 }
