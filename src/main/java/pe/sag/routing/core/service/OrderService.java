@@ -78,7 +78,10 @@ public class OrderService {
 
     public void updateStatus(Order order, OrderStatus status){
         order.setStatus(status);
-        if (status == OrderStatus.PROGRAMADO) order.setTotalDemand(0.0);
+        if (status == OrderStatus.PROGRAMADO) {
+            order.setTotalDemand(0.0);
+            order.setDemandGLP(0.0);
+        }
         orderRepository.save(order);
     }
 
