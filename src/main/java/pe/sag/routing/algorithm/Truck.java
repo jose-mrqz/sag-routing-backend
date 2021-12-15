@@ -192,8 +192,8 @@ public class Truck {
         }
         else visitDepot((Depot)n);
 
-        if (!tour.isEmpty() && n.idx == 0) finished = true;
         if (finishDate == null || nowTime.isAfter(finishDate)) finishDate = nowTime;
+        if (!tour.isEmpty() && n.idx == 0) finished = true;
 
         tour.add(n);
         nowIdx = n.idx;

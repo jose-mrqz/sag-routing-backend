@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RouteRepository extends MongoRepository<Route,String> {
-    Optional<Route> findTopByTruckIdAndMonitoringOrderByFinishDateDesc(String truck, boolean monitoring);
+    Optional<Route> findFirstByTruckIdAndMonitoringOrderByFinishDateDesc(String truck, boolean monitoring);
     Optional<Route> findByTruckIdAndMonitoringAndStartDateBeforeAndFinishDateAfter(String truckId, boolean monitoring, LocalDateTime startDate, LocalDateTime finishDate);
     List<Route> findByStartDateBeforeAndFinishDateAfterAndMonitoring(LocalDateTime startDate, LocalDateTime finishDate, boolean monitoring);
     List<Route> findByMonitoring(boolean monitoring);
