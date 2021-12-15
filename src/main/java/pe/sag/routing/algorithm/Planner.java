@@ -157,11 +157,9 @@ public class Planner {
 
                 for (int i = 0; i < trucks.size(); i++) {
                     Truck truck = trucks.get(i);
-                    truck.reset();
-                    truck.setFinishDate(LocalDateTime.MIN);
                     for (Route route : solutionRoutes) {
                         if (route.truckId.compareTo(truck.get_id()) == 0) {
-                            if (truck.getFinishDate().isBefore(route.getFinishDate())) {
+                            if (truck.getNowTime().isBefore(route.getFinishDate()) || truck.getStartingDate().isBefore(route.getFinishDate())) {
                                 truck.nowTime = route.getFinishDate();
                                 truck.startDate = route.getFinishDate();
                                 truck.startingDate = route.getFinishDate();
@@ -169,6 +167,7 @@ public class Planner {
                             }
                         }
                     }
+                    truck.reset();
                 }
 
                 for (int i = 0; i < orders.size(); i++) {
