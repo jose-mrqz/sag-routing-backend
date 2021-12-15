@@ -278,12 +278,13 @@ public class RouteDto {
             index = (int) ((seconds - cantOrders * 10 * 60.0) / 72);
             int x = this.getRoute().get(index).x, y = this.getRoute().get(index).y;
             if (!((x == 12 && y == 8) || (x == 42 && y == 42) || (x == 63 && y == 3))) {
-                System.out.println("Planta mal identificada");
+                System.out.println("Planta mal identificada: "+i);
                 continue;
             }
             depot.setIndexRoute(index);
             if (index < this.getRoute().size())
                 this.getRoute().get(index).setDepot(true);
+            else System.out.println("Indice menor a tamaño: "+index);
             /*if (index >= this.route.size()-4) index = this.route.size()-1;
             if (i != this.depots.size()-1) {
                 Order nextOrder = this.orders.get(i+1);
@@ -306,12 +307,20 @@ public class RouteDto {
         for(Node node : route){
             //planta intermedia
             if(node.isDepot() && node.x != 12){
+                if(depots.size()<=cantDepots){
+                    System.out.println("Size de Depots: "+depots.size()+", Cant de depots: "+cantDepots);
+                    continue;
+                }
                 node.setGlp(depots.get(cantDepots).refilledGlp);
                 cantDepots++;
                 continue;
             }
             //order
             if(node.isOrder()){
+                if(orders.size()<=cantOrders){
+                    System.out.println("Size de Orders: "+orders.size()+", Cant de orders: "+cantOrders);
+                    continue;
+                }
                 node.setGlp(orders.get(cantOrders).getDelivered());
                 cantOrders++;
             }
