@@ -280,19 +280,37 @@ public class RouteDto {
             index = (int) ((seconds - cantOrders * 10 * 60.0) / 72);
             int x = this.getRoute().get(index).x, y = this.getRoute().get(index).y;
             if (!((x == 42 && y == 42) || (x == 63 && y == 3))) {
-                System.out.println("Planta mal identificada - camion "+this.getTruckCode());
-                System.out.println("start="+start+", curr="+curr);
-                System.out.println("i="+i+", seconds="+seconds+", cantOrders="+cantOrders);
-                System.out.println("Nodo -2 ("+(index-2)+") - x="+this.getRoute().get(index-2).x+", y="+this.getRoute().get(index-2).y);
-                System.out.println("Nodo -1 ("+(index-1)+") - x="+this.getRoute().get(index-1).x+", y="+this.getRoute().get(index-1).y);
-                System.out.println("Nodo  0 ("+index    +") - x="+x+", y="+y);
-                if(this.getRoute().size()>index+1) {
+                /*System.out.println("Planta mal identificada - camion " + this.getTruckCode());
+                System.out.println("start=" + start + ", curr=" + curr);
+                System.out.println("i=" + i + ", seconds=" + seconds + ", cantOrders=" + cantOrders);
+                System.out.println("Nodo -2 (" + (index - 2) + ") - x=" + this.getRoute().get(index - 2).x + ", y=" + this.getRoute().get(index - 2).y);
+                System.out.println("Nodo -1 (" + (index - 1) + ") - x=" + this.getRoute().get(index - 1).x + ", y=" + this.getRoute().get(index - 1).y);
+                System.out.println("Nodo  0 (" + index + ") - x=" + x + ", y=" + y);
+                if (this.getRoute().size() > index + 1) {
                     System.out.println("Nodo  1 (" + (index + 1) + ") - x=" + this.getRoute().get(index + 1).x + ", y=" + this.getRoute().get(index + 1).y);
                 }
-                if(this.getRoute().size()>index+2){
-                    System.out.println("Nodo  2 ("+(index+2)+") - x="+this.getRoute().get(index+2).x+", y="+this.getRoute().get(index+2).y);
+                if (this.getRoute().size() > index + 2) {
+                    System.out.println("Nodo  2 (" + (index + 2) + ") - x=" + this.getRoute().get(index + 2).x + ", y=" + this.getRoute().get(index + 2).y);
+                }*/
+
+                index = index + 1;
+                x = this.getRoute().get(index).x;
+                y = this.getRoute().get(index).y;
+                if (!((x == 42 && y == 42) || (x == 63 && y == 3))) {
+                    System.out.println("Planta mal identificada - camion " + this.getTruckCode());
+                    System.out.println("start=" + start + ", curr=" + curr);
+                    System.out.println("i=" + i + ", seconds=" + seconds + ", cantOrders=" + cantOrders);
+                    System.out.println("Nodo -2 (" + (index - 2) + ") - x=" + this.getRoute().get(index - 2).x + ", y=" + this.getRoute().get(index - 2).y);
+                    System.out.println("Nodo -1 (" + (index - 1) + ") - x=" + this.getRoute().get(index - 1).x + ", y=" + this.getRoute().get(index - 1).y);
+                    System.out.println("Nodo  0 (" + index + ") - x=" + x + ", y=" + y);
+                    if (this.getRoute().size() > index + 1) {
+                        System.out.println("Nodo  1 (" + (index + 1) + ") - x=" + this.getRoute().get(index + 1).x + ", y=" + this.getRoute().get(index + 1).y);
+                    }
+                    if (this.getRoute().size() > index + 2) {
+                        System.out.println("Nodo  2 (" + (index + 2) + ") - x=" + this.getRoute().get(index + 2).x + ", y=" + this.getRoute().get(index + 2).y);
+                    }
+                    continue;
                 }
-                continue;
             }
             depot.setIndexRoute(index);
             if (index < this.getRoute().size())
