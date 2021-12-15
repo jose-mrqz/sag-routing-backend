@@ -158,10 +158,12 @@ public class Planner {
                     truck.reset();
                     for (Route route : solutionRoutes) {
                         if (route.truckId.compareTo(truck.get_id()) == 0) {
-                            truck.nowTime = route.getFinishDate();
-                            truck.startDate = route.getFinishDate();
-                            truck.startingDate = route.getFinishDate();
-                            truck.finished = false;
+                            if (truck.getFinishDate().isBefore(route.getFinishDate())) {
+                                truck.nowTime = route.getFinishDate();
+                                truck.startDate = route.getFinishDate();
+                                truck.startingDate = route.getFinishDate();
+                                truck.finished = false;
+                            }
                         }
                     }
                 }
