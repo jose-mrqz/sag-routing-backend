@@ -143,7 +143,7 @@ public class OrderService {
         Optional<Order> orderOptional = orderRepository.findBy_id(id);
         if (orderOptional.isPresent()) {
             Order order = orderOptional.get();
-            order.setTotalDemand(amount + order.getDemandGLP());
+            order.setDemandGLP(amount + order.getDemandGLP());
             orderScheduler.cancelStatusChange(id);
             order.setStatus(OrderStatus.PENDIENTE);
             order.setDeliveryDate(null);
